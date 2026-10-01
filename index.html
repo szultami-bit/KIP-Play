@@ -1,137 +1,476 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>KIP Anagram Party v1.9</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KIP Anagram Party v1.10</title>
 <style>
-*{box-sizing:border-box} body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#07111f,#10214a);color:#fff;min-height:100vh}
-.wrap{max-width:1180px;margin:auto;padding:18px} .card{background:#0f1a30;border:1px solid #ffffff20;border-radius:24px;padding:22px;box-shadow:0 20px 60px #0005}
-.hidden{display:none!important} .center{text-align:center} h1{font-size:clamp(38px,6vw,76px);margin:10px 0} h2{font-size:clamp(28px,4vw,44px)}
-button,select,input{font:inherit} button{border:0;border-radius:14px;padding:14px 18px;font-weight:800;cursor:pointer} .primary{background:#fbbf24;color:#111827} .secondary{background:#22304f;color:#fff} .ok{background:#22c55e;color:white} .bad{background:#ef4444;color:white} .info{background:#0891b2;color:white}
-.controls{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px} .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-top:18px}
-.choice{min-height:110px;font-size:20px} .small{color:#cbd5e1;font-size:13px} .badge{display:inline-block;background:#22304f;padding:8px 12px;border-radius:999px;font-weight:800;margin:4px}
-.settings{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px} .box{background:#10192d;border-radius:16px;padding:14px} label{display:block;color:#cbd5e1;font-weight:700;margin-bottom:6px} select,input{width:100%;padding:11px;border-radius:10px;border:1px solid #ffffff22;background:#0b1325;color:white}
-.turn{background:linear-gradient(135deg,#f59e0b,#ec4899);padding:14px;border-radius:16px;font-size:26px;font-weight:900;text-align:center;margin:14px 0}
-.board{display:grid;grid-template-columns:repeat(4,1fr);gap:12px} .tile{aspect-ratio:1.15/1;background:#2563eb;color:white;font-size:30px} .tile.used{background:#334155;color:#94a3b8}
-.scores{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px} .team{background:#111a2d;border-radius:16px;padding:14px;text-align:center} .team.active{outline:3px solid #fbbf24} .score{font-size:34px;font-weight:900}
-.letters{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:20px 0} .letter{width:68px;height:78px;background:white;color:#111827;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:42px;font-weight:900}
-.hint{font-size:18px;color:#cbd5e1} .answer{font-size:clamp(42px,6vw,72px);font-weight:900;margin:18px} .emoji{font-size:clamp(90px,18vw,190px)} .timer{font-size:46px;font-weight:900} .danger{color:#fecaca;background:#7f1d1d;border-radius:14px;padding:6px 14px}
-.diff-Easy{background:#14532d} .diff-Medium{background:#78350f} .diff-Hard{background:#7f1d1d}
-.editorrow{display:flex;justify-content:space-between;gap:10px;align-items:center;background:#111a2d;padding:10px;border-radius:12px;margin:8px 0}
-@media(max-width:720px){.board{grid-template-columns:repeat(3,1fr)}.scores{grid-template-columns:repeat(2,1fr)}.letter{width:54px;height:62px;font-size:34px}}
+:root {
+  --bg: #07111f;
+  --surface: #0e1a2b;
+  --surface-2: #14233a;
+  --surface-3: #1c2d49;
+  --line: rgba(255,255,255,.10);
+  --text: #f8fafc;
+  --muted: #aebbd0;
+  --yellow: #fbbf24;
+  --yellow-2: #f59e0b;
+  --blue: #3b82f6;
+  --cyan: #06b6d4;
+  --green: #22c55e;
+  --red: #ef4444;
+  --pink: #ec4899;
+  --shadow: 0 24px 70px rgba(0,0,0,.28);
+}
+* { box-sizing: border-box; }
+html, body { margin:0; min-height:100%; }
+body {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at 10% 0%, rgba(59,130,246,.18), transparent 34%),
+    radial-gradient(circle at 100% 20%, rgba(236,72,153,.12), transparent 28%),
+    linear-gradient(145deg, #06101e 0%, #0b1730 100%);
+}
+button, select, input { font: inherit; }
+button { cursor:pointer; }
+.app { min-height:100vh; padding:24px; }
+.shell { max-width:1180px; margin:0 auto; }
+.page { display:none; }
+.page.active { display:block; }
+.panel {
+  background: linear-gradient(180deg, rgba(16,29,49,.98), rgba(12,23,40,.98));
+  border:1px solid var(--line);
+  border-radius:28px;
+  box-shadow: var(--shadow);
+  overflow:hidden;
+}
+.panel-body { padding:28px; }
+.header {
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  margin-bottom:20px;
+}
+.brand { display:flex; align-items:center; gap:12px; }
+.logo {
+  width:46px; height:46px; border-radius:14px;
+  display:grid; place-items:center; font-size:24px;
+  background:linear-gradient(135deg,var(--yellow),var(--pink));
+  box-shadow:0 10px 28px rgba(245,158,11,.25);
+}
+.brand-title { font-weight:900; letter-spacing:.3px; }
+.brand-sub { color:var(--muted); font-size:12px; margin-top:2px; }
+.btn {
+  border:0; border-radius:14px; padding:12px 16px; font-weight:800;
+  color:white; background:var(--surface-3); transition:.15s ease;
+}
+.btn:hover { transform:translateY(-1px); filter:brightness(1.08); }
+.btn-primary { background:linear-gradient(135deg,var(--yellow),var(--yellow-2)); color:#111827; }
+.btn-info { background:linear-gradient(135deg,#0891b2,#0e7490); }
+.btn-good { background:linear-gradient(135deg,#22c55e,#16a34a); }
+.btn-bad { background:linear-gradient(135deg,#ef4444,#dc2626); }
+.btn-ghost { background:transparent; border:1px solid var(--line); }
+.hero {
+  padding:56px 34px 40px; text-align:center;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(251,191,36,.12), transparent 38%);
+}
+.hero-icon { font-size:72px; line-height:1; margin-bottom:16px; }
+.hero h1 {
+  margin:0; font-size:clamp(42px,7vw,78px); line-height:.96;
+  letter-spacing:-2px;
+}
+.hero p { color:var(--muted); font-size:18px; margin:18px auto 0; max-width:720px; }
+.actions { display:flex; flex-wrap:wrap; justify-content:center; gap:12px; margin-top:28px; }
+.version { margin-top:22px; color:#7f8da5; font-size:12px; }
+.resume {
+  margin:24px auto 0; max-width:560px; padding:16px;
+  border:1px solid var(--line); background:rgba(59,130,246,.08);
+  border-radius:18px;
+}
+.resume.hidden { display:none; }
+.stepbar {
+  display:grid; grid-template-columns:repeat(4,1fr); gap:8px;
+  margin-bottom:20px;
+}
+.step {
+  padding:10px 12px; border-radius:12px; text-align:center; font-size:12px; font-weight:800;
+  color:#7f8da5; background:#0b1527; border:1px solid rgba(255,255,255,.06);
+}
+.step.on { color:#111827; background:var(--yellow); }
+.title-row { margin-bottom:22px; }
+.title-row h2 { margin:0; font-size:clamp(28px,4vw,42px); }
+.title-row p { margin:8px 0 0; color:var(--muted); }
+.settings-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+.field {
+  background:rgba(255,255,255,.035); border:1px solid var(--line);
+  border-radius:18px; padding:14px;
+}
+.field label { display:block; font-size:12px; color:var(--muted); font-weight:800; margin-bottom:8px; text-transform:uppercase; letter-spacing:.7px; }
+.field select,.field input {
+  width:100%; padding:12px 13px; border-radius:12px;
+  border:1px solid var(--line); background:#091425; color:white; outline:none;
+}
+.team-names { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:10px; }
+.navrow { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-top:22px; }
+.cards { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+.card-btn {
+  min-height:145px; padding:20px; border:1px solid var(--line);
+  border-radius:22px; color:white; text-align:left;
+  background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.025));
+}
+.card-btn:hover { border-color:rgba(251,191,36,.45); background:rgba(251,191,36,.08); }
+.card-emoji { font-size:34px; margin-bottom:18px; }
+.card-name { font-size:20px; font-weight:900; }
+.card-meta { color:var(--muted); font-size:12px; margin-top:8px; line-height:1.45; }
+.board-head {
+  display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; margin-bottom:14px;
+}
+.pills { display:flex; gap:8px; flex-wrap:wrap; }
+.pill {
+  border-radius:999px; padding:8px 11px; font-weight:800; font-size:12px;
+  background:var(--surface-3); color:#dce7f8;
+}
+.turn {
+  padding:14px 18px; border-radius:16px; text-align:center; font-size:24px; font-weight:900;
+  background:linear-gradient(135deg,#f59e0b,#ec4899);
+  margin-bottom:14px;
+}
+.board-panel { padding:22px; }
+.board-title { text-align:center; margin:0 0 16px; font-size:25px; }
+.board-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+.qbox {
+  min-height:100px; border:0; border-radius:18px;
+  color:white; font-size:28px; font-weight:900;
+  background:linear-gradient(145deg,#2563eb,#1d4ed8);
+  box-shadow:inset 0 -7px 0 rgba(0,0,0,.16);
+}
+.qbox:nth-child(3n+2) { background:linear-gradient(145deg,#7c3aed,#9333ea); }
+.qbox:nth-child(3n) { background:linear-gradient(145deg,#db2777,#ec4899); }
+.qbox.used { background:#26354e; color:#74839a; box-shadow:none; cursor:default; }
+.progress { margin:16px 0 0; color:var(--muted); text-align:center; font-size:13px; }
+.score-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:14px; }
+.score-card {
+  border-radius:18px; border:1px solid var(--line); padding:15px; text-align:center;
+  background:rgba(255,255,255,.035);
+}
+.score-card.active { border-color:var(--yellow); box-shadow:0 0 0 2px rgba(251,191,36,.20) inset; }
+.score-name { font-weight:900; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.score-num { font-size:34px; font-weight:1000; margin-top:4px; }
+.question-layout { max-width:850px; margin:0 auto; text-align:center; }
+.question-top { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:14px; }
+.question-title { font-size:clamp(30px,5vw,48px); margin:18px 0 12px; }
+.timer { display:inline-grid; place-items:center; min-width:92px; height:58px; border-radius:16px; background:#091425; font-size:30px; font-weight:1000; }
+.timer.danger { background:#7f1d1d; }
+.letters {
+  display:flex; justify-content:center; flex-wrap:wrap; gap:10px;
+  padding:26px 16px; margin:16px 0;
+  background:#091425; border:1px solid var(--line); border-radius:22px;
+}
+.letter {
+  width:68px; height:78px; display:grid; place-items:center; border-radius:15px;
+  background:linear-gradient(180deg,#fff,#dce8ff); color:#0f172a;
+  font-size:42px; font-weight:1000; box-shadow:0 10px 18px rgba(0,0,0,.22);
+}
+.hint {
+  color:#d7e0ef; font-size:18px; padding:14px 18px;
+  background:rgba(255,255,255,.04); border-radius:16px; border:1px solid var(--line);
+}
+.answer-panel {
+  margin-top:16px; padding:24px; border-radius:22px; border:1px solid var(--line);
+  background:linear-gradient(180deg,#f8fafc,#e9f0fb); color:#0f172a;
+}
+.answer-panel.hidden,.hidden { display:none!important; }
+.answer-emoji { font-size:120px; line-height:1.1; }
+.answer-word { font-size:clamp(42px,7vw,70px); font-weight:1000; letter-spacing:1px; margin-top:8px; }
+.result {
+  margin-top:14px; border-radius:18px; padding:16px; font-size:26px; font-weight:1000;
+  background:linear-gradient(135deg,#f59e0b,#ec4899);
+}
+.diff { display:inline-block; padding:7px 11px; border-radius:999px; font-size:12px; font-weight:900; }
+.diff-Easy { background:#14532d; color:#dcfce7; }
+.diff-Medium { background:#78350f; color:#fef3c7; }
+.diff-Hard { background:#7f1d1d; color:#fee2e2; }
+.bank-layout { display:grid; grid-template-columns:300px 1fr; gap:16px; }
+.bank-list { display:flex; flex-direction:column; gap:8px; max-height:620px; overflow:auto; padding-right:5px; }
+.bank-item {
+  display:flex; justify-content:space-between; gap:12px; align-items:center;
+  padding:13px 14px; border:1px solid var(--line); border-radius:14px; background:rgba(255,255,255,.03);
+}
+.bank-answer { font-weight:900; }
+.bank-hint { color:var(--muted); font-size:12px; margin-top:3px; }
+.empty { color:var(--muted); text-align:center; padding:30px; }
+@media (max-width:980px) {
+  .settings-grid{grid-template-columns:repeat(2,1fr)}
+  .cards{grid-template-columns:repeat(2,1fr)}
+  .bank-layout{grid-template-columns:1fr}
+}
+@media (max-width:680px) {
+  .app{padding:10px}
+  .panel-body{padding:18px}
+  .hero{padding:38px 18px 28px}
+  .settings-grid{grid-template-columns:1fr}
+  .cards{grid-template-columns:1fr}
+  .team-names{grid-template-columns:1fr 1fr}
+  .board-grid{grid-template-columns:repeat(3,1fr)}
+  .score-grid{grid-template-columns:repeat(2,1fr)}
+  .stepbar{grid-template-columns:repeat(2,1fr)}
+  .letter{width:52px;height:60px;font-size:32px}
+  .answer-emoji{font-size:92px}
+}
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="app">
+<div class="shell">
 
-<section id="home" class="card center">
-<div style="font-size:70px">🔤🎉</div>
-<h1>KIP ANAGRAM PARTY</h1>
-<p class="small">v1.9 Stable Edition</p>
-<div class="controls">
-<button class="primary" onclick="show('settings')">PLAY GAME</button>
-<button class="info" onclick="openBank()">QUESTION BANK</button>
-</div>
-<div id="resumePanel" class="hidden" style="margin-top:18px">
-<p>Saved game found.</p><button class="primary" onclick="resumeGame()">RESUME</button>
-</div>
+<section id="home" class="page active">
+  <div class="panel">
+    <div class="hero">
+      <div class="hero-icon">🔤🎉</div>
+      <h1>KIP ANAGRAM<br>PARTY</h1>
+      <p>A clean classroom game for vocabulary, teamwork, and speaking practice.</p>
+      <div class="actions">
+        <button class="btn btn-primary" onclick="go('settings')">▶ Play Game</button>
+        <button class="btn btn-info" onclick="openBank()">Question Bank</button>
+      </div>
+      <div id="resumeBox" class="resume hidden">
+        <strong>Saved game found</strong>
+        <div class="actions" style="margin-top:12px">
+          <button class="btn btn-primary" onclick="resumeGame()">Resume Game</button>
+          <button class="btn btn-ghost" onclick="clearSaved()">Discard</button>
+        </div>
+      </div>
+      <div class="version">KIP Play • v1.10 Clean UI</div>
+    </div>
+  </div>
 </section>
 
-<section id="settings" class="card hidden">
-<h2 class="center">Game Settings</h2>
-<div class="settings">
-<div class="box"><label>Teams</label><select id="teamCount" onchange="renderTeamNames()"><option>2</option><option>3</option><option selected>4</option></select></div>
-<div class="box"><label>Timer</label><select id="timerSec"><option value="0">Off</option><option value="10">10 sec</option><option value="15" selected>15 sec</option><option value="20">20 sec</option><option value="30">30 sec</option></select></div>
-<div class="box"><label>Difficulty</label><select id="difficulty"><option value="all">All</option><option>Easy</option><option>Medium</option><option>Hard</option></select></div>
-<div class="box"><label>Question Order</label><select id="order"><option value="random">Random</option><option value="fixed">Bank Order</option></select></div>
-<div class="box"><label>Anagram</label><select id="anagramMode"><option value="random">Random</option><option value="saved">Saved</option></select></div>
-<div class="box"><label>Points</label><select id="pointsMode"><option value="random">Random 10–50</option><option value="20">Fixed 20</option><option value="10">Fixed 10</option></select></div>
-</div>
-<div class="box" style="margin-top:14px"><label>Team Names</label><div id="teamNames" class="grid"></div></div>
-<div class="controls"><button class="secondary" onclick="show('home')">Back</button><button class="primary" onclick="saveSettings()">NEXT</button></div>
+<section id="settings" class="page">
+  <div class="panel">
+    <div class="panel-body">
+      <div class="header">
+        <div class="brand"><div class="logo">K</div><div><div class="brand-title">KIP Anagram Party</div><div class="brand-sub">Game setup</div></div></div>
+        <button class="btn btn-ghost" onclick="go('home')">Home</button>
+      </div>
+      <div class="stepbar"><div class="step on">1. Setup</div><div class="step">2. Level</div><div class="step">3. Topic</div><div class="step">4. Play</div></div>
+      <div class="title-row"><h2>Game Settings</h2><p>Choose the class setup before starting.</p></div>
+      <div class="settings-grid">
+        <div class="field"><label>Teams</label><select id="teamCount" onchange="renderTeamNames()"><option value="2">2 Teams</option><option value="3">3 Teams</option><option value="4" selected>4 Teams</option></select></div>
+        <div class="field"><label>Timer</label><select id="timerSec"><option value="0">Off</option><option value="10">10 seconds</option><option value="15" selected>15 seconds</option><option value="20">20 seconds</option><option value="30">30 seconds</option></select></div>
+        <div class="field"><label>Difficulty</label><select id="difficulty"><option value="all">All Difficulties</option><option>Easy</option><option>Medium</option><option>Hard</option></select></div>
+        <div class="field"><label>Question Order</label><select id="order"><option value="random">Random</option><option value="fixed">Bank Order</option></select></div>
+        <div class="field"><label>Anagram Mode</label><select id="anagramMode"><option value="random">Randomized</option><option value="saved">Saved Anagram</option></select></div>
+        <div class="field"><label>Points</label><select id="pointsMode"><option value="random">Random 10–50</option><option value="20">Fixed 20</option><option value="10">Fixed 10</option></select></div>
+      </div>
+      <div class="field" style="margin-top:14px"><label>Team Names</label><div id="teamNames" class="team-names"></div></div>
+      <div class="navrow"><button class="btn btn-ghost" onclick="go('home')">← Back</button><button class="btn btn-primary" onclick="saveSettings()">Choose Level →</button></div>
+    </div>
+  </div>
 </section>
 
-<section id="level" class="card hidden"><h2 class="center">Choose Level</h2><div id="levelGrid" class="grid"></div></section>
-<section id="topic" class="card hidden"><h2 class="center" id="topicTitle">Choose Topic</h2><div id="topicGrid" class="grid"></div></section>
-<section id="count" class="card hidden"><h2 class="center">How Many Questions?</h2><p id="countInfo" class="center small"></p><div id="countGrid" class="grid"></div></section>
-
-<section id="board" class="hidden">
-<div class="controls" style="justify-content:space-between"><div><button class="secondary" onclick="goHome()">Home</button> <button class="secondary" onclick="toggleFull()">Fullscreen</button></div><div><span id="levelBadge" class="badge"></span><span id="topicBadge" class="badge"></span></div></div>
-<div id="turnBoard" class="turn"></div>
-<div class="card"><h2 class="center">CHOOSE A BOX</h2><div id="boardGrid" class="board"></div><p id="progress" class="center small"></p></div>
-<div id="scoreGrid" class="scores"></div>
+<section id="level" class="page">
+  <div class="panel"><div class="panel-body">
+    <div class="header"><div class="brand"><div class="logo">K</div><div><div class="brand-title">Choose Level</div><div class="brand-sub">Match the class ability</div></div></div><button class="btn btn-ghost" onclick="go('settings')">Back</button></div>
+    <div class="stepbar"><div class="step">1. Setup</div><div class="step on">2. Level</div><div class="step">3. Topic</div><div class="step">4. Play</div></div>
+    <div id="levelCards" class="cards"></div>
+  </div></div>
 </section>
 
-<section id="question" class="card center hidden">
-<div class="controls" style="justify-content:space-between"><button class="secondary" onclick="show('board')">Back</button><span id="qNum" class="badge"></span></div>
-<div id="turnQuestion" class="turn"></div>
-<span id="diffBadge" class="badge"></span>
-<h2>Unscramble the word!</h2>
-<div id="timerWrap"><div id="timer" class="timer"></div></div>
-<div id="letters" class="letters"></div>
-<div id="hint" class="hint"></div>
-<div id="answerPanel" class="hidden"><div id="emoji" class="emoji"></div><div id="answer" class="answer"></div></div>
-<div id="resultMsg" class="hidden" style="font-size:28px;font-weight:900;margin-top:14px"></div>
-<div class="controls">
-<button id="showAnswerBtn" class="primary" onclick="reveal()">SHOW ANSWER</button>
-<button id="correctBtn" class="ok hidden" onclick="mark(true)">CORRECT</button>
-<button id="wrongBtn" class="bad hidden" onclick="mark(false)">WRONG</button>
-<button id="nextBtn" class="primary hidden" onclick="nextTurn()">NEXT TURN</button>
-</div>
+<section id="topic" class="page">
+  <div class="panel"><div class="panel-body">
+    <div class="header"><div class="brand"><div class="logo">K</div><div><div id="topicHead" class="brand-title">Choose Topic</div><div class="brand-sub">Select vocabulary focus</div></div></div><button class="btn btn-ghost" onclick="go('level')">Back</button></div>
+    <div class="stepbar"><div class="step">1. Setup</div><div class="step">2. Level</div><div class="step on">3. Topic</div><div class="step">4. Play</div></div>
+    <div id="topicCards" class="cards"></div>
+  </div></div>
 </section>
 
-<section id="finish" class="card center hidden"><div style="font-size:80px">🏆</div><h2>Game Finished</h2><div id="winner" style="font-size:42px;font-weight:900"></div><div id="finalScores" style="margin:20px"></div><button class="primary" onclick="goHome()">PLAY AGAIN</button></section>
-
-<section id="bank" class="card hidden">
-<div class="controls" style="justify-content:space-between"><h2>Question Bank</h2><button class="secondary" onclick="show('home')">Home</button></div>
-<div class="settings">
-<div class="box"><label>Level</label><select id="bankLevel" onchange="renderBankTopics()"></select></div>
-<div class="box"><label>Topic</label><select id="bankTopic" onchange="renderBankList()"></select></div>
-</div>
-<div id="bankStats" class="small" style="margin:14px 0"></div>
-<div id="bankList"></div>
-<p class="small">v1.9 uses a clean built-in bank. Every topic has at least 12 questions.</p>
+<section id="count" class="page">
+  <div class="panel"><div class="panel-body">
+    <div class="header"><div class="brand"><div class="logo">K</div><div><div class="brand-title">Question Count</div><div id="countMeta" class="brand-sub"></div></div></div><button class="btn btn-ghost" onclick="go('topic')">Back</button></div>
+    <div id="countCards" class="cards"></div>
+  </div></div>
 </section>
 
-</div>
+<section id="board" class="page">
+  <div class="board-head">
+    <div class="actions" style="margin:0;justify-content:flex-start"><button class="btn btn-ghost" onclick="goHome()">Home</button><button class="btn btn-ghost" onclick="toggleFull()">⛶ Fullscreen</button></div>
+    <div class="pills"><span id="levelPill" class="pill"></span><span id="topicPill" class="pill"></span></div>
+  </div>
+  <div id="turnBoard" class="turn"></div>
+  <div class="panel"><div class="board-panel">
+    <h2 class="board-title">Choose a Box</h2>
+    <div id="boardGrid" class="board-grid"></div>
+    <div id="progress" class="progress"></div>
+  </div></div>
+  <div id="scoreGrid" class="score-grid"></div>
+</section>
+
+<section id="question" class="page">
+  <div class="panel"><div class="panel-body question-layout">
+    <div class="question-top"><button class="btn btn-ghost" onclick="go('board')">← Board</button><div><span id="qPill" class="pill"></span> <span id="diffBadge" class="diff"></span></div></div>
+    <div id="turnQuestion" class="turn"></div>
+    <h2 class="question-title">Unscramble the word</h2>
+    <div id="timerWrap"><div id="timer" class="timer"></div></div>
+    <div id="letters" class="letters"></div>
+    <div id="hint" class="hint"></div>
+    <div id="answerPanel" class="answer-panel hidden"><div id="answerEmoji" class="answer-emoji"></div><div id="answerWord" class="answer-word"></div></div>
+    <div id="result" class="result hidden"></div>
+    <div class="actions">
+      <button id="showAnswerBtn" class="btn btn-primary" onclick="reveal()">Show Answer</button>
+      <button id="correctBtn" class="btn btn-good hidden" onclick="mark(true)">✓ Correct</button>
+      <button id="wrongBtn" class="btn btn-bad hidden" onclick="mark(false)">✕ Wrong</button>
+      <button id="nextBtn" class="btn btn-primary hidden" onclick="nextTurn()">Next Turn →</button>
+    </div>
+  </div></div>
+</section>
+
+<section id="finish" class="page">
+  <div class="panel"><div class="hero">
+    <div class="hero-icon">🏆</div><h1 style="font-size:clamp(38px,6vw,68px)">Game Finished</h1>
+    <div id="winnerText" style="font-size:28px;font-weight:900;margin-top:18px"></div>
+    <div id="finalScores" style="margin-top:14px;color:var(--muted)"></div>
+    <div class="actions"><button class="btn btn-primary" onclick="goHome()">Play Again</button></div>
+  </div></div>
+</section>
+
+<section id="bank" class="page">
+  <div class="panel"><div class="panel-body">
+    <div class="header"><div class="brand"><div class="logo">K</div><div><div class="brand-title">Question Bank</div><div class="brand-sub">20 topics • 240 questions</div></div></div><button class="btn btn-ghost" onclick="go('home')">Home</button></div>
+    <div class="bank-layout">
+      <div>
+        <div class="field"><label>Level</label><select id="bankLevel" onchange="renderBankTopics()"></select></div>
+        <div class="field" style="margin-top:12px"><label>Topic</label><select id="bankTopic" onchange="renderBankList()"></select></div>
+        <div id="bankStats" class="card-meta" style="margin-top:12px"></div>
+      </div>
+      <div id="bankList" class="bank-list"></div>
+    </div>
+  </div></div>
+</section>
+
+</div></div>
 
 <script>
 const BANK={"Junior Kid": {"Animals": [{"a": "Cat", "scr": "TCA", "e": "🐱", "hint": "It says meow.", "difficulty": "Easy"}, {"a": "Dog", "scr": "GDO", "e": "🐶", "hint": "It says woof.", "difficulty": "Easy"}, {"a": "Fish", "scr": "SIFH", "e": "🐟", "hint": "It swims in water.", "difficulty": "Easy"}, {"a": "Bird", "scr": "IBRD", "e": "🐦", "hint": "It has wings.", "difficulty": "Easy"}, {"a": "Duck", "scr": "KCDU", "e": "🦆", "hint": "It says quack.", "difficulty": "Medium"}, {"a": "Frog", "scr": "RFGO", "e": "🐸", "hint": "It can jump and lives near water.", "difficulty": "Medium"}, {"a": "Lion", "scr": "NIOL", "e": "🦁", "hint": "It is a big wild cat.", "difficulty": "Medium"}, {"a": "Tiger", "scr": "IEGRT", "e": "🐯", "hint": "It has black stripes.", "difficulty": "Medium"}, {"a": "Panda", "scr": "PNAAD", "e": "🐼", "hint": "It is black and white.", "difficulty": "Hard"}, {"a": "Rabbit", "scr": "BBRIAT", "e": "🐰", "hint": "It has long ears.", "difficulty": "Hard"}, {"a": "Monkey", "scr": "YNEOMK", "e": "🐵", "hint": "It can climb trees.", "difficulty": "Hard"}, {"a": "Elephant", "scr": "PLEHEANT", "e": "🐘", "hint": "It has a long trunk.", "difficulty": "Hard"}], "Food & Drinks": [{"a": "Rice", "scr": "CIER", "e": "🍚", "hint": "A common food in Indonesia.", "difficulty": "Easy"}, {"a": "Egg", "scr": "GGE", "e": "🥚", "hint": "A chicken can give us this.", "difficulty": "Easy"}, {"a": "Milk", "scr": "KMIL", "e": "🥛", "hint": "A white drink.", "difficulty": "Easy"}, {"a": "Water", "scr": "RTAEW", "e": "💧", "hint": "We drink it every day.", "difficulty": "Easy"}, {"a": "Bread", "scr": "DEBAR", "e": "🍞", "hint": "We can make toast with it.", "difficulty": "Medium"}, {"a": "Apple", "scr": "PLPEA", "e": "🍎", "hint": "A red or green fruit.", "difficulty": "Medium"}, {"a": "Banana", "scr": "ANABAN", "e": "🍌", "hint": "A long yellow fruit.", "difficulty": "Medium"}, {"a": "Juice", "scr": "JICEU", "e": "🧃", "hint": "A drink made from fruit.", "difficulty": "Medium"}, {"a": "Pizza", "scr": "ZAIZP", "e": "🍕", "hint": "A round food with cheese.", "difficulty": "Hard"}, {"a": "Noodles", "scr": "DLOOESN", "e": "🍜", "hint": "Long thin food often served hot.", "difficulty": "Hard"}, {"a": "Chicken", "scr": "ICHKCEN", "e": "🍗", "hint": "A common type of meat.", "difficulty": "Hard"}, {"a": "Sandwich", "scr": "ASHNCIWD", "e": "🥪", "hint": "Food between slices of bread.", "difficulty": "Hard"}], "Colors & Shapes": [{"a": "Red", "scr": "EDR", "e": "🔴", "hint": "The color of many roses.", "difficulty": "Easy"}, {"a": "Blue", "scr": "EULB", "e": "🔵", "hint": "The color of a clear sky.", "difficulty": "Easy"}, {"a": "Green", "scr": "NEGER", "e": "🟢", "hint": "The color of grass.", "difficulty": "Easy"}, {"a": "Black", "scr": "BCALK", "e": "⚫", "hint": "A very dark color.", "difficulty": "Easy"}, {"a": "Yellow", "scr": "LOWYEL", "e": "🟡", "hint": "The color of a banana.", "difficulty": "Medium"}, {"a": "Pink", "scr": "IPNK", "e": "🩷", "hint": "A light red color.", "difficulty": "Medium"}, {"a": "Circle", "scr": "CLCRIE", "e": "⭕", "hint": "A round shape.", "difficulty": "Medium"}, {"a": "Square", "scr": "AUSRQE", "e": "⬜", "hint": "It has four equal sides.", "difficulty": "Medium"}, {"a": "Triangle", "scr": "LETRANIG", "e": "🔺", "hint": "It has three sides.", "difficulty": "Hard"}, {"a": "Rectangle", "scr": "NLEGEATRC", "e": "▭", "hint": "It has four sides and four corners.", "difficulty": "Hard"}, {"a": "Purple", "scr": "UPLRPE", "e": "🟣", "hint": "A mix of red and blue.", "difficulty": "Hard"}, {"a": "Orange", "scr": "ENARGO", "e": "🟠", "hint": "A color and also a fruit.", "difficulty": "Hard"}], "Body Parts": [{"a": "Eye", "scr": "YEE", "e": "👁️", "hint": "You use it to see.", "difficulty": "Easy"}, {"a": "Ear", "scr": "REA", "e": "👂", "hint": "You use it to hear.", "difficulty": "Easy"}, {"a": "Nose", "scr": "NEOS", "e": "👃", "hint": "You use it to smell.", "difficulty": "Easy"}, {"a": "Hand", "scr": "HNDA", "e": "✋", "hint": "It has five fingers.", "difficulty": "Easy"}, {"a": "Head", "scr": "DAHE", "e": "🙂", "hint": "It is above your neck.", "difficulty": "Medium"}, {"a": "Mouth", "scr": "TOUHM", "e": "👄", "hint": "You use it to eat and speak.", "difficulty": "Medium"}, {"a": "Foot", "scr": "OFOT", "e": "🦶", "hint": "You wear a shoe on it.", "difficulty": "Medium"}, {"a": "Hair", "scr": "AIHR", "e": "💇", "hint": "It grows on your head.", "difficulty": "Medium"}, {"a": "Teeth", "scr": "EHTTE", "e": "🦷", "hint": "You use them to bite food.", "difficulty": "Hard"}, {"a": "Finger", "scr": "RINGFE", "e": "☝️", "hint": "One of five parts on your hand.", "difficulty": "Hard"}, {"a": "Shoulder", "scr": "DRUELSHO", "e": "🤷", "hint": "It connects your arm to your upper body.", "difficulty": "Hard"}, {"a": "Stomach", "scr": "TAMCOSH", "e": "🫃", "hint": "Food goes here after you swallow.", "difficulty": "Hard"}], "Classroom Objects": [{"a": "Book", "scr": "OBOK", "e": "📘", "hint": "You read it.", "difficulty": "Easy"}, {"a": "Pen", "scr": "ENP", "e": "🖊️", "hint": "You write with it.", "difficulty": "Easy"}, {"a": "Bag", "scr": "GBA", "e": "🎒", "hint": "You carry school things in it.", "difficulty": "Easy"}, {"a": "Paper", "scr": "RAPEP", "e": "📄", "hint": "You write on it.", "difficulty": "Easy"}, {"a": "Pencil", "scr": "LIPENC", "e": "✏️", "hint": "You can erase its writing.", "difficulty": "Medium"}, {"a": "Chair", "scr": "ACRHI", "e": "🪑", "hint": "You sit on it.", "difficulty": "Medium"}, {"a": "Ruler", "scr": "RULRE", "e": "📏", "hint": "You use it to measure.", "difficulty": "Medium"}, {"a": "Board", "scr": "ARDBO", "e": "🟩", "hint": "The teacher writes on it.", "difficulty": "Medium"}, {"a": "Eraser", "scr": "EERRAS", "e": "🧽", "hint": "It removes pencil marks.", "difficulty": "Hard"}, {"a": "Scissors", "scr": "IRCSSOSS", "e": "✂️", "hint": "You use them to cut paper.", "difficulty": "Hard"}, {"a": "Notebook", "scr": "KTOOOBNE", "e": "📓", "hint": "A small book for notes.", "difficulty": "Hard"}, {"a": "Dictionary", "scr": "NDTARIOIYC", "e": "📖", "hint": "A book that explains words.", "difficulty": "Hard"}]}, "Senior Kid": {"Animals Advanced": [{"a": "Shark", "scr": "SHRAK", "e": "🦈", "hint": "A sea animal with sharp teeth.", "difficulty": "Easy"}, {"a": "Turtle", "scr": "ELTTRU", "e": "🐢", "hint": "It has a hard shell.", "difficulty": "Easy"}, {"a": "Parrot", "scr": "RARPTO", "e": "🦜", "hint": "It can copy sounds.", "difficulty": "Easy"}, {"a": "Horse", "scr": "ESHRO", "e": "🐴", "hint": "People can ride it.", "difficulty": "Easy"}, {"a": "Giraffe", "scr": "RFAIFEG", "e": "🦒", "hint": "It has a very long neck.", "difficulty": "Medium"}, {"a": "Dolphin", "scr": "LHDIPNO", "e": "🐬", "hint": "A smart sea animal.", "difficulty": "Medium"}, {"a": "Octopus", "scr": "OCSTUOP", "e": "🐙", "hint": "It has eight arms.", "difficulty": "Medium"}, {"a": "Kangaroo", "scr": "ONGRAOAK", "e": "🦘", "hint": "It carries its baby in a pouch.", "difficulty": "Medium"}, {"a": "Elephant", "scr": "PLEHEANT", "e": "🐘", "hint": "A huge land animal with a trunk.", "difficulty": "Hard"}, {"a": "Penguin", "scr": "EIPUNGN", "e": "🐧", "hint": "A bird that cannot fly.", "difficulty": "Hard"}, {"a": "Crocodile", "scr": "CORCEIODL", "e": "🐊", "hint": "A large reptile with strong jaws.", "difficulty": "Hard"}, {"a": "Chameleon", "scr": "AEENHLOCM", "e": "🦎", "hint": "A reptile famous for changing color.", "difficulty": "Hard"}], "Jobs": [{"a": "Chef", "scr": "HECF", "e": "🧑‍🍳", "hint": "Prepares food in a kitchen.", "difficulty": "Easy"}, {"a": "Pilot", "scr": "PLOTI", "e": "🧑‍✈️", "hint": "Flies an airplane.", "difficulty": "Easy"}, {"a": "Nurse", "scr": "SRUEN", "e": "🧑‍⚕️", "hint": "Cares for patients.", "difficulty": "Easy"}, {"a": "Artist", "scr": "RSTTAI", "e": "🧑‍🎨", "hint": "Creates art.", "difficulty": "Easy"}, {"a": "Doctor", "scr": "RCOODT", "e": "🧑‍⚕️", "hint": "Treats sick or injured people.", "difficulty": "Medium"}, {"a": "Teacher", "scr": "ACEETRH", "e": "🧑‍🏫", "hint": "Helps students learn.", "difficulty": "Medium"}, {"a": "Farmer", "scr": "AFRMRE", "e": "🧑‍🌾", "hint": "Grows crops or raises animals.", "difficulty": "Medium"}, {"a": "Dentist", "scr": "SINTDTE", "e": "🦷", "hint": "Takes care of teeth.", "difficulty": "Medium"}, {"a": "Mechanic", "scr": "AMCNCEHI", "e": "🧑‍🔧", "hint": "Repairs machines or vehicles.", "difficulty": "Hard"}, {"a": "Engineer", "scr": "GEENRNIE", "e": "👷", "hint": "Designs or builds systems.", "difficulty": "Hard"}, {"a": "Journalist", "scr": "RINUSLOAJT", "e": "📰", "hint": "Reports news.", "difficulty": "Hard"}, {"a": "Architect", "scr": "RCICTTHEA", "e": "🏗️", "hint": "Designs buildings.", "difficulty": "Hard"}], "Transportation": [{"a": "Bus", "scr": "BSU", "e": "🚌", "hint": "A large vehicle for passengers.", "difficulty": "Easy"}, {"a": "Taxi", "scr": "XATI", "e": "🚕", "hint": "A car you pay to ride.", "difficulty": "Easy"}, {"a": "Train", "scr": "TNAIR", "e": "🚆", "hint": "It runs on rails.", "difficulty": "Easy"}, {"a": "Ship", "scr": "SIHP", "e": "🚢", "hint": "It travels on water.", "difficulty": "Easy"}, {"a": "Bicycle", "scr": "IEYLCCB", "e": "🚲", "hint": "A vehicle with two wheels and pedals.", "difficulty": "Medium"}, {"a": "Truck", "scr": "KTCRU", "e": "🚚", "hint": "It carries goods.", "difficulty": "Medium"}, {"a": "Ferry", "scr": "EYRRF", "e": "⛴️", "hint": "A boat that carries people or vehicles.", "difficulty": "Medium"}, {"a": "Subway", "scr": "YAWUSB", "e": "🚇", "hint": "An underground city train.", "difficulty": "Medium"}, {"a": "Airplane", "scr": "ALNPARIE", "e": "✈️", "hint": "It flies through the sky.", "difficulty": "Hard"}, {"a": "Helicopter", "scr": "CHOEELITPR", "e": "🚁", "hint": "It flies using rotating blades.", "difficulty": "Hard"}, {"a": "Motorcycle", "scr": "TMLERCOOYC", "e": "🏍️", "hint": "A two-wheeled vehicle with an engine.", "difficulty": "Hard"}, {"a": "Ambulance", "scr": "AMANCULEB", "e": "🚑", "hint": "It carries sick or injured people.", "difficulty": "Hard"}], "Daily Activities": [{"a": "Read", "scr": "ADER", "e": "📖", "hint": "Look at written words.", "difficulty": "Easy"}, {"a": "Cook", "scr": "COKO", "e": "🍳", "hint": "Prepare food.", "difficulty": "Easy"}, {"a": "Sleep", "scr": "EELPS", "e": "😴", "hint": "Rest at night.", "difficulty": "Easy"}, {"a": "Study", "scr": "YUDTS", "e": "📚", "hint": "Learn or review lessons.", "difficulty": "Easy"}, {"a": "Reading", "scr": "AENRDGI", "e": "📖", "hint": "Understanding written words.", "difficulty": "Medium"}, {"a": "Writing", "scr": "ITNIGRW", "e": "✍️", "hint": "Putting words on paper or a screen.", "difficulty": "Medium"}, {"a": "Shopping", "scr": "IPGOSNPH", "e": "🛍️", "hint": "Buying things from stores.", "difficulty": "Medium"}, {"a": "Exercise", "scr": "CSEEREXI", "e": "🏃", "hint": "Physical activity for fitness.", "difficulty": "Medium"}, {"a": "Breakfast", "scr": "ESKARTABF", "e": "🍳", "hint": "The first meal of the day.", "difficulty": "Hard"}, {"a": "Homework", "scr": "EOKRMWHO", "e": "📚", "hint": "School work done at home.", "difficulty": "Hard"}, {"a": "Practicing", "scr": "ICPCRTAIGN", "e": "🎯", "hint": "Repeating something to improve.", "difficulty": "Hard"}, {"a": "Preparing", "scr": "PNAEGPRIR", "e": "🗂️", "hint": "Getting something ready.", "difficulty": "Hard"}], "Places": [{"a": "Park", "scr": "RAPK", "e": "🌳", "hint": "A public place with grass and trees.", "difficulty": "Easy"}, {"a": "School", "scr": "LCOHOS", "e": "🏫", "hint": "A place where students learn.", "difficulty": "Easy"}, {"a": "Market", "scr": "KTMAER", "e": "🛒", "hint": "A place to buy and sell things.", "difficulty": "Easy"}, {"a": "Hotel", "scr": "TOELH", "e": "🏨", "hint": "A place for travelers to stay.", "difficulty": "Easy"}, {"a": "Hospital", "scr": "HPATILSO", "e": "🏥", "hint": "A place for medical care.", "difficulty": "Medium"}, {"a": "Library", "scr": "BILYARR", "e": "📚", "hint": "A place to borrow books.", "difficulty": "Medium"}, {"a": "Airport", "scr": "OTIARPR", "e": "✈️", "hint": "A place for airplanes.", "difficulty": "Medium"}, {"a": "Museum", "scr": "SMUMEU", "e": "🏛️", "hint": "A place with exhibitions.", "difficulty": "Medium"}, {"a": "Restaurant", "scr": "TSRERATUAN", "e": "🍽️", "hint": "A place where people pay to eat.", "difficulty": "Hard"}, {"a": "Pharmacy", "scr": "CRAYAMHP", "e": "💊", "hint": "A place where medicine is sold.", "difficulty": "Hard"}, {"a": "Stadium", "scr": "DISAUMT", "e": "🏟️", "hint": "A large place for sports events.", "difficulty": "Hard"}, {"a": "Supermarket", "scr": "AMSEKPUTRRE", "e": "🛒", "hint": "A large shop for food and household items.", "difficulty": "Hard"}]}, "SMP": {"School & Learning": [{"a": "Quiz", "scr": "QZIU", "e": "❓", "hint": "A short test.", "difficulty": "Easy"}, {"a": "Grade", "scr": "DRAEG", "e": "📝", "hint": "A mark showing performance.", "difficulty": "Easy"}, {"a": "Subject", "scr": "BEJCUST", "e": "📘", "hint": "An area studied at school.", "difficulty": "Easy"}, {"a": "Project", "scr": "OTRCPJE", "e": "📊", "hint": "A planned piece of work.", "difficulty": "Easy"}, {"a": "Science", "scr": "ICSNCEE", "e": "🔬", "hint": "A subject that studies the natural world.", "difficulty": "Medium"}, {"a": "History", "scr": "HOITSRY", "e": "📜", "hint": "A subject about the past.", "difficulty": "Medium"}, {"a": "Schedule", "scr": "DSEHECLU", "e": "🗓️", "hint": "A plan showing times and activities.", "difficulty": "Medium"}, {"a": "Classmate", "scr": "ASTLASMCE", "e": "👥", "hint": "A student in the same class.", "difficulty": "Medium"}, {"a": "Assignment", "scr": "SGEITSMNNA", "e": "📝", "hint": "A piece of work given by a teacher.", "difficulty": "Hard"}, {"a": "Discussion", "scr": "NSSODICSIU", "e": "💬", "hint": "An exchange of ideas.", "difficulty": "Hard"}, {"a": "Presentation", "scr": "NEITRNPOASET", "e": "🖥️", "hint": "A talk given to explain a topic.", "difficulty": "Hard"}, {"a": "Achievement", "scr": "VNCTEEIHEMA", "e": "🏆", "hint": "Something completed successfully.", "difficulty": "Hard"}], "Technology": [{"a": "Screen", "scr": "RCENSE", "e": "🖥️", "hint": "Displays digital information.", "difficulty": "Easy"}, {"a": "Mouse", "scr": "UMEOS", "e": "🖱️", "hint": "Controls a pointer on a computer.", "difficulty": "Easy"}, {"a": "Email", "scr": "ALIEM", "e": "✉️", "hint": "A message sent electronically.", "difficulty": "Easy"}, {"a": "Login", "scr": "IGLNO", "e": "🔐", "hint": "Entering an account.", "difficulty": "Easy"}, {"a": "Internet", "scr": "NETETRNI", "e": "🌐", "hint": "A worldwide computer network.", "difficulty": "Medium"}, {"a": "Website", "scr": "WESTEIB", "e": "💻", "hint": "A collection of pages online.", "difficulty": "Medium"}, {"a": "Browser", "scr": "SRROEBW", "e": "🌐", "hint": "Software used to open websites.", "difficulty": "Medium"}, {"a": "Account", "scr": "UCCTNOA", "e": "👤", "hint": "A personal profile for a service.", "difficulty": "Medium"}, {"a": "Password", "scr": "SDORPSWA", "e": "🔑", "hint": "A secret code for an account.", "difficulty": "Hard"}, {"a": "Keyboard", "scr": "AOBEYKDR", "e": "⌨️", "hint": "A device used for typing.", "difficulty": "Hard"}, {"a": "Download", "scr": "NDDAOOLW", "e": "⬇️", "hint": "Copy data to your device.", "difficulty": "Hard"}, {"a": "Application", "scr": "TCONIAIPLPA", "e": "📱", "hint": "Software designed for a task.", "difficulty": "Hard"}], "Health & Lifestyle": [{"a": "Sleep", "scr": "EELPS", "e": "😴", "hint": "Natural rest for the body and mind.", "difficulty": "Easy"}, {"a": "Water", "scr": "RTAEW", "e": "💧", "hint": "A drink the body needs.", "difficulty": "Easy"}, {"a": "Habit", "scr": "AITHB", "e": "🔁", "hint": "Something you do regularly.", "difficulty": "Easy"}, {"a": "Energy", "scr": "YENGRE", "e": "⚡", "hint": "Strength needed to do activities.", "difficulty": "Easy"}, {"a": "Healthy", "scr": "LHYAHET", "e": "🥗", "hint": "In good physical condition.", "difficulty": "Medium"}, {"a": "Exercise", "scr": "CSEEREXI", "e": "🏃", "hint": "Activity that improves fitness.", "difficulty": "Medium"}, {"a": "Vitamin", "scr": "NTIAVMI", "e": "🍊", "hint": "A nutrient needed by the body.", "difficulty": "Medium"}, {"a": "Balance", "scr": "NACAELB", "e": "⚖️", "hint": "A healthy mix of needs and activities.", "difficulty": "Medium"}, {"a": "Medicine", "scr": "ECEIMIND", "e": "💊", "hint": "Used to treat illness.", "difficulty": "Hard"}, {"a": "Nutrition", "scr": "TUNRITINO", "e": "🥦", "hint": "How food affects health.", "difficulty": "Hard"}, {"a": "Lifestyle", "scr": "LLETFISEY", "e": "🚶", "hint": "The way a person lives day to day.", "difficulty": "Hard"}, {"a": "Wellbeing", "scr": "LBNLGWIEE", "e": "🌿", "hint": "The state of being healthy and comfortable.", "difficulty": "Hard"}], "Environment": [{"a": "Ocean", "scr": "EANOC", "e": "🌊", "hint": "A very large area of salt water.", "difficulty": "Easy"}, {"a": "Forest", "scr": "ESTFRO", "e": "🌲", "hint": "A large area of trees.", "difficulty": "Easy"}, {"a": "Waste", "scr": "STEWA", "e": "🗑️", "hint": "Material that is no longer wanted.", "difficulty": "Easy"}, {"a": "Nature", "scr": "ETUARN", "e": "🌿", "hint": "The physical world around us.", "difficulty": "Easy"}, {"a": "Recycle", "scr": "CEYRCLE", "e": "♻️", "hint": "Use material again.", "difficulty": "Medium"}, {"a": "Climate", "scr": "EMLCATI", "e": "🌦️", "hint": "Weather pattern over many years.", "difficulty": "Medium"}, {"a": "Plastic", "scr": "LTSIAPC", "e": "🧴", "hint": "A common human-made material.", "difficulty": "Medium"}, {"a": "Wildlife", "scr": "ILELFIWD", "e": "🦜", "hint": "Animals and plants living naturally.", "difficulty": "Medium"}, {"a": "Pollution", "scr": "OINPLUTOL", "e": "🌫️", "hint": "Harmful substances in the environment.", "difficulty": "Hard"}, {"a": "Conserve", "scr": "CNORSEEV", "e": "🌱", "hint": "Protect resources and avoid waste.", "difficulty": "Hard"}, {"a": "Ecosystem", "scr": "EYESSOMCT", "e": "🌎", "hint": "Living things and their environment.", "difficulty": "Hard"}, {"a": "Deforestation", "scr": "FTSEOTOIDRAEN", "e": "🪵", "hint": "Large-scale removal of trees.", "difficulty": "Hard"}], "Travel": [{"a": "Map", "scr": "APM", "e": "🗺️", "hint": "Shows locations and routes.", "difficulty": "Easy"}, {"a": "Hotel", "scr": "TOELH", "e": "🏨", "hint": "A place to stay while traveling.", "difficulty": "Easy"}, {"a": "Ticket", "scr": "EIKTTC", "e": "🎫", "hint": "Proof you paid for travel or entry.", "difficulty": "Easy"}, {"a": "Tourist", "scr": "OTSRIUT", "e": "📷", "hint": "A person visiting a place.", "difficulty": "Easy"}, {"a": "Journey", "scr": "JNOREYU", "e": "🧳", "hint": "Travel from one place to another.", "difficulty": "Medium"}, {"a": "Passport", "scr": "OPRSTPAS", "e": "🛂", "hint": "An official document for international travel.", "difficulty": "Medium"}, {"a": "Luggage", "scr": "GAUELGG", "e": "🧳", "hint": "Bags used when traveling.", "difficulty": "Medium"}, {"a": "Arrival", "scr": "IAVALRR", "e": "🛬", "hint": "The act of reaching a place.", "difficulty": "Medium"}, {"a": "Destination", "scr": "TASIEIDONNT", "e": "📍", "hint": "The place someone is traveling to.", "difficulty": "Hard"}, {"a": "Itinerary", "scr": "AYIRINRTE", "e": "🗓️", "hint": "A plan for a trip.", "difficulty": "Hard"}, {"a": "Reservation", "scr": "NEVSETAIORR", "e": "📅", "hint": "An arrangement that saves a place for you.", "difficulty": "Hard"}, {"a": "Accommodation", "scr": "CCNTOMAOAMDOI", "e": "🏨", "hint": "A place where someone stays during a trip.", "difficulty": "Hard"}]}, "SMA–Umum": {"Work & Career": [{"a": "Career", "scr": "ECERAR", "e": "💼", "hint": "A long-term professional path.", "difficulty": "Easy"}, {"a": "Salary", "scr": "AAYSLR", "e": "💰", "hint": "Regular payment for work.", "difficulty": "Easy"}, {"a": "Skill", "scr": "LILSK", "e": "🛠️", "hint": "An ability developed through practice.", "difficulty": "Easy"}, {"a": "Teamwork", "scr": "AMKORETW", "e": "🤝", "hint": "Working effectively with others.", "difficulty": "Easy"}, {"a": "Interview", "scr": "ERNETIVIW", "e": "🎤", "hint": "A formal meeting used to assess a candidate.", "difficulty": "Medium"}, {"a": "Experience", "scr": "CNREEEIPXE", "e": "🧠", "hint": "Knowledge or skill gained through doing something.", "difficulty": "Medium"}, {"a": "Leadership", "scr": "RSDHIALEPE", "e": "👥", "hint": "The ability to guide a group.", "difficulty": "Medium"}, {"a": "Promotion", "scr": "INMPRTOOO", "e": "📈", "hint": "Advancement to a higher position.", "difficulty": "Medium"}, {"a": "Professional", "scr": "OALFRONSSEIP", "e": "💼", "hint": "Related to skilled work and workplace standards.", "difficulty": "Hard"}, {"a": "Productivity", "scr": "DOUPITTVYRIC", "e": "⚙️", "hint": "How efficiently useful work is completed.", "difficulty": "Hard"}, {"a": "Qualification", "scr": "QIAFNOLACUTII", "e": "🎓", "hint": "A skill or certificate that makes someone suitable.", "difficulty": "Hard"}, {"a": "Recruitment", "scr": "MTTUIERRNEC", "e": "📣", "hint": "The process of finding and hiring employees.", "difficulty": "Hard"}], "Business & Entrepreneurship": [{"a": "Profit", "scr": "IFPRTO", "e": "💰", "hint": "Money left after costs are deducted.", "difficulty": "Easy"}, {"a": "Market", "scr": "KTMAER", "e": "📈", "hint": "A group of buyers and sellers.", "difficulty": "Easy"}, {"a": "Brand", "scr": "RANBD", "e": "🏷️", "hint": "The identity of a product or business.", "difficulty": "Easy"}, {"a": "Customer", "scr": "ROUMCEST", "e": "🧑‍💼", "hint": "A person who buys a product or service.", "difficulty": "Easy"}, {"a": "Marketing", "scr": "KNIRGEATM", "e": "📣", "hint": "Activities used to attract and serve customers.", "difficulty": "Medium"}, {"a": "Revenue", "scr": "VENEUER", "e": "💵", "hint": "Income generated by business activities.", "difficulty": "Medium"}, {"a": "Strategy", "scr": "GATESTRY", "e": "♟️", "hint": "A plan designed to achieve a long-term goal.", "difficulty": "Medium"}, {"a": "Investment", "scr": "TNVETIMNES", "e": "📊", "hint": "Using resources for future benefit.", "difficulty": "Medium"}, {"a": "Competition", "scr": "PNCEIIOTOTM", "e": "🏁", "hint": "Rivalry between businesses.", "difficulty": "Hard"}, {"a": "Innovation", "scr": "NTVNINIAOO", "e": "💡", "hint": "Introducing useful new ideas or methods.", "difficulty": "Hard"}, {"a": "Entrepreneur", "scr": "UERREPRTENNE", "e": "🚀", "hint": "A person who creates and develops a business.", "difficulty": "Hard"}, {"a": "Scalability", "scr": "ILBLYATCASI", "e": "📈", "hint": "The ability of a business to grow efficiently.", "difficulty": "Hard"}], "Communication": [{"a": "Opinion", "scr": "NOIOIPN", "e": "💭", "hint": "A personal belief or judgment.", "difficulty": "Easy"}, {"a": "Audience", "scr": "ANECDEUI", "e": "👥", "hint": "People listening to or watching a message.", "difficulty": "Easy"}, {"a": "Message", "scr": "AEGESMS", "e": "💬", "hint": "Information communicated to someone.", "difficulty": "Easy"}, {"a": "Listen", "scr": "TESINL", "e": "👂", "hint": "Pay attention to what someone says.", "difficulty": "Easy"}, {"a": "Confidence", "scr": "CCONEEFIDN", "e": "🗣️", "hint": "Belief in your ability to communicate.", "difficulty": "Medium"}, {"a": "Discussion", "scr": "NSSODICSIU", "e": "💬", "hint": "An exchange of ideas.", "difficulty": "Medium"}, {"a": "Feedback", "scr": "EKAFBCDE", "e": "🔁", "hint": "Information given to help improve performance.", "difficulty": "Medium"}, {"a": "Clarify", "scr": "ALCFYRI", "e": "🔎", "hint": "Make an idea easier to understand.", "difficulty": "Medium"}, {"a": "Negotiate", "scr": "TETGOIAEN", "e": "🤝", "hint": "Communicate to reach an agreement.", "difficulty": "Hard"}, {"a": "Persuasion", "scr": "EIRSPOAUSN", "e": "🎯", "hint": "Convincing someone through reasons.", "difficulty": "Hard"}, {"a": "Argument", "scr": "NETAUMRG", "e": "⚖️", "hint": "A reasoned set of claims supporting a position.", "difficulty": "Hard"}, {"a": "Presentation", "scr": "NEITRNPOASET", "e": "🖥️", "hint": "A structured talk delivered to an audience.", "difficulty": "Hard"}], "Academic Skills": [{"a": "Theory", "scr": "YEOHTR", "e": "🧠", "hint": "A set of ideas used to explain something.", "difficulty": "Easy"}, {"a": "Concept", "scr": "TOCENPC", "e": "💡", "hint": "A general or abstract idea.", "difficulty": "Easy"}, {"a": "Method", "scr": "DHTOEM", "e": "🧪", "hint": "A systematic way of doing something.", "difficulty": "Easy"}, {"a": "Source", "scr": "SOUECR", "e": "📚", "hint": "The origin of information.", "difficulty": "Easy"}, {"a": "Analysis", "scr": "SIYASLNA", "e": "📊", "hint": "Detailed examination of information.", "difficulty": "Medium"}, {"a": "Research", "scr": "ARCSEHRE", "e": "🔬", "hint": "Systematic investigation to answer a question.", "difficulty": "Medium"}, {"a": "Evidence", "scr": "DENEVIEC", "e": "📑", "hint": "Information used to support a claim.", "difficulty": "Medium"}, {"a": "Variable", "scr": "RAILBAEV", "e": "📈", "hint": "A factor that can change and be measured.", "difficulty": "Medium"}, {"a": "Conclusion", "scr": "SNIONCCLUO", "e": "✅", "hint": "A judgment reached after considering evidence.", "difficulty": "Hard"}, {"a": "Evaluate", "scr": "ATAULEVE", "e": "📝", "hint": "Judge quality using criteria.", "difficulty": "Hard"}, {"a": "Hypothesis", "scr": "PEHYSSTHIO", "e": "🧪", "hint": "A testable explanation or prediction.", "difficulty": "Hard"}, {"a": "Methodology", "scr": "TOOHDELYOMG", "e": "⚙️", "hint": "The organized system of methods used in a study.", "difficulty": "Hard"}], "Critical Thinking": [{"a": "Claim", "scr": "CIAML", "e": "💬", "hint": "A statement that something is true.", "difficulty": "Easy"}, {"a": "Source", "scr": "SOUECR", "e": "📚", "hint": "The origin of information.", "difficulty": "Easy"}, {"a": "Compare", "scr": "MROCAEP", "e": "↔️", "hint": "Examine similarities and differences.", "difficulty": "Easy"}, {"a": "Reason", "scr": "EOSNAR", "e": "🧠", "hint": "A cause or explanation.", "difficulty": "Easy"}, {"a": "Assumption", "scr": "AMUNSIOSTP", "e": "🤔", "hint": "Something accepted as true without complete proof.", "difficulty": "Medium"}, {"a": "Bias", "scr": "SBAI", "e": "⚖️", "hint": "A tendency that can influence judgment unfairly.", "difficulty": "Medium"}, {"a": "Reliable", "scr": "BEEALIRL", "e": "✅", "hint": "Consistently trustworthy.", "difficulty": "Medium"}, {"a": "Relevant", "scr": "ENRLTVEA", "e": "🎯", "hint": "Closely connected to the purpose.", "difficulty": "Medium"}, {"a": "Reasoning", "scr": "ROEISNGNA", "e": "🧠", "hint": "Using logic to reach a conclusion.", "difficulty": "Hard"}, {"a": "Perspective", "scr": "VCPTESEERIP", "e": "👁️", "hint": "A particular way of viewing an issue.", "difficulty": "Hard"}, {"a": "Credibility", "scr": "ERBTYICILDI", "e": "✅", "hint": "The quality of being believable and trustworthy.", "difficulty": "Hard"}, {"a": "Counterargument", "scr": "OMRCTRNGEANEUUT", "e": "⚖️", "hint": "An argument made to oppose another argument.", "difficulty": "Hard"}]}};
-const STORE="kip-v19-state";
+const STORE="kip-v110-game";
+const levelMeta={
+  "Junior Kid":{icon:"🟢",desc:"Simple concrete vocabulary for early learners."},
+  "Senior Kid":{icon:"🔵",desc:"Broader everyday vocabulary with descriptive clues."},
+  "SMP":{icon:"🟡",desc:"Intermediate school, technology, health and travel vocabulary."},
+  "SMA–Umum":{icon:"🟠",desc:"Academic, business, work and critical-thinking vocabulary."}
+};
 let settings={teams:4,timer:15,difficulty:"all",order:"random",anagram:"random",points:"random",teamNames:["Team A","Team B","Team C","Team D"]};
 let level="",topic="",questions=[],used=new Set(),scores=[],team=0,currentIndex=null,timerId=null,timeLeft=0;
 
-function show(id){document.querySelectorAll("section").forEach(s=>s.classList.add("hidden"));document.getElementById(id).classList.remove("hidden");}
+function go(id){document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));document.getElementById(id).classList.add("active");window.scrollTo({top:0,behavior:"smooth"});}
 function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-function scrambleWord(word){const chars=word.toUpperCase().split("");const letters=chars.filter(c=>/[A-Z]/.test(c));let s=shuffle(letters),tries=0;while(s.join("")===letters.join("")&&tries++<8)s=shuffle(letters);let k=0;return chars.map(c=>/[A-Z]/.test(c)?s[k++]:c).join("")}
-function renderTeamNames(){teamNames.innerHTML="";for(let i=0;i<+teamCount.value;i++){const input=document.createElement("input");input.id="tn"+i;input.value=settings.teamNames[i]||"Team "+String.fromCharCode(65+i);teamNames.appendChild(input)}}
+function escapeHTML(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+function scrambleWord(word){const chars=word.toUpperCase().split("");const letters=chars.filter(c=>/[A-Z]/.test(c));let s=shuffle(letters),tries=0;while(s.join("")===letters.join("")&&tries++<10)s=shuffle(letters);let k=0;return chars.map(c=>/[A-Z]/.test(c)?s[k++]:c).join("")}
+
+function renderTeamNames(){
+  teamNames.innerHTML="";
+  for(let i=0;i<+teamCount.value;i++){const inp=document.createElement("input");inp.id="tn"+i;inp.value=settings.teamNames[i]||"Team "+String.fromCharCode(65+i);teamNames.appendChild(inp)}
+}
 renderTeamNames();
 
-function saveSettings(){settings.teams=+teamCount.value;settings.timer=+timerSec.value;settings.difficulty=difficulty.value;settings.order=order.value;settings.anagram=anagramMode.value;settings.points=pointsMode.value;settings.teamNames=[];for(let i=0;i<settings.teams;i++)settings.teamNames.push(document.getElementById("tn"+i).value.trim()||"Team "+String.fromCharCode(65+i));renderLevels();show("level")}
-function renderLevels(){levelGrid.innerHTML="";Object.keys(BANK).forEach(l=>{const b=document.createElement("button");b.className="secondary choice";b.innerHTML=l;b.onclick=()=>selectLevel(l);levelGrid.appendChild(b)})}
-function selectLevel(l){level=l;topicTitle.textContent=l+" — Choose Topic";topicGrid.innerHTML="";Object.keys(BANK[l]).forEach(t=>{const arr=BANK[l][t];const e=arr.filter(x=>x.difficulty==="Easy").length,m=arr.filter(x=>x.difficulty==="Medium").length,h=arr.filter(x=>x.difficulty==="Hard").length;const b=document.createElement("button");b.className="secondary choice";b.innerHTML=`${t}<div class="small">${arr.length} questions • E${e} / M${m} / H${h}</div>`;b.onclick=()=>selectTopic(t);topicGrid.appendChild(b)});show("topic")}
-function selectTopic(t){topic=t;let arr=BANK[level][topic];if(settings.difficulty!=="all")arr=arr.filter(x=>x.difficulty===settings.difficulty);countInfo.textContent=`${arr.length} questions available`;countGrid.innerHTML="";[6,8,10,12].filter(n=>n<=arr.length).concat(arr.length>12?[arr.length]:[]).filter((v,i,a)=>a.indexOf(v)===i).forEach(n=>{const b=document.createElement("button");b.className="secondary choice";b.textContent=n+" Questions";b.onclick=()=>startGame(n);countGrid.appendChild(b)});show("count")}
-function startGame(n){let arr=[...BANK[level][topic]];if(settings.difficulty!=="all")arr=arr.filter(x=>x.difficulty===settings.difficulty);if(settings.order==="random")arr=shuffle(arr);questions=arr.slice(0,n);used=new Set();scores=Array(settings.teams).fill(0);team=0;currentIndex=null;levelBadge.textContent=level;topicBadge.textContent=topic;renderBoard();renderScores();updateTurn();saveState();show("board")}
-function renderBoard(){boardGrid.innerHTML="";questions.forEach((q,i)=>{const b=document.createElement("button");b.className="tile"+(used.has(i)?" used":"");b.textContent=i+1;b.disabled=used.has(i);b.onclick=()=>openQuestion(i);boardGrid.appendChild(b)});progress.textContent=`${used.size} of ${questions.length} played`}
-function renderScores(){scoreGrid.innerHTML="";for(let i=0;i<settings.teams;i++){const d=document.createElement("div");d.className="team"+(i===team?" active":"");d.innerHTML=`<strong>${settings.teamNames[i]}</strong><div class="score">${scores[i]}</div>`;scoreGrid.appendChild(d)}}
+function saveSettings(){
+  settings.teams=+teamCount.value; settings.timer=+timerSec.value; settings.difficulty=difficulty.value;
+  settings.order=order.value; settings.anagram=anagramMode.value; settings.points=pointsMode.value;
+  settings.teamNames=[]; for(let i=0;i<settings.teams;i++)settings.teamNames.push((document.getElementById("tn"+i).value||"").trim()||"Team "+String.fromCharCode(65+i));
+  renderLevels(); go("level");
+}
+function renderLevels(){
+  levelCards.innerHTML="";
+  Object.keys(BANK).forEach(l=>{
+    const topics=Object.keys(BANK[l]).length, qs=Object.values(BANK[l]).reduce((n,a)=>n+a.length,0), meta=levelMeta[l];
+    const b=document.createElement("button"); b.className="card-btn";
+    b.innerHTML=`<div class="card-emoji">${meta.icon}</div><div class="card-name">${l}</div><div class="card-meta">${meta.desc}<br>${topics} topics • ${qs} questions</div>`;
+    b.onclick=()=>selectLevel(l); levelCards.appendChild(b);
+  });
+}
+function selectLevel(l){
+  level=l; topicHead.textContent=l+" — Choose Topic"; topicCards.innerHTML="";
+  Object.entries(BANK[l]).forEach(([t,arr])=>{
+    const f=settings.difficulty==="all"?arr:arr.filter(x=>x.difficulty===settings.difficulty);
+    const e=arr.filter(x=>x.difficulty==="Easy").length,m=arr.filter(x=>x.difficulty==="Medium").length,h=arr.filter(x=>x.difficulty==="Hard").length;
+    const b=document.createElement("button"); b.className="card-btn";
+    b.innerHTML=`<div class="card-emoji">📚</div><div class="card-name">${t}</div><div class="card-meta">${f.length} available • E${e} / M${m} / H${h}</div>`;
+    b.onclick=()=>selectTopic(t); topicCards.appendChild(b);
+  });
+  go("topic");
+}
+function selectTopic(t){
+  topic=t; let arr=BANK[level][topic]; if(settings.difficulty!=="all")arr=arr.filter(x=>x.difficulty===settings.difficulty);
+  countMeta.textContent=`${level} • ${topic} • ${arr.length} available`;
+  countCards.innerHTML="";
+  const opts=[6,8,10,12,arr.length].filter(n=>n>0&&n<=arr.length).filter((v,i,a)=>a.indexOf(v)===i);
+  opts.forEach(n=>{const b=document.createElement("button");b.className="card-btn";b.innerHTML=`<div class="card-emoji">🎯</div><div class="card-name">${n} Questions</div><div class="card-meta">Start a ${n}-question round</div>`;b.onclick=()=>startGame(n);countCards.appendChild(b)});
+  if(!opts.length)countCards.innerHTML='<div class="empty">No questions match this difficulty.</div>';
+  go("count");
+}
+function startGame(n){
+  let arr=[...BANK[level][topic]]; if(settings.difficulty!=="all")arr=arr.filter(x=>x.difficulty===settings.difficulty); if(settings.order==="random")arr=shuffle(arr);
+  questions=arr.slice(0,n); used=new Set(); scores=Array(settings.teams).fill(0); team=0; currentIndex=null;
+  levelPill.textContent=level; topicPill.textContent=topic; renderBoard(); renderScores(); updateTurn(); saveState(); go("board");
+}
+function renderBoard(){
+  boardGrid.innerHTML="";
+  questions.forEach((q,i)=>{const b=document.createElement("button");b.className="qbox"+(used.has(i)?" used":"");b.textContent=i+1;b.disabled=used.has(i);b.onclick=()=>openQuestion(i);boardGrid.appendChild(b)});
+  progress.textContent=`${used.size} of ${questions.length} questions played`;
+}
+function renderScores(){
+  scoreGrid.innerHTML="";
+  for(let i=0;i<settings.teams;i++){const d=document.createElement("div");d.className="score-card"+(i===team?" active":"");d.innerHTML=`<div class="score-name">${escapeHTML(settings.teamNames[i])}</div><div class="score-num">${scores[i]}</div>`;scoreGrid.appendChild(d)}
+}
 function updateTurn(){const t=settings.teamNames[team].toUpperCase()+"'S TURN";turnBoard.textContent=t;turnQuestion.textContent=t}
-function openQuestion(i){currentIndex=i;const q=questions[i];qNum.textContent="Question "+(i+1);diffBadge.textContent=q.difficulty;diffBadge.className="badge diff-"+q.difficulty;const scr=settings.anagram==="saved"?q.scr:scrambleWord(q.a);letters.innerHTML="";scr.split("").forEach(c=>{if(c===" "){const s=document.createElement("div");s.style.width="18px";letters.appendChild(s)}else{const d=document.createElement("div");d.className="letter";d.textContent=c;letters.appendChild(d)}});hint.textContent="Hint: "+q.hint;emoji.textContent=q.e;answer.textContent=q.a.toUpperCase();answerPanel.classList.add("hidden");resultMsg.classList.add("hidden");showAnswerBtn.classList.remove("hidden");correctBtn.classList.add("hidden");wrongBtn.classList.add("hidden");nextBtn.classList.add("hidden");updateTurn();startTimer();show("question");saveState()}
+function openQuestion(i){
+  currentIndex=i; const q=questions[i]; qPill.textContent="Question "+(i+1); diffBadge.textContent=q.difficulty; diffBadge.className="diff diff-"+q.difficulty;
+  const scr=settings.anagram==="saved"?q.scr:scrambleWord(q.a); letters.innerHTML="";
+  scr.split("").forEach(c=>{if(c===" "){const gap=document.createElement("div");gap.style.width="14px";letters.appendChild(gap)}else{const x=document.createElement("div");x.className="letter";x.textContent=c;letters.appendChild(x)}});
+  hint.textContent="Hint: "+q.hint; answerEmoji.textContent=q.e||"✨"; answerWord.textContent=q.a.toUpperCase();
+  answerPanel.classList.add("hidden"); result.classList.add("hidden"); showAnswerBtn.classList.remove("hidden"); correctBtn.classList.add("hidden"); wrongBtn.classList.add("hidden"); nextBtn.classList.add("hidden");
+  updateTurn(); startTimer(); saveState(); go("question");
+}
 function reveal(){stopTimer();answerPanel.classList.remove("hidden");showAnswerBtn.classList.add("hidden");correctBtn.classList.remove("hidden");wrongBtn.classList.remove("hidden")}
 function getPoints(){if(settings.points==="10")return 10;if(settings.points==="20")return 20;return [10,20,30,40,50][Math.floor(Math.random()*5)]}
-function mark(ok){used.add(currentIndex);correctBtn.classList.add("hidden");wrongBtn.classList.add("hidden");if(ok){const p=getPoints();scores[team]+=p;resultMsg.textContent="+"+p+" POINTS! 🎉"}else resultMsg.textContent="NO POINTS THIS ROUND";resultMsg.classList.remove("hidden");nextBtn.classList.remove("hidden");renderScores();saveState()}
-function nextTurn(){if(used.size===questions.length)return finishGame();team=(team+1)%settings.teams;renderBoard();renderScores();updateTurn();show("board");saveState()}
-function finishGame(){const mx=Math.max(...scores);const ws=scores.map((s,i)=>s===mx?settings.teamNames[i]:null).filter(Boolean);winner.textContent=ws.length===1?ws[0]+" WINS!":"TIE: "+ws.join(" & ");finalScores.innerHTML=scores.map((s,i)=>`${settings.teamNames[i]}: <strong>${s}</strong>`).join(" • ");localStorage.removeItem(STORE);show("finish")}
-function startTimer(){stopTimer();if(!settings.timer){timerWrap.classList.add("hidden");return}timerWrap.classList.remove("hidden");timeLeft=settings.timer;timer.textContent=timeLeft;timer.classList.remove("danger");timerId=setInterval(()=>{timeLeft--;timer.textContent=timeLeft;if(timeLeft<=5)timer.classList.add("danger");if(timeLeft<=0)stopTimer()},1000)}
+function mark(ok){
+  used.add(currentIndex); correctBtn.classList.add("hidden"); wrongBtn.classList.add("hidden");
+  if(ok){const p=getPoints();scores[team]+=p;result.textContent="+"+p+" POINTS 🎉"} else result.textContent="NO POINTS THIS ROUND";
+  result.classList.remove("hidden"); nextBtn.classList.remove("hidden"); renderScores(); saveState();
+}
+function nextTurn(){if(used.size===questions.length)return finishGame();team=(team+1)%settings.teams;renderBoard();renderScores();updateTurn();saveState();go("board")}
+function finishGame(){
+  const mx=Math.max(...scores),w=scores.map((s,i)=>s===mx?settings.teamNames[i]:null).filter(Boolean);
+  winnerText.textContent=w.length===1?w[0]+" wins!":"Tie: "+w.join(" & ");
+  finalScores.innerHTML=scores.map((s,i)=>`${escapeHTML(settings.teamNames[i])}: <strong>${s}</strong>`).join(" &nbsp; • &nbsp; ");
+  localStorage.removeItem(STORE); checkResume(); go("finish");
+}
+function startTimer(){
+  stopTimer(); if(!settings.timer){timerWrap.classList.add("hidden");return} timerWrap.classList.remove("hidden");
+  timeLeft=settings.timer; timer.textContent=timeLeft; timer.classList.remove("danger");
+  timerId=setInterval(()=>{timeLeft--;timer.textContent=timeLeft;if(timeLeft<=5)timer.classList.add("danger");if(timeLeft<=0)stopTimer()},1000);
+}
 function stopTimer(){if(timerId){clearInterval(timerId);timerId=null}}
 function saveState(){if(!questions.length)return;localStorage.setItem(STORE,JSON.stringify({settings,level,topic,questions,used:[...used],scores,team,currentIndex}));checkResume()}
-function checkResume(){resumePanel.classList.toggle("hidden",!localStorage.getItem(STORE))}
-function resumeGame(){try{const s=JSON.parse(localStorage.getItem(STORE));settings=s.settings;level=s.level;topic=s.topic;questions=s.questions;used=new Set(s.used);scores=s.scores;team=s.team;currentIndex=s.currentIndex;levelBadge.textContent=level;topicBadge.textContent=topic;renderBoard();renderScores();updateTurn();show("board")}catch(e){localStorage.removeItem(STORE);checkResume()}}
-function goHome(){stopTimer();questions=[];used=new Set();localStorage.removeItem(STORE);checkResume();show("home")}
+function checkResume(){resumeBox.classList.toggle("hidden",!localStorage.getItem(STORE))}
+function resumeGame(){
+  try{const s=JSON.parse(localStorage.getItem(STORE));settings=s.settings;level=s.level;topic=s.topic;questions=s.questions;used=new Set(s.used);scores=s.scores;team=s.team;currentIndex=s.currentIndex;levelPill.textContent=level;topicPill.textContent=topic;renderBoard();renderScores();updateTurn();go("board")}
+  catch(e){clearSaved()}
+}
+function clearSaved(){localStorage.removeItem(STORE);checkResume()}
+function goHome(){stopTimer();questions=[];used=new Set();clearSaved();go("home")}
 function toggleFull(){if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()}
-function openBank(){bankLevel.innerHTML="";Object.keys(BANK).forEach(l=>{const o=document.createElement("option");o.value=l;o.textContent=l;bankLevel.appendChild(o)});renderBankTopics();show("bank")}
-function renderBankTopics(){bankTopic.innerHTML="";Object.keys(BANK[bankLevel.value]).forEach(t=>{const o=document.createElement("option");o.value=t;o.textContent=t;bankTopic.appendChild(o)});renderBankList()}
-function renderBankList(){const arr=BANK[bankLevel.value][bankTopic.value];bankStats.textContent=`${arr.length} questions`;bankList.innerHTML="";arr.forEach((q,i)=>{const d=document.createElement("div");d.className="editorrow";d.innerHTML=`<div><strong>${i+1}. ${q.a}</strong><div class="small">${q.hint}</div></div><span class="badge diff-${q.difficulty}">${q.difficulty}</span>`;bankList.appendChild(d)})}
+function openBank(){
+  bankLevel.innerHTML="";Object.keys(BANK).forEach(l=>{const o=document.createElement("option");o.value=l;o.textContent=l;bankLevel.appendChild(o)});renderBankTopics();go("bank");
+}
+function renderBankTopics(){
+  bankTopic.innerHTML="";Object.keys(BANK[bankLevel.value]).forEach(t=>{const o=document.createElement("option");o.value=t;o.textContent=t;bankTopic.appendChild(o)});renderBankList();
+}
+function renderBankList(){
+  const arr=BANK[bankLevel.value][bankTopic.value];
+  const e=arr.filter(x=>x.difficulty==="Easy").length,m=arr.filter(x=>x.difficulty==="Medium").length,h=arr.filter(x=>x.difficulty==="Hard").length;
+  bankStats.textContent=`${arr.length} questions • Easy ${e} • Medium ${m} • Hard ${h}`;
+  bankList.innerHTML="";arr.forEach((q,i)=>{const d=document.createElement("div");d.className="bank-item";d.innerHTML=`<div><div class="bank-answer">${i+1}. ${escapeHTML(q.a)}</div><div class="bank-hint">${escapeHTML(q.hint)}</div></div><span class="diff diff-${q.difficulty}">${q.difficulty}</span>`;bankList.appendChild(d)});
+}
 checkResume();
 </script>
 </body>
