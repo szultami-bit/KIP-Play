@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KIP Anagram Party v1.14.2</title>
+<title>KIP Anagram Party v1.15</title>
 <style>
 :root {
   --bg: #07111f;
@@ -447,6 +447,24 @@ button { cursor:pointer; }
   .answer-image-wrap .real-image{height:280px}
 }
 
+
+.answer-image-wrap{
+  position:relative;
+}
+.answer-image-wrap.verified::after{
+  content:"✓ Verified concept image";
+  position:absolute;
+  right:12px;
+  bottom:12px;
+  padding:7px 11px;
+  border-radius:999px;
+  background:rgba(15,23,42,.78);
+  color:#fff;
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.2px;
+}
+
 </style>
 </head>
 <body>
@@ -471,7 +489,7 @@ button { cursor:pointer; }
           <button class="btn btn-ghost" onclick="clearSaved()">Discard</button>
         </div>
       </div>
-      <div class="version">KIP Play • v1.14.2 • Answer Image Match</div>
+      <div class="version">KIP Play • v1.15 • Verified Concept Image</div>
 <div id="dbStatus" class="db-status loading">● Connecting to question database...</div>
     </div>
   </div>
@@ -714,7 +732,7 @@ async function initOnlineBank(){
   }
 }
 
-const STORE="kip-v1142-game";
+const STORE="kip-v115-game";
 
 const levelMeta={
   "Junior Kid":{icon:"🟢",desc:"Simple concrete vocabulary for early learners."},
@@ -816,284 +834,401 @@ function adjustScore(index,amount){
 
 
 
+
 const imageCache = new Map();
 let imageRequestToken = 0;
 
 /*
-  v1.14.2 rule:
-  - NO image before Show Answer.
-  - After Show Answer, show an image only if it strongly matches the answer.
-  - If uncertain, show answer text only.
+  KIP v1.15 — VERIFIED CONCEPT IMAGE RESOLVER
+
+  We DO NOT use free-form stock/image search.
+  We resolve the ANSWER to a specific Wikipedia/Wikidata concept and only
+  show an image attached to that verified concept.
+
+  If concept confidence is not strong enough: show NO image.
 */
 
-const EXACT_IMAGE_QUERIES={
-  "pickup truck":[
-    "pickup truck vehicle",
-    "\"pickup truck\" vehicle",
-    "pickup truck road"
-  ],
-  "technician":[
-    "technician worker repairing equipment",
-    "maintenance technician at work",
-    "electronics technician person working"
-  ],
-  "sailing":[
-    "sailing sailboat sea",
-    "person sailing yacht",
-    "sailboat sailing ocean"
-  ],
-  "mechanic":["car mechanic repairing vehicle","auto mechanic worker"],
-  "engineer":["engineer person at work machinery","engineer working equipment"],
-  "electrician":["electrician worker wiring","electrician at work"],
-  "plumber":["plumber worker pipe repair","plumber at work"],
-  "carpenter":["carpenter woodworking person","carpenter at work"],
-  "receptionist":["receptionist front desk person","hotel receptionist"],
-  "cashier":["cashier checkout person","store cashier worker"],
-  "pilot":["airline pilot cockpit person","commercial pilot uniform"],
-  "dentist":["dentist treating patient","dentist at work clinic"],
-  "nurse":["nurse hospital patient","nurse at work"],
-  "doctor":["doctor examining patient","doctor hospital person"],
-  "chef":["chef cooking kitchen person","professional chef"],
-  "baker":["baker bakery bread person","professional baker"],
-  "barber":["barber cutting hair person","barber shop worker"],
-  "photographer":["photographer person camera","professional photographer"],
-  "journalist":["journalist reporter interviewing","journalist person at work"],
-  "scientist":["scientist person laboratory","scientist at work lab"],
-  "programmer":["programmer coding computer person","software programmer at work"],
-  "accountant":["accountant person office finance","accountant at desk"],
-  "manager":["manager leading team meeting","business manager person"],
-  "entrepreneur":["entrepreneur startup person","business founder presenting"],
-  "leadership":["leader leading team meeting","leadership business team"],
-  "inflation":["inflation rising prices groceries","inflation price increase economy"],
-  "marketing":["marketing team campaign meeting","marketing advertising team"],
-  "finance":["financial analyst working","finance professional office"],
-  "research":["researcher conducting research","research person study"]
+const CONCEPT_OVERRIDES = {
+  // Transportation / ambiguous nouns
+  "scooter": ["Motor scooter","Kick scooter"],
+  "pickup truck": ["Pickup truck"],
+  "pickup": ["Pickup truck"],
+  "bike": ["Bicycle"],
+  "bicycle": ["Bicycle"],
+  "motorcycle": ["Motorcycle"],
+  "motor scooter": ["Motor scooter"],
+  "subway": ["Rapid transit"],
+  "tram": ["Tram"],
+  "van": ["Van"],
+  "jeep": ["Jeep"],
+  "ferry": ["Ferry"],
+  "canoe": ["Canoe"],
+  "raft": ["Raft"],
+  "sailboat": ["Sailboat"],
+  "speedboat": ["Motorboat"],
+  "cable car": ["Cable car (railway)"],
+  "school bus": ["School bus"],
+  "city bus": ["Bus"],
+  "cargo ship": ["Cargo ship"],
+  "passenger plane": ["Airliner"],
+  "cargo plane": ["Cargo aircraft"],
+  "high speed train": ["High-speed rail"],
+  "underground train": ["Rapid transit"],
+
+  // Jobs / occupations
+  "technician": ["Technician"],
+  "mechanic": ["Mechanic"],
+  "engineer": ["Engineer"],
+  "electrician": ["Electrician"],
+  "plumber": ["Plumber"],
+  "carpenter": ["Carpenter"],
+  "receptionist": ["Receptionist"],
+  "cashier": ["Cashier"],
+  "clerk": ["Clerk"],
+  "coach": ["Coach (sport)"],
+  "pilot": ["Aircraft pilot"],
+  "dentist": ["Dentist"],
+  "nurse": ["Nursing"],
+  "doctor": ["Physician"],
+  "chef": ["Chef"],
+  "baker": ["Baker"],
+  "barber": ["Barber"],
+  "photographer": ["Photographer"],
+  "journalist": ["Journalist"],
+  "scientist": ["Scientist"],
+  "programmer": ["Computer programmer"],
+  "software developer": ["Software developer"],
+  "accountant": ["Accountant"],
+  "manager": ["Management"],
+  "entrepreneur": ["Entrepreneur"],
+  "pharmacist": ["Pharmacist"],
+  "veterinarian": ["Veterinarian"],
+  "graphic designer": ["Graphic design"],
+  "flight attendant": ["Flight attendant"],
+  "tour guide": ["Tour guide"],
+
+  // Sports / activities
+  "sailing": ["Sailing"],
+  "surfing": ["Surfing"],
+  "cycling": ["Cycling"],
+  "skating": ["Ice skating","Roller skating"],
+  "swimming": ["Swimming"],
+  "boxing": ["Boxing"],
+  "archery": ["Archery"],
+  "badminton": ["Badminton"],
+  "basketball": ["Basketball"],
+  "volleyball": ["Volleyball"],
+  "table tennis": ["Table tennis"],
+  "karate": ["Karate"],
+  "gymnastics": ["Gymnastics"],
+  "bowling": ["Bowling"],
+  "diving": ["Diving"],
+  "hiking": ["Hiking"],
+  "jogging": ["Jogging"],
+  "wrestling": ["Wrestling"],
+  "fencing": ["Fencing"],
+  "skiing": ["Skiing"],
+  "snowboarding": ["Snowboarding"],
+  "rowing": ["Rowing (sport)"],
+  "climbing": ["Climbing"],
+  "weightlifting": ["Olympic weightlifting"],
+  "taekwondo": ["Taekwondo"],
+  "skateboarding": ["Skateboarding"],
+
+  // Business / abstract concepts where exact pages exist
+  "inflation": ["Inflation"],
+  "marketing": ["Marketing"],
+  "finance": ["Finance"],
+  "leadership": ["Leadership"],
+  "recruitment": ["Recruitment"],
+  "human resources": ["Human resources"],
+  "supply chain": ["Supply chain"],
+  "inventory": ["Inventory"],
+  "quality control": ["Quality control"],
+  "customer service": ["Customer service"],
+  "digital marketing": ["Digital marketing"],
+  "content marketing": ["Content marketing"],
+  "market research": ["Market research"],
+  "business strategy": ["Business strategy"],
+  "entrepreneurship": ["Entrepreneurship"],
+  "economics": ["Economics"],
+  "globalization": ["Globalization"],
+  "climate change": ["Climate change"],
+  "global warming": ["Climate change"],
+  "human rights": ["Human rights"],
+  "sustainable development": ["Sustainable development"],
+
+  // Science / study
+  "research": ["Research"],
+  "scientific method": ["Scientific method"],
+  "chemical reaction": ["Chemical reaction"],
+  "electric current": ["Electric current"],
+  "gravity": ["Gravity"],
+  "cell": ["Cell (biology)"],
+  "plant cell": ["Plant cell"],
+  "animal cell": ["Cell (biology)"],
+  "laboratory": ["Laboratory"]
 };
 
-const TOPIC_IMAGE_CONTEXT={
-  "Animals":"animal",
-  "Animals Advanced":"wild animal",
-  "Farm Animals":"farm animal",
-  "Sea Animals":"marine animal",
-  "Food & Drinks":"food",
-  "Fruits":"fruit",
-  "Colors & Shapes":"shape",
-  "Body Parts":"human body",
-  "Classroom Objects":"classroom object",
-  "Family":"family",
-  "Toys":"toy",
-  "Weather":"weather",
-  "Clothes":"clothing",
-  "Home":"household object",
-  "Numbers":"number",
-  "Action Words":"person action",
-  "Daily Routines":"daily activity",
-  "Jobs":"worker occupation",
-  "Transportation":"vehicle",
-  "Daily Activities":"person activity",
-  "Places":"place building",
-  "Sports":"sport activity",
-  "School Subjects":"school subject",
-  "Nature":"nature",
-  "Household Items":"household object",
-  "Feelings":"emotion person",
-  "Technology Basics":"technology device",
-  "Time & Calendar":"calendar time",
-  "Community Places":"public place",
-  "Health":"health medical",
-  "Hobbies":"hobby activity",
-  "Shopping":"shopping",
-  "School & Learning":"education",
-  "Technology":"technology",
-  "Health & Lifestyle":"healthy lifestyle",
-  "Environment":"environment",
-  "Travel":"travel",
-  "Feelings & Personality":"emotion personality",
-  "Food & Nutrition":"nutrition food",
-  "Friendship":"friends",
-  "Money":"money finance",
-  "Media":"media",
-  "Science":"science",
-  "Geography":"geography",
-  "Public Places":"public building",
-  "Teen Life":"teenager",
-  "Study Skills":"studying",
-  "Global Culture":"culture",
-  "Safety":"safety",
-  "Work & Career":"professional at work",
-  "Business & Entrepreneurship":"business startup",
-  "Communication":"people communication",
-  "Academic Skills":"academic study",
-  "Critical Thinking":"thinking analysis",
-  "Leadership":"leader team",
-  "Marketing":"marketing business",
-  "Finance":"finance professional",
-  "Human Resources":"workplace people",
-  "Operations":"business operations",
-  "Entrepreneurship":"startup entrepreneur",
-  "Economics":"economics",
-  "Customer Service":"customer service person",
-  "Digital Business":"digital business",
-  "Research Methods":"research study",
-  "Global Issues":"global issue"
+const TOPIC_HINTS = {
+  "Transportation":["transport","vehicle","road","rail","ship","aircraft"],
+  "Jobs":["occupation","profession","worker","job","work"],
+  "Work & Career":["career","occupation","work","profession"],
+  "Human Resources":["employment","work","employee","organization"],
+  "Sports":["sport","game","athlete","competition"],
+  "Hobbies":["activity","recreation","hobby"],
+  "Action Words":["action","movement","activity"],
+  "Animals":["animal","species","wildlife"],
+  "Animals Advanced":["animal","species","wildlife"],
+  "Farm Animals":["animal","livestock","farm"],
+  "Sea Animals":["animal","marine","ocean"],
+  "Food & Drinks":["food","drink","dish","beverage"],
+  "Fruits":["fruit","food"],
+  "Technology":["technology","computer","software","internet"],
+  "Technology Basics":["technology","device","computer"],
+  "Science":["science","scientific","physics","chemistry","biology"],
+  "School & Learning":["education","school","learning"],
+  "School Subjects":["education","study","science","arts"],
+  "Marketing":["marketing","business","market"],
+  "Finance":["finance","financial","money"],
+  "Leadership":["leadership","management","organization"],
+  "Business & Entrepreneurship":["business","startup","entrepreneurship"],
+  "Entrepreneurship":["startup","business","entrepreneurship"],
+  "Economics":["economics","economic","market"],
+  "Customer Service":["customer","service","business"],
+  "Research Methods":["research","method","study"],
+  "Academic Skills":["academic","research","study"],
+  "Global Issues":["global","society","environment","international"]
 };
 
-const BAD_IMAGE_WORDS=[
-  "book","cover","volume","vol ","logo","seal","emblem","coat of arms",
-  "icon","diagram","chart","map","poster","stamp","coin","manuscript",
-  "painting","drawing","illustration","petri","agar","culture plate",
-  "colony","microbiology","bacteria","fungus","flag"
+const REJECT_TITLE_WORDS = [
+  "album","song","band","film","television","tv series","episode","novel",
+  "book","magazine","newspaper","company","corporation","brand","logo",
+  "seal","coat of arms","flag","poster","painting","sculpture",
+  "character","video game","comic","surname"
 ];
 
-function norm(s){
+function normConcept(s){
   return String(s||"")
     .toLowerCase()
+    .replace(/\([^)]*\)/g," ")
     .replace(/[^a-z0-9\s]/g," ")
     .replace(/\s+/g," ")
     .trim();
 }
 
-function tokens(s){
+function answerTokens(s){
   const stop=new Set(["the","a","an","and","of","to","in","for","with","on","at","by"]);
-  return norm(s).split(" ").filter(x=>x.length>2 && !stop.has(x));
+  return normConcept(s).split(" ").filter(x=>x.length>2 && !stop.has(x));
 }
 
-function exactQueries(q){
-  const key=norm(q.a);
-  if(EXACT_IMAGE_QUERIES[key]) return EXACT_IMAGE_QUERIES[key];
-  const ctx=TOPIC_IMAGE_CONTEXT[q.topic] || norm(q.topic);
-  const base=[
-    `"${q.a}" ${ctx}`,
-    `${q.a} ${ctx}`
-  ];
+function conceptsFor(q){
+  const key=normConcept(q.a);
+  const override=CONCEPT_OVERRIDES[key];
+  if(override) return override;
+
+  // First try exact answer as Wikipedia title.
+  const arr=[q.a];
+
+  // Topic-aware fallbacks only if exact title does not resolve.
   if(q.topic==="Jobs" || q.topic==="Work & Career" || q.topic==="Human Resources"){
-    base.unshift(`${q.a} person at work`);
+    arr.push(`${q.a} occupation`);
+  }else if(q.topic==="Transportation"){
+    arr.push(`${q.a} vehicle`);
+  }else if(q.topic==="Sports"){
+    arr.push(`${q.a} sport`);
   }
-  if(q.topic==="Transportation"){
-    base.unshift(`${q.a} vehicle`);
-  }
-  if(q.topic==="Sports" || q.topic==="Hobbies" || q.topic==="Action Words"){
-    base.unshift(`${q.a} person doing activity`);
-  }
-  return [...new Set(base)];
+
+  return [...new Set(arr)];
 }
 
-function candidateScore(item,q){
-  const title=norm(item.title);
-  const tags=norm(item.tags||"");
-  const text=`${title} ${tags}`;
-  const answer=norm(q.a);
-  const ts=tokens(q.a);
+function titleLooksWrong(title){
+  const t=normConcept(title);
+  return REJECT_TITLE_WORDS.some(w=>t.includes(w));
+}
+
+function semanticTitleScore(title,q,requestedTitle){
+  const t=normConcept(title);
+  const a=normConcept(q.a);
+  const r=normConcept(requestedTitle);
+  const toks=answerTokens(q.a);
 
   let score=0;
 
-  // Strongest signal: exact phrase in title.
-  if(title===answer) score+=180;
-  else if(title.includes(answer)) score+=130;
-  else if(text.includes(answer)) score+=90;
+  if(t===a) score+=140;
+  if(t===r) score+=130;
+  if(t.includes(a) || a.includes(t)) score+=80;
 
-  // Every meaningful answer token should appear.
   let hits=0;
-  for(const t of ts){
-    if(title.includes(t)){score+=35;hits++}
-    else if(tags.includes(t)){score+=18;hits++}
+  for(const tok of toks){
+    if(t.includes(tok)){score+=28;hits++;}
   }
-  if(ts.length && hits===ts.length) score+=70;
-  if(ts.length>1 && hits<ts.length) score-=100;
+  if(toks.length && hits===toks.length) score+=50;
 
-  // Reject obvious non-answer artifacts.
-  for(const bad of BAD_IMAGE_WORDS){
-    if(text.includes(bad)) score-=120;
-  }
+  if(titleLooksWrong(title)) score-=180;
 
-  if(q.topic==="Jobs" || q.topic==="Work & Career" || q.topic==="Human Resources"){
-    const personCue=/\b(person|people|worker|working|employee|man|woman|technician|mechanic|doctor|nurse|dentist|chef|pilot|engineer|teacher|scientist|cashier|barber|baker|journalist|photographer|accountant|manager)\b/;
-    if(personCue.test(text)) score+=50;
-    else score-=80;
-  }
-
-  if(q.topic==="Transportation"){
-    if(/\b(vehicle|car|truck|bus|train|plane|aircraft|boat|ship|motorcycle|bicycle|pickup)\b/.test(text)) score+=45;
-  }
+  // Topic-aware positive evidence in the resolved page title.
+  const hints=TOPIC_HINTS[q.topic]||[];
+  hints.forEach(h=>{if(t.includes(h))score+=12});
 
   return score;
 }
 
-async function wikipediaExactPageImage(q){
-  const title=encodeURIComponent(q.a.replace(/\s+/g,"_"));
-  const url=`https://en.wikipedia.org/w/api.php?action=query&titles=${title}&prop=pageimages|info&piprop=thumbnail&pithumbsize=1200&format=json&origin=*`;
-  const res=await fetch(url);
+async function fetchWikipediaConcept(title,q){
+  const params=new URLSearchParams({
+    action:"query",
+    titles:title,
+    redirects:"1",
+    prop:"pageimages|pageprops|description",
+    piprop:"thumbnail",
+    pithumbsize:"1200",
+    format:"json",
+    origin:"*"
+  });
+
+  const res=await fetch("https://en.wikipedia.org/w/api.php?"+params.toString());
   if(!res.ok) return null;
   const data=await res.json();
   const pages=Object.values(data?.query?.pages||{});
-  const p=pages.find(x=>!x.missing && x.thumbnail?.source);
-  if(!p) return null;
-  const candidate={url:p.thumbnail.source,title:p.title||q.a,tags:q.a,source:"Wikipedia"};
-  candidate.score=candidateScore(candidate,q)+80;
-  return candidate;
-}
+  const page=pages.find(p=>!p.missing);
+  if(!page) return null;
 
-async function openverseCandidates(query,q){
-  const url="https://api.openverse.org/v1/images/?page_size=24&mature=false&q="+encodeURIComponent(query);
-  const res=await fetch(url,{headers:{"Accept":"application/json"}});
-  if(!res.ok) return [];
-  const data=await res.json();
-  return (data.results||[]).map(x=>{
-    const item={
-      url:x.thumbnail||x.url,
-      title:x.title||"",
-      tags:(x.tags||[]).map(t=>t.name||t).join(" "),
-      source:"Openverse"
+  const titleScore=semanticTitleScore(page.title||"",q,title);
+  if(titleScore<70) return null;
+
+  // Reject if Wikipedia description clearly indicates media/person-name ambiguity
+  // unrelated to the topic.
+  const desc=normConcept(page.description||"");
+  const rejectDesc=["album","song","band","film","television series","novel","book","company","surname"];
+  if(rejectDesc.some(w=>desc.includes(w))) return null;
+
+  if(page.thumbnail?.source){
+    return {
+      url:page.thumbnail.source,
+      title:page.title||title,
+      score:titleScore+80,
+      source:"Wikipedia",
+      wikibase:page.pageprops?.wikibase_item||null
     };
-    item.score=candidateScore(item,q);
-    return item;
-  }).filter(x=>x.url);
+  }
+
+  // No page image: try Wikidata P18 for the exact verified entity.
+  const qid=page.pageprops?.wikibase_item;
+  if(qid){
+    const wd=await fetchWikidataImage(qid);
+    if(wd){
+      return {
+        url:wd,
+        title:page.title||title,
+        score:titleScore+70,
+        source:"Wikidata",
+        wikibase:qid
+      };
+    }
+  }
+  return null;
 }
 
-async function commonsCandidates(query,q){
-  const phrase=encodeURIComponent(query);
-  const url="https://commons.wikimedia.org/w/api.php?action=query&generator=search"
-    +"&gsrsearch="+phrase
-    +"&gsrnamespace=6&gsrlimit=20"
-    +"&prop=imageinfo&iiprop=url&iiurlwidth=1200"
-    +"&format=json&origin=*";
-  const res=await fetch(url);
-  if(!res.ok) return [];
+async function fetchWikidataImage(qid){
+  try{
+    const res=await fetch(`https://www.wikidata.org/wiki/Special:EntityData/${encodeURIComponent(qid)}.json`);
+    if(!res.ok) return null;
+    const data=await res.json();
+    const entity=data?.entities?.[qid];
+    const filename=entity?.claims?.P18?.[0]?.mainsnak?.datavalue?.value;
+    if(!filename) return null;
+
+    const params=new URLSearchParams({
+      action:"query",
+      titles:"File:"+filename,
+      prop:"imageinfo",
+      iiprop:"url",
+      iiurlwidth:"1200",
+      format:"json",
+      origin:"*"
+    });
+    const r=await fetch("https://commons.wikimedia.org/w/api.php?"+params.toString());
+    if(!r.ok) return null;
+    const d=await r.json();
+    const p=Object.values(d?.query?.pages||{})[0];
+    const ii=p?.imageinfo?.[0];
+    return ii?.thumburl||ii?.url||null;
+  }catch(e){
+    return null;
+  }
+}
+
+async function searchWikipediaConcept(q){
+  const query=`"${q.a}" ${q.topic}`;
+  const params=new URLSearchParams({
+    action:"query",
+    generator:"search",
+    gsrsearch:query,
+    gsrnamespace:"0",
+    gsrlimit:"8",
+    prop:"pageimages|pageprops|description",
+    piprop:"thumbnail",
+    pithumbsize:"1200",
+    format:"json",
+    origin:"*"
+  });
+
+  const res=await fetch("https://en.wikipedia.org/w/api.php?"+params.toString());
+  if(!res.ok) return null;
   const data=await res.json();
-  return Object.values(data?.query?.pages||{}).map(p=>{
-    const ii=p.imageinfo?.[0]||{};
-    const item={
-      url:ii.thumburl||ii.url||"",
-      title:(p.title||"").replace(/^File:/i,""),
-      tags:"",
-      source:"Wikimedia Commons"
-    };
-    item.score=candidateScore(item,q);
-    return item;
-  }).filter(x=>x.url && !x.url.toLowerCase().endsWith(".svg"));
+  const pages=Object.values(data?.query?.pages||{});
+
+  const ranked=pages.map(p=>{
+    const s=semanticTitleScore(p.title||"",q,q.a);
+    const desc=normConcept(p.description||"");
+    let bonus=0;
+    (TOPIC_HINTS[q.topic]||[]).forEach(h=>{
+      if(desc.includes(h)) bonus+=14;
+    });
+    if(REJECT_TITLE_WORDS.some(w=>desc.includes(w))) bonus-=150;
+    return {p,score:s+bonus};
+  }).sort((a,b)=>b.score-a.score);
+
+  const best=ranked[0];
+  if(!best || best.score<95) return null;
+
+  const p=best.p;
+  if(p.thumbnail?.source){
+    return {url:p.thumbnail.source,title:p.title,score:best.score,source:"Wikipedia search"};
+  }
+
+  const qid=p.pageprops?.wikibase_item;
+  if(qid){
+    const url=await fetchWikidataImage(qid);
+    if(url) return {url,title:p.title,score:best.score,source:"Wikidata search"};
+  }
+  return null;
 }
 
-async function findAnswerImage(q){
+async function findVerifiedConceptImage(q){
   const cacheKey=`${q.level}|${q.topic}|${q.a}`.toLowerCase();
   if(imageCache.has(cacheKey)) return imageCache.get(cacheKey);
 
   let candidates=[];
 
-  // Exact Wikipedia page first; excellent for concrete objects/animals/vehicles.
-  try{
-    const wiki=await wikipediaExactPageImage(q);
-    if(wiki) candidates.push(wiki);
-  }catch(e){}
+  for(const concept of conceptsFor(q)){
+    try{
+      const hit=await fetchWikipediaConcept(concept,q);
+      if(hit) candidates.push(hit);
+    }catch(e){}
+  }
 
-  for(const query of exactQueries(q)){
-    try{ candidates.push(...await openverseCandidates(query,q)); }catch(e){}
-    try{ candidates.push(...await commonsCandidates(query,q)); }catch(e){}
+  if(!candidates.length){
+    try{
+      const hit=await searchWikipediaConcept(q);
+      if(hit) candidates.push(hit);
+    }catch(e){}
   }
 
   candidates.sort((a,b)=>b.score-a.score);
   const best=candidates[0]||null;
 
-  // Very strict threshold: wrong image must not appear.
+  // Extremely strict acceptance.
   const accepted=best && best.score>=120 ? best : null;
   imageCache.set(cacheKey,accepted);
   return accepted;
@@ -1101,6 +1236,7 @@ async function findAnswerImage(q){
 
 function clearAnswerImage(){
   imageRequestToken++;
+  answerImageWrap.classList.remove("verified");
   realImage.onload=null;
   realImage.onerror=null;
   realImage.removeAttribute("src");
@@ -1111,17 +1247,18 @@ function clearAnswerImage(){
 
 async function renderAnswerImage(q){
   const token=++imageRequestToken;
+  answerImageWrap.classList.remove("verified");
   answerImageWrap.classList.remove("hidden");
   realImage.classList.add("hidden");
   realImageLoading.classList.remove("hidden");
-  realImageLoading.textContent="Finding exact matching image…";
+  realImageLoading.textContent="Verifying matching image…";
 
   try{
-    const hit=await findAnswerImage(q);
+    const hit=await findVerifiedConceptImage(q);
     if(token!==imageRequestToken) return;
 
     if(!hit){
-      // No image is better than a wrong one.
+      // Deliberately show no image rather than a wrong one.
       answerImageWrap.classList.add("hidden");
       realImageLoading.classList.add("hidden");
       return;
@@ -1131,15 +1268,18 @@ async function renderAnswerImage(q){
       if(token!==imageRequestToken) return;
       realImageLoading.classList.add("hidden");
       realImage.classList.remove("hidden");
+      answerImageWrap.classList.add("verified");
     };
     realImage.onerror=()=>{
       if(token!==imageRequestToken) return;
       answerImageWrap.classList.add("hidden");
+      answerImageWrap.classList.remove("verified");
       realImageLoading.classList.add("hidden");
     };
     realImage.src=hit.url;
   }catch(e){
     answerImageWrap.classList.add("hidden");
+    answerImageWrap.classList.remove("verified");
     realImageLoading.classList.add("hidden");
   }
 }
@@ -1190,6 +1330,7 @@ function reveal(){
   correctBtn.classList.remove("hidden");
   wrongBtn.classList.remove("hidden");
 
+  // Answer appears immediately. Verified image is optional and loads after.
   if(currentIndex!==null){
     renderAnswerImage(questions[currentIndex]);
   }
