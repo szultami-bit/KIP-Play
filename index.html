@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>KIP Anagram Party v1.6</title>
+<title>KIP Anagram Party v1.7</title>
 <style>
 :root{
   --bg1:#07111f; --bg2:#10214a; --panel:#0f1a30;
@@ -60,6 +60,7 @@ button:hover{transform:translateY(-2px);filter:brightness(1.08)}
 .answer{font-size:clamp(38px,6vw,72px);font-weight:1000;margin-top:14px;letter-spacing:2px}
 .controls{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:18px}
 .bonus-card{margin:18px auto 0;max-width:620px;padding:18px;border-radius:20px;font-size:clamp(24px,4vw,38px);font-weight:900;background:linear-gradient(135deg,#f59e0b,#ec4899)}
+.event-card{margin:14px auto 0;max-width:620px;padding:14px;border-radius:18px;background:#172554;font-size:20px;font-weight:800}
 .next-turn{margin:18px auto 0;max-width:620px;padding:14px;border-radius:18px;background:#14213d;font-size:20px;font-weight:800}
 .settings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px}
 .setting-box{background:#10192d;border:1px solid rgba(255,255,255,.09);border-radius:18px;padding:16px}
@@ -84,6 +85,9 @@ button:hover{transform:translateY(-2px);filter:brightness(1.08)}
 .team-name-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px}
 .team-name-grid input{width:100%;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:#0b1325;color:white}
 .summary-box{margin-top:16px;background:#10192d;border-radius:16px;padding:14px;color:#dbeafe}
+.resume-box{margin-top:18px;padding:18px;border-radius:18px;background:#13213f;border:1px solid rgba(255,255,255,.1)}
+.floating-tools{position:fixed;right:18px;bottom:18px;display:flex;gap:10px;z-index:20}
+.floating-tools button{box-shadow:0 10px 30px rgba(0,0,0,.3)}
 @keyframes pop{0%{transform:scale(.72);opacity:0}70%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
 .pop{animation:pop .38s ease-out}
 @media(max-width:900px){.editor-layout{grid-template-columns:1fr}.editor-list{max-height:300px}}
@@ -91,6 +95,7 @@ button:hover{transform:translateY(-2px);filter:brightness(1.08)}
   .board{grid-template-columns:repeat(3,1fr)}.scoreboard{grid-template-columns:repeat(2,1fr)}
   .container{padding:12px}.answer-visual{min-height:240px}.letter{width:62px;height:72px;font-size:40px;border-radius:14px}
   .form-grid,.team-name-grid{grid-template-columns:1fr}
+  .floating-tools{right:10px;bottom:10px}
 }
 </style>
 </head>
@@ -105,7 +110,17 @@ button:hover{transform:translateY(-2px);filter:brightness(1.08)}
     <button class="primary" onclick="go('settings')">PLAY GAME 🚀</button>
     <button class="info" onclick="openEditor()">QUESTION BANK ✏️</button>
   </div>
-  <p class="small" style="margin-top:18px">KIP Play Lite v1.6</p>
+
+  <div id="resumeBox" class="resume-box hidden">
+    <strong style="font-size:22px">Game in progress found</strong>
+    <p class="subtitle">Continue from your last saved round?</p>
+    <div class="controls">
+      <button class="primary" onclick="resumeSavedGame()">RESUME GAME</button>
+      <button class="secondary" onclick="clearSavedGame()">DISCARD</button>
+    </div>
+  </div>
+
+  <p class="small" style="margin-top:18px">KIP Play Lite v1.7</p>
 </section>
 
 <section id="settings" class="card hidden">
@@ -148,6 +163,20 @@ button:hover{transform:translateY(-2px);filter:brightness(1.08)}
     </div>
 
     <div class="setting-box">
+      <label>Point Mode</label>
+      <select id="pointMode">
+        <option value="random" selected>Random 10–50</option>
+        <option value="fixed20">Fixed +20</option>
+        <option value="fixed10">Fixed +10</option>
+      </select>
+    </div>
+
+    <div class="setting-box">
+      <label>Surprise Events</label>
+      <div class="toggle-row"><input id="eventEnabled" type="checkbox" checked><span>Enable random events</span></div>
+    </div>
+
+    <div class="setting-box">
       <label>Sound Effects</label>
       <div class="toggle-row"><input id="soundEnabled" type="checkbox" checked><span>Enable sounds</span></div>
     </div>
@@ -183,32 +212,43 @@ button:hover{transform:translateY(-2px);filter:brightness(1.08)}
   <h2 class="center">Choose Number of Questions</h2>
   <p class="subtitle center" id="questionCountInfo"></p>
   <div id="questionCountButtons" class="grid"></div>
-  <div class="controls">
-    <button class="secondary" onclick="go('topic')">← Back</button>
-  </div>
+  <div class="controls"><button class="secondary" onclick="go('topic')">← Back</button></div>
 </section>
 
 <section id="board" class="hidden">
   <div class="topbar">
-    <button class="secondary" onclick="resetAll()">← Home</button>
+    <div class="controls" style="margin:0">
+      <button class="secondary" onclick="resetAll()">← Home</button>
+      <button class="secondary" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+    </div>
     <div><span class="badge" id="levelBadge"></span> <span class="badge" id="topicBadge"></span></div>
   </div>
+
   <div id="turnBanner" class="turn-banner"></div>
+
   <div class="card">
     <h2 class="center">CHOOSE A BOX</h2>
     <div id="questionBoard" class="board"></div>
     <div id="roundSummary" class="summary-box center"></div>
   </div>
+
   <div id="scores" class="scoreboard"></div>
 </section>
 
 <section id="question" class="card center hidden">
-  <div class="topbar"><button class="secondary" onclick="backToBoard()">← Board</button><span class="badge" id="questionNumber"></span></div>
+  <div class="topbar">
+    <button class="secondary" onclick="backToBoard()">← Board</button>
+    <span class="badge" id="questionNumber"></span>
+  </div>
+
   <div id="turnBannerQ" class="turn-banner"></div>
   <div class="game-label">ANAGRAM CHALLENGE</div>
   <div class="question">Unscramble the word!</div>
 
-  <div id="timerWrap" class="hidden"><div class="timer-label">TIME LEFT</div><div id="timer" class="timer">15</div></div>
+  <div id="timerWrap" class="hidden">
+    <div class="timer-label">TIME LEFT</div>
+    <div id="timer" class="timer">15</div>
+  </div>
 
   <div id="puzzleBox" class="puzzle-box">
     <div class="anagram-title">WHAT WORD IS THIS?</div>
@@ -225,6 +265,7 @@ button:hover{transform:translateY(-2px);filter:brightness(1.08)}
   </div>
 
   <div id="bonusBox" class="bonus-card hidden"></div>
+  <div id="eventBox" class="event-card hidden"></div>
   <div id="nextTurnBox" class="next-turn hidden"></div>
 
   <div class="controls">
@@ -240,7 +281,7 @@ button:hover{transform:translateY(-2px);filter:brightness(1.08)}
   <h2>Game Finished!</h2>
   <div class="winner" id="winnerText"></div>
   <div id="finalScores" class="summary-box"></div>
-  <button class="primary" onclick="resetAll()" style="margin-top:18px">PLAY AGAIN</button>
+  <button class="primary" onclick="finishAndClear()" style="margin-top:18px">PLAY AGAIN</button>
 </section>
 
 <section id="editor" class="card hidden">
@@ -272,26 +313,11 @@ button:hover{transform:translateY(-2px);filter:brightness(1.08)}
     <div class="setting-box">
       <h3 id="formTitle">Add Question</h3>
       <div class="form-grid">
-        <div>
-          <label>Answer</label>
-          <input id="fAnswer" placeholder="CAT" oninput="updateScrambleSuggestion()" />
-        </div>
-        <div>
-          <label>Saved Anagram</label>
-          <input id="fScramble" placeholder="TAC" />
-        </div>
-        <div>
-          <label>Hint</label>
-          <input id="fHint" placeholder="Animal" />
-        </div>
-        <div>
-          <label>Emoji fallback</label>
-          <input id="fEmoji" placeholder="🐱" />
-        </div>
-        <div class="full">
-          <label>Image URL (optional)</label>
-          <input id="fImage" placeholder="https://..." />
-        </div>
+        <div><label>Answer</label><input id="fAnswer" placeholder="CAT" oninput="updateScrambleSuggestion()" /></div>
+        <div><label>Saved Anagram</label><input id="fScramble" placeholder="TAC" /></div>
+        <div><label>Hint</label><input id="fHint" placeholder="Animal" /></div>
+        <div><label>Emoji fallback</label><input id="fEmoji" placeholder="🐱" /></div>
+        <div class="full"><label>Image URL (optional)</label><input id="fImage" placeholder="https://..." /></div>
       </div>
 
       <div class="preview">
@@ -308,7 +334,11 @@ button:hover{transform:translateY(-2px);filter:brightness(1.08)}
   </div>
 </section>
 
-<p class="small center">KIP Play Lite v1.6</p>
+<div class="floating-tools">
+  <button class="secondary" onclick="toggleFullscreen()">⛶</button>
+</div>
+
+<p class="small center">KIP Play Lite v1.7</p>
 </div>
 
 <script>
@@ -333,16 +363,29 @@ const DEFAULT_BANKS={
 
 let banks=loadBanks();
 let selectedLevel="",selectedTopic="",current=null,used=new Set(),scores=[],activeQuestions=[],timerId=null,timeLeft=0,currentTeam=0;
-let settings={teams:4,timer:15,sound:true,questionOrder:"random",anagramMode:"random",teamNames:["Team A","Team B","Team C","Team D"]};
+let settings={
+  teams:4,timer:15,sound:true,questionOrder:"random",anagramMode:"random",
+  pointMode:"random",events:true,teamNames:["Team A","Team B","Team C","Team D"]
+};
 let editingIndex=null;
 
 function deepClone(o){return JSON.parse(JSON.stringify(o))}
 function loadBanks(){
-  try{const x=localStorage.getItem("kipQuestionBanksV16") || localStorage.getItem("kipQuestionBanksV15");return x?JSON.parse(x):deepClone(DEFAULT_BANKS)}
-  catch(e){return deepClone(DEFAULT_BANKS)}
+  try{
+    const x=localStorage.getItem("kipQuestionBanksV17") || localStorage.getItem("kipQuestionBanksV16") || localStorage.getItem("kipQuestionBanksV15");
+    return x?JSON.parse(x):deepClone(DEFAULT_BANKS);
+  }catch(e){return deepClone(DEFAULT_BANKS)}
 }
-function saveBanks(){localStorage.setItem("kipQuestionBanksV16",JSON.stringify(banks))}
-function go(id){stopTimer();document.querySelectorAll("section").forEach(s=>s.classList.add("hidden"));document.getElementById(id).classList.remove("hidden")}
+function saveBanks(){localStorage.setItem("kipQuestionBanksV17",JSON.stringify(banks))}
+function go(id){
+  stopTimer();
+  document.querySelectorAll("section").forEach(s=>s.classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+}
+function toggleFullscreen(){
+  if(!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+  else document.exitFullscreen?.();
+}
 
 function renderTeamNameInputs(){
   const count=+teamCount.value;
@@ -363,6 +406,8 @@ function saveSettings(){
   settings.sound=soundEnabled.checked;
   settings.questionOrder=questionOrder.value;
   settings.anagramMode=anagramMode.value;
+  settings.pointMode=pointMode.value;
+  settings.events=eventEnabled.checked;
   settings.teamNames=[];
   for(let i=0;i<settings.teams;i++){
     const v=(document.getElementById(`teamName${i}`)?.value||"").trim();
@@ -402,9 +447,7 @@ function prepareTopic(v){
     b.onclick=()=>startTopicWithCount(v,n);
     questionCountButtons.appendChild(b);
   });
-  if(count===0){
-    questionCountButtons.innerHTML='<p class="subtitle center">This topic has no questions yet.</p>';
-  }
+  if(count===0)questionCountButtons.innerHTML='<p class="subtitle center">This topic has no questions yet.</p>';
   go("question-count");
 }
 
@@ -420,7 +463,7 @@ function startTopicWithCount(v,count){
   if(settings.questionOrder==="random") arr=shuffleArray(arr);
   activeQuestions=arr.slice(0,Math.min(count,arr.length));
 
-  buildBoard();buildScores();updateTurnBanners();updateRoundSummary();go("board");
+  buildBoard();buildScores();updateTurnBanners();updateRoundSummary();saveGameState();go("board");
 }
 
 function shuffleArray(arr){
@@ -431,30 +474,21 @@ function shuffleArray(arr){
   }
   return a;
 }
-
 function updateTurnBanners(){
   const name=settings.teamNames[currentTeam] || `Team ${String.fromCharCode(65+currentTeam)}`;
   const t=`${name.toUpperCase()}'S TURN`;
-  turnBanner.textContent=t;
-  turnBannerQ.textContent=t;
+  turnBanner.textContent=t;turnBannerQ.textContent=t;
 }
-
-function updateRoundSummary(){
-  roundSummary.textContent=`${used.size} of ${activeQuestions.length} questions played`;
-}
-
+function updateRoundSummary(){roundSummary.textContent=`${used.size} of ${activeQuestions.length} questions played`}
 function buildBoard(){
   questionBoard.innerHTML="";
   activeQuestions.forEach((_,i)=>{
     const b=document.createElement("button");
     b.className="qtile"+(used.has(i)?" used":"");
-    b.textContent=i+1;b.disabled=used.has(i);
-    b.onclick=()=>openQuestion(i);
-    questionBoard.appendChild(b);
+    b.textContent=i+1;b.disabled=used.has(i);b.onclick=()=>openQuestion(i);questionBoard.appendChild(b);
   });
   updateRoundSummary();
 }
-
 function buildScores(){
   const root=document.getElementById("scores");root.innerHTML="";
   for(let i=0;i<settings.teams;i++){
@@ -464,38 +498,28 @@ function buildScores(){
     root.appendChild(box);
   }
 }
-
 function randomizeAnagram(answer){
-  const cleaned=answer.toUpperCase();
-  const chars=cleaned.split("");
-  const lettersOnly=chars.filter(c=>c!==" ");
+  const cleaned=answer.toUpperCase(),chars=cleaned.split(""),lettersOnly=chars.filter(c=>c!==" ");
   if(lettersOnly.length<=1)return cleaned;
-  let result=cleaned, tries=0;
-  while(result===cleaned && tries<10){
-    const shuffled=shuffleArray(lettersOnly);
-    let idx=0;
-    result=chars.map(c=>c===" "?" ":shuffled[idx++]).join("");
-    tries++;
+  let result=cleaned,tries=0;
+  while(result===cleaned&&tries<10){
+    const shuffled=shuffleArray(lettersOnly);let idx=0;
+    result=chars.map(c=>c===" "?" ":shuffled[idx++]).join("");tries++;
   }
-  return result===cleaned ? lettersOnly.reverse().join("") : result;
+  return result===cleaned?lettersOnly.reverse().join(""):result;
 }
-
 function renderLetters(scrambled){
   letters.innerHTML="";
   scrambled.split("").forEach(ch=>{
-    if(ch===" "){
-      const gap=document.createElement("div");gap.style.width="18px";letters.appendChild(gap);
-    }else{
-      const tile=document.createElement("div");tile.className="letter";tile.textContent=ch.toUpperCase();letters.appendChild(tile);
-    }
+    if(ch===" "){const gap=document.createElement("div");gap.style.width="18px";letters.appendChild(gap)}
+    else{const tile=document.createElement("div");tile.className="letter";tile.textContent=ch.toUpperCase();letters.appendChild(tile)}
   });
 }
-
 function openQuestion(i){
   current=i;
   const item=activeQuestions[i];
   questionNumber.textContent=`Question ${i+1}`;
-  const scramble=settings.anagramMode==="random" ? randomizeAnagram(item.a) : (item.scr||randomizeAnagram(item.a));
+  const scramble=settings.anagramMode==="random"?randomizeAnagram(item.a):(item.scr||randomizeAnagram(item.a));
   renderLetters(scramble);
   hintText.textContent=`Hint: ${item.hint||selectedTopic}`;
   answerText.textContent=item.a.toUpperCase();
@@ -511,17 +535,15 @@ function openQuestion(i){
   puzzleBox.classList.remove("hidden");
   revealed.classList.add("hidden");
   bonusBox.classList.add("hidden");
+  eventBox.classList.add("hidden");
   nextTurnBox.classList.add("hidden");
   showBtn.classList.remove("hidden");
   correctBtn.classList.add("hidden");
   wrongBtn.classList.add("hidden");
   continueBtn.classList.add("hidden");
 
-  updateTurnBanners();
-  go("question");
-  startTimer();
+  updateTurnBanners();saveGameState();go("question");startTimer();
 }
-
 function showAnswer(){
   stopTimer();
   puzzleBox.classList.add("hidden");
@@ -531,25 +553,40 @@ function showAnswer(){
   wrongBtn.classList.remove("hidden");
   playRevealSound();
 }
-
+function getBasePoints(){
+  if(settings.pointMode==="fixed10")return 10;
+  if(settings.pointMode==="fixed20")return 20;
+  const pool=[10,20,20,30,30,40,50];
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+function maybeApplyEvent(basePoints){
+  if(!settings.events || Math.random()>=0.25) return {points:basePoints,text:""};
+  const roll=Math.floor(Math.random()*4);
+  if(roll===0)return {points:basePoints*2,text:"⚡ DOUBLE POINTS!"};
+  if(roll===1)return {points:basePoints+10,text:"🎁 BONUS +10!"};
+  if(roll===2)return {points:Math.max(0,basePoints-10),text:"🌀 TRICKY ROUND: -10"};
+  return {points:basePoints,text:"🛡️ SAFE ROUND"};
+}
 function resolveAnswer(correct){
   correctBtn.classList.add("hidden");
   wrongBtn.classList.add("hidden");
   used.add(current);
 
   if(correct){
-    const pool=[10,20,20,30,30,40,50];
-    const pts=pool[Math.floor(Math.random()*pool.length)];
-    scores[currentTeam]+=pts;
-    bonusBox.textContent=`🎁 +${pts} POINTS!`;
+    const base=getBasePoints();
+    const ev=maybeApplyEvent(base);
+    scores[currentTeam]+=ev.points;
+    bonusBox.textContent=`🎁 +${ev.points} POINTS!`;
+    bonusBox.classList.remove("hidden");
+    if(ev.text){eventBox.textContent=ev.text;eventBox.classList.remove("hidden")}
     playTone(760,.15);
   }else{
     bonusBox.textContent="😅 NO POINTS THIS ROUND";
+    bonusBox.classList.remove("hidden");
     playTone(180,.25);
   }
-  bonusBox.classList.remove("hidden");
-  buildScores();
 
+  buildScores();
   if(used.size===activeQuestions.length){
     nextTurnBox.textContent="All questions have been played.";
   }else{
@@ -558,29 +595,61 @@ function resolveAnswer(correct){
   }
   nextTurnBox.classList.remove("hidden");
   continueBtn.classList.remove("hidden");
+  saveGameState();
 }
-
 function continueGame(){
   if(used.size===activeQuestions.length){showWinner();return}
   currentTeam=(currentTeam+1)%settings.teams;
-  updateTurnBanners();buildScores();buildBoard();go("board");
+  updateTurnBanners();buildScores();buildBoard();saveGameState();go("board");
 }
-
 function backToBoard(){go("board")}
-
 function showWinner(){
   const m=Math.max(...scores);
   const winners=scores.map((s,i)=>s===m?settings.teamNames[i]:null).filter(Boolean);
   winnerText.textContent=winners.length===1?`${winners[0]} wins with ${m} points!`:`Tie: ${winners.join(" & ")} — ${m} points`;
   finalScores.innerHTML=scores.map((s,i)=>`${escapeHtml(settings.teamNames[i])}: <strong>${s}</strong>`).join(" &nbsp; • &nbsp; ");
-  playVictory();
-  go("finish");
+  playVictory();clearSavedGame(false);go("finish");
 }
-
+function finishAndClear(){clearSavedGame(false);resetAll()}
 function resetAll(){
-  selectedLevel="";selectedTopic="";current=null;used=new Set();scores=[];activeQuestions=[];currentTeam=0;stopTimer();go("home");
+  selectedLevel="";selectedTopic="";current=null;used=new Set();scores=[];activeQuestions=[];currentTeam=0;stopTimer();clearSavedGame(false);go("home");checkResume();
 }
 
+/* RESUME */
+function saveGameState(){
+  if(!selectedTopic || !activeQuestions.length)return;
+  const state={
+    selectedLevel,selectedTopic,current,currentTeam,
+    used:[...used],scores,activeQuestions,settings,
+    screen:document.querySelector("section:not(.hidden)")?.id||"board"
+  };
+  localStorage.setItem("kipGameStateV17",JSON.stringify(state));
+}
+function checkResume(){
+  try{
+    const x=localStorage.getItem("kipGameStateV17");
+    if(x){const s=JSON.parse(x);resumeBox.classList.toggle("hidden",!(s&&s.activeQuestions&&s.activeQuestions.length))}
+    else resumeBox.classList.add("hidden");
+  }catch(e){resumeBox.classList.add("hidden")}
+}
+function resumeSavedGame(){
+  try{
+    const s=JSON.parse(localStorage.getItem("kipGameStateV17"));
+    if(!s)return;
+    selectedLevel=s.selectedLevel;selectedTopic=s.selectedTopic;current=s.current;
+    currentTeam=s.currentTeam||0;used=new Set(s.used||[]);scores=s.scores||[];
+    activeQuestions=s.activeQuestions||[];settings=s.settings||settings;
+    levelBadge.textContent=selectedLevel;topicBadge.textContent=selectedTopic;
+    updateTurnBanners();buildBoard();buildScores();updateRoundSummary();
+    go("board");
+  }catch(e){alert("Could not resume saved game.")}
+}
+function clearSavedGame(update=true){
+  localStorage.removeItem("kipGameStateV17");
+  if(update)checkResume();
+}
+
+/* TIMER / AUDIO */
 function startTimer(){
   stopTimer();
   if(!settings.timer){timerWrap.classList.add("hidden");return}
@@ -611,7 +680,7 @@ function refreshEditorTopics(){
   renderEditorList();
 }
 function renderEditorList(){
-  const t=editorTopic.value;const arr=banks[t]||[];editorList.innerHTML="";
+  const t=editorTopic.value,arr=banks[t]||[];editorList.innerHTML="";
   arr.forEach((q,i)=>{
     const row=document.createElement("div");row.className="qrow";
     row.innerHTML=`<div><strong>${i+1}. ${escapeHtml(q.a)}</strong><small>${escapeHtml(q.scr)} • ${escapeHtml(q.hint||"")}</small></div>
@@ -641,7 +710,7 @@ function deleteQuestion(i){
 }
 function updateScrambleSuggestion(){
   const a=fAnswer.value.trim();
-  if(a && !fScramble.dataset.touched) fScramble.value=randomizeAnagram(a);
+  if(a && !fScramble.dataset.touched)fScramble.value=randomizeAnagram(a);
   updatePreview();
 }
 fScramble.addEventListener("input",()=>{fScramble.dataset.touched="1";updatePreview()});
@@ -656,7 +725,8 @@ function saveQuestion(){
 }
 function exportBank(){
   const blob=new Blob([JSON.stringify(banks,null,2)],{type:"application/json"});
-  const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="kip-question-bank-v1.6.json";a.click();URL.revokeObjectURL(url);
+  const url=URL.createObjectURL(blob),a=document.createElement("a");
+  a.href=url;a.download="kip-question-bank-v1.7.json";a.click();URL.revokeObjectURL(url);
 }
 function importBank(ev){
   const file=ev.target.files[0];if(!file)return;
@@ -675,6 +745,8 @@ function resetDefaults(){
   banks=deepClone(DEFAULT_BANKS);saveBanks();refreshEditorTopics();clearForm();
 }
 function escapeHtml(s){return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+
+checkResume();
 </script>
 </body>
 </html>
