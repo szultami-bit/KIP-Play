@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>KIP Anagram Party v1.8</title>
+<title>KIP Anagram Party v1.8.2</title>
 <style>
 :root{
   --bg1:#07111f; --bg2:#10214a; --panel:#0f1a30;
@@ -89,6 +89,12 @@ button:hover{transform:translateY(-2px);filter:brightness(1.08)}
 .floating-tools{position:fixed;right:18px;bottom:18px;display:flex;gap:10px;z-index:20}
 .floating-tools button{box-shadow:0 10px 30px rgba(0,0,0,.3)}
 .level-note{margin-top:8px;color:#cbd5e1;font-size:14px;line-height:1.45}
+
+.diff-badge{display:inline-block;padding:6px 10px;border-radius:999px;font-size:13px;font-weight:900;margin-left:8px}
+.diff-Easy{background:#14532d;color:#dcfce7}
+.diff-Medium{background:#78350f;color:#fef3c7}
+.diff-Hard{background:#7f1d1d;color:#fee2e2}
+
 @keyframes pop{0%{transform:scale(.72);opacity:0}70%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
 .pop{animation:pop .38s ease-out}
 @media(max-width:900px){.editor-layout{grid-template-columns:1fr}.editor-list{max-height:300px}}
@@ -121,7 +127,7 @@ button:hover{transform:translateY(-2px);filter:brightness(1.08)}
     </div>
   </div>
 
-  <p class="small" style="margin-top:18px">KIP Play Lite v1.8 — Level-Based Question Bank</p>
+  <p class="small" style="margin-top:18px">KIP Play Lite v1.8.2 — Difficulty Edition</p>
 </section>
 
 <section id="settings" class="card hidden">
@@ -149,6 +155,16 @@ button:hover{transform:translateY(-2px);filter:brightness(1.08)}
       <label>Question Order</label>
       <select id="questionOrder"><option value="random" selected>Random</option><option value="fixed">Bank Order</option></select>
     </div>
+    <div class="setting-box">
+      <label>Difficulty</label>
+      <select id="difficultyMode">
+        <option value="all" selected>All Difficulties</option>
+        <option value="Easy">Easy Only</option>
+        <option value="Medium">Medium Only</option>
+        <option value="Hard">Hard Only</option>
+      </select>
+    </div>
+
     <div class="setting-box">
       <label>Anagram Mode</label>
       <select id="anagramMode"><option value="random" selected>Randomize Automatically</option><option value="saved">Use Saved Anagram</option></select>
@@ -229,6 +245,7 @@ button:hover{transform:translateY(-2px);filter:brightness(1.08)}
 
   <div id="turnBannerQ" class="turn-banner"></div>
   <div class="game-label" id="challengeLabel">ANAGRAM CHALLENGE</div>
+  <div id="difficultyBadge" class="diff-badge diff-Medium">Medium</div>
   <div class="question">Unscramble the word!</div>
 
   <div id="timerWrap" class="hidden">
@@ -306,6 +323,14 @@ button:hover{transform:translateY(-2px);filter:brightness(1.08)}
         <div><label>Answer</label><input id="fAnswer" placeholder="CAT" oninput="updateScrambleSuggestion()" /></div>
         <div><label>Saved Anagram</label><input id="fScramble" placeholder="TAC" /></div>
         <div class="full"><label>Hint</label><input id="fHint" placeholder="It says meow." /></div>
+        <div>
+          <label>Difficulty</label>
+          <select id="fDifficulty">
+            <option value="Easy">Easy</option>
+            <option value="Medium" selected>Medium</option>
+            <option value="Hard">Hard</option>
+          </select>
+        </div>
         <div><label>Emoji fallback</label><input id="fEmoji" placeholder="🐱" /></div>
         <div class="full"><label>Image URL (optional)</label><input id="fImage" placeholder="https://..." /></div>
       </div>
@@ -325,290 +350,369 @@ button:hover{transform:translateY(-2px);filter:brightness(1.08)}
 </section>
 
 <div class="floating-tools"><button class="secondary" onclick="toggleFullscreen()">⛶</button></div>
-<p class="small center">KIP Play Lite v1.8</p>
+<p class="small center">KIP Play Lite v1.8.2</p>
 </div>
 
 <script>
 const O="https://openmoji.org/data/color/svg/";
 
-function q(a,scr,e,code,hint){
-  return {a,scr,e,img:code?O+code+".svg":"",hint};
+function q(a,scr,e,code,hint,difficulty="Medium"){
+  return {a,scr,e,img:code?O+code+".svg":"",hint,difficulty};
 }
-function qe(a,scr,e,hint){
-  return {a,scr,e,img:"",hint};
+function qe(a,scr,e,hint,difficulty="Medium"){
+  return {a,scr,e,img:"",hint,difficulty};
 }
 
 /* LEVEL-SPECIFIC QUESTION BANK */
 const DEFAULT_BANKS = {
   "Junior Kid": {
     "Animals": [
-      q("Cat","TAC","🐱","1F431","Animal"),
-      q("Dog","OGD","🐶","1F436","Animal"),
-      q("Lion","ONIL","🦁","1F981","Animal"),
-      q("Tiger","REGIT","🐯","1F42F","Animal"),
-      q("Panda","ADNAP","🐼","1F43C","Animal"),
-      q("Rabbit","TIBBAR","🐰","1F430","Animal"),
-      q("Monkey","YEKMON","🐵","1F435","Animal"),
-      q("Zebra","BARZE","🦓","1F993","Animal"),
-      q("Owl","LOW","🦉","1F989","Animal"),
-      q("Fish","HSIF","🐟","1F41F","Animal")
+      qe("Cat", "TAC", "🐱", "It says meow.", "Easy"),
+      qe("Dog", "OGD", "🐶", "It says woof.", "Easy"),
+      qe("Fish", "HSIF", "🐟", "It swims in water.", "Easy"),
+      qe("Bird", "DRIB", "🐦", "It has wings.", "Easy"),
+      qe("Duck", "KCUD", "🦆", "It says quack.", "Easy"),
+      qe("Frog", "GORF", "🐸", "It can jump.", "Easy"),
+      qe("Lion", "ONIL", "🦁", "It is a big wild cat.", "Easy"),
+      qe("Tiger", "REGIT", "🐯", "It has black stripes.", "Easy"),
+      qe("Panda", "ADNAP", "🐼", "It is black and white.", "Easy"),
+      qe("Rabbit", "TIBBAR", "🐰", "It has long ears.", "Medium"),
+      qe("Monkey", "YEKMON", "🐵", "It likes climbing.", "Medium"),
+      qe("Zebra", "BARZE", "🦓", "It has black and white stripes.", "Easy"),
     ],
-    "Food": [
-      q("Rice","CERI","🍚","1F35A","Food"),
-      q("Egg","GGE","🥚","1F95A","Food"),
-      q("Apple","PPALE","🍎","1F34E","Fruit"),
-      q("Banana","NABANA","🍌","1F34C","Fruit"),
-      q("Bread","DRAEB","🍞","1F35E","Food"),
-      q("Pizza","ZAPIZ","🍕","1F355","Food"),
-      q("Milk","KILM","🥛","1F95B","Drink"),
-      q("Cake","KECA","🍰","1F370","Food"),
-      q("Juice","CEUJI","🧃","1F9C3","Drink"),
-      q("Candy","DYCAN","🍬","1F36C","Sweet food")
+    "Food & Drinks": [
+      qe("Rice", "CERI", "🍚", "A common food in Indonesia.", "Easy"),
+      qe("Egg", "GGE", "🥚", "A chicken can give us this.", "Easy"),
+      qe("Milk", "KILM", "🥛", "A white drink.", "Easy"),
+      qe("Bread", "DRAEB", "🍞", "We can make toast with it.", "Easy"),
+      qe("Apple", "PPALE", "🍎", "A red or green fruit.", "Easy"),
+      qe("Banana", "NABANA", "🍌", "A long yellow fruit.", "Medium"),
+      qe("Mango", "OGNAM", "🥭", "A sweet tropical fruit.", "Easy"),
+      qe("Pizza", "ZAPIZ", "🍕", "A round food with cheese.", "Easy"),
+      qe("Cake", "KECA", "🍰", "We eat it on birthdays.", "Easy"),
+      qe("Juice", "CEUJI", "🧃", "A drink made from fruit.", "Easy"),
+      qe("Water", "TERWA", "💧", "We drink it every day.", "Easy"),
+      qe("Candy", "DYCAN", "🍬", "A small sweet food.", "Easy"),
     ],
     "Colors & Shapes": [
-      qe("Red","DER","🔴","Color"),
-      qe("Blue","EULB","🔵","Color"),
-      qe("Green","NEERG","🟢","Color"),
-      qe("Yellow","WOLLEY","🟡","Color"),
-      qe("Black","KCALB","⚫","Color"),
-      qe("White","TEIHW","⚪","Color"),
-      qe("Circle","CLECIR","⭕","Shape"),
-      qe("Square","ARESQU","⬜","Shape"),
-      qe("Star","RATS","⭐","Shape"),
-      qe("Heart","THEAR","❤️","Shape")
+      qe("Red", "DER", "🔴", "The color of many roses.", "Easy"),
+      qe("Blue", "EULB", "🔵", "The color of a clear sky.", "Easy"),
+      qe("Green", "NEERG", "🟢", "The color of grass.", "Easy"),
+      qe("Yellow", "WOLLEY", "🟡", "The color of a banana.", "Medium"),
+      qe("Black", "KCALB", "⚫", "A very dark color.", "Easy"),
+      qe("White", "TEIHW", "⚪", "The color of snow.", "Easy"),
+      qe("Pink", "KNIP", "🩷", "A light red color.", "Easy"),
+      qe("Circle", "CLECIR", "⭕", "A round shape.", "Medium"),
+      qe("Square", "ARESQU", "⬜", "It has four equal sides.", "Medium"),
+      qe("Star", "RATS", "⭐", "You can see it in the night sky.", "Easy"),
+      qe("Heart", "THEAR", "❤️", "A symbol of love.", "Easy"),
+      qe("Triangle", "ANGLETRI", "🔺", "It has three sides.", "Hard"),
     ],
     "Body Parts": [
-      qe("Head","DAEH","🙂","Body part"),
-      qe("Eye","EYE","👁️","Body part"),
-      qe("Ear","RAE","👂","Body part"),
-      qe("Nose","OSEN","👃","Body part"),
-      qe("Mouth","THMOU","👄","Body part"),
-      qe("Hand","DNAH","✋","Body part"),
-      qe("Leg","GEL","🦵","Body part"),
-      qe("Foot","TOOF","🦶","Body part"),
-      qe("Arm","MRA","💪","Body part"),
-      qe("Hair","RIHA","💇","Body part")
+      qe("Head", "DAEH", "🙂", "It is above your neck.", "Easy"),
+      qe("Eye", "YEE", "👁️", "You use it to see.", "Easy"),
+      qe("Ear", "RAE", "👂", "You use it to hear.", "Easy"),
+      qe("Nose", "OSEN", "👃", "You use it to smell.", "Easy"),
+      qe("Mouth", "THMOU", "👄", "You use it to speak and eat.", "Easy"),
+      qe("Hand", "DNAH", "✋", "You have five fingers on it.", "Easy"),
+      qe("Arm", "MRA", "💪", "It connects your hand to your body.", "Easy"),
+      qe("Leg", "GEL", "🦵", "You use it to walk.", "Easy"),
+      qe("Foot", "TOOF", "🦶", "You wear a shoe on it.", "Easy"),
+      qe("Hair", "RIHA", "💇", "It grows on your head.", "Easy"),
+      qe("Teeth", "THEET", "🦷", "You use them to bite food.", "Easy"),
+      qe("Finger", "GERFIN", "☝️", "One of five parts on your hand.", "Medium"),
     ],
     "Classroom Objects": [
-      qe("Book","KOOB","📘","Classroom object"),
-      qe("Pen","NEP","🖊️","Classroom object"),
-      qe("Pencil","CILPEN","✏️","Classroom object"),
-      qe("Bag","GAB","🎒","School item"),
-      qe("Chair","RHIAC","🪑","Classroom object"),
-      qe("Table","BLETA","🪑","Classroom object"),
-      qe("Ruler","LERUR","📏","Classroom object"),
-      qe("Eraser","SERRAE","🧽","Classroom object"),
-      qe("Paper","PERPA","📄","Classroom object"),
-      qe("Board","DAROB","🟩","Classroom object")
-    ]
+      qe("Book", "KOOB", "📘", "You read it.", "Easy"),
+      qe("Pen", "NEP", "🖊️", "You write with it.", "Easy"),
+      qe("Pencil", "CILPEN", "✏️", "You can erase its writing.", "Medium"),
+      qe("Bag", "GAB", "🎒", "You carry school things in it.", "Easy"),
+      qe("Chair", "RHIAC", "🪑", "You sit on it.", "Easy"),
+      qe("Table", "BLETA", "🧰", "You put books on it.", "Easy"),
+      qe("Ruler", "LERUR", "📏", "You use it to measure.", "Easy"),
+      qe("Eraser", "SERRAE", "🧽", "It removes pencil marks.", "Medium"),
+      qe("Paper", "PERPA", "📄", "You write or draw on it.", "Easy"),
+      qe("Board", "DAROB", "🟩", "The teacher writes on it.", "Easy"),
+      qe("Marker", "KERMAR", "🖍️", "A teacher may write on the board with it.", "Medium"),
+      qe("Scissors", "SORSSCIS", "✂️", "You use them to cut paper.", "Hard"),
+    ],
   },
-
   "Senior Kid": {
     "Animals Advanced": [
-      q("Giraffe","RAFFEGI","🦒","1F992","A tall animal with a long neck"),
-      q("Elephant","PHANTELE","🐘","1F418","A very large land animal"),
-      q("Penguin","UINGPEN","🐧","1F427","A bird that cannot fly"),
-      q("Dolphin","PHINOLD","🐬","1F42C","A smart sea animal"),
-      q("Crocodile","DILECROCO","🐊","1F40A","A large reptile"),
-      qe("Kangaroo","ROOAKANG","🦘","An animal from Australia"),
-      qe("Squirrel","RELQUIRS","🐿️","A small animal that likes nuts"),
-      qe("Butterfly","FLYBUTTER","🦋","An insect with colorful wings"),
-      qe("Octopus","PUSOCTO","🐙","A sea animal with eight arms"),
-      qe("Turtle","TLETUR","🐢","An animal with a hard shell")
+      qe("Giraffe", "RAFFEGI", "🦒", "It has a very long neck.", "Medium"),
+      qe("Elephant", "PHANTELE", "🐘", "It is a very large land animal.", "Medium"),
+      qe("Penguin", "UINGPEN", "🐧", "It is a bird that cannot fly.", "Medium"),
+      qe("Dolphin", "PHINOLD", "🐬", "It is a smart sea animal.", "Medium"),
+      qe("Crocodile", "DILECROCO", "🐊", "It is a large reptile with strong jaws.", "Medium"),
+      qe("Kangaroo", "ROOAKANG", "🦘", "It carries its baby in a pouch.", "Medium"),
+      qe("Squirrel", "RELQUIRS", "🐿️", "It is small and likes nuts.", "Medium"),
+      qe("Butterfly", "FLYBUTTER", "🦋", "It has colorful wings.", "Medium"),
+      qe("Octopus", "PUSOCTO", "🐙", "It has eight arms.", "Medium"),
+      qe("Turtle", "TLETUR", "🐢", "It has a hard shell.", "Easy"),
+      qe("Parrot", "ROTPAR", "🦜", "This colorful bird can copy sounds.", "Easy"),
+      qe("Shark", "KARSH", "🦈", "It is a large fish with sharp teeth.", "Easy"),
     ],
     "Jobs": [
-      q("Doctor","TORDOC","🧑‍⚕️","1F9D1-200D-2695-FE0F","Works in a hospital"),
-      q("Teacher","CHERTEA","🧑‍🏫","1F9D1-200D-1F3EB","Helps students learn"),
-      q("Police","LICEPO","👮","1F46E","Keeps people safe"),
-      q("Chef","FECH","🧑‍🍳","1F9D1-200D-1F373","Cooks food"),
-      q("Farmer","MERFAR","🧑‍🌾","1F9D1-200D-1F33E","Works on a farm"),
-      q("Pilot","LOTPI","🧑‍✈️","1F9D1-200D-2708-FE0F","Flies an airplane"),
-      q("Artist","TISTAR","🧑‍🎨","1F9D1-200D-1F3A8","Creates art"),
-      qe("Driver","RIVEDR","🚗","Drives a vehicle"),
-      qe("Nurse","SENUR","🧑‍⚕️","Works with doctors and patients"),
-      qe("Dentist","TISTDEN","🦷","Takes care of teeth")
+      qe("Doctor", "TORDOC", "🧑‍⚕️", "Works in healthcare and treats patients.", "Easy"),
+      qe("Teacher", "CHERTEA", "🧑‍🏫", "Helps students learn.", "Medium"),
+      qe("Police", "LICEPO", "👮", "Helps keep people safe.", "Easy"),
+      qe("Chef", "FECH", "🧑‍🍳", "Prepares food in a kitchen.", "Easy"),
+      qe("Farmer", "MERFAR", "🧑‍🌾", "Grows crops or raises animals.", "Easy"),
+      qe("Pilot", "LOTPI", "🧑‍✈️", "Flies an airplane.", "Easy"),
+      qe("Artist", "TISTAR", "🧑‍🎨", "Creates paintings or other art.", "Easy"),
+      qe("Driver", "RIVEDR", "🚗", "Drives a vehicle for work.", "Easy"),
+      qe("Nurse", "SENUR", "🧑‍⚕️", "Cares for patients.", "Easy"),
+      qe("Dentist", "TISTDEN", "🦷", "Takes care of teeth.", "Medium"),
+      qe("Firefighter", "FIGHTERFIRE", "🧑‍🚒", "Puts out fires and rescues people.", "Hard"),
+      qe("Mechanic", "CHANICME", "🧑‍🔧", "Repairs machines or vehicles.", "Medium"),
     ],
     "Transportation": [
-      qe("Bicycle","CLEBICY","🚲","Two wheels"),
-      qe("Motorcycle","CYCLEMOTOR","🏍️","Two wheels and an engine"),
-      qe("Airplane","PLANEAIR","✈️","Flies in the sky"),
-      qe("Helicopter","COPTERHELI","🚁","Flies with rotating blades"),
-      qe("Train","NIRAT","🚆","Runs on rails"),
-      qe("Subway","WAYSUB","🚇","Underground train"),
-      qe("Bus","SUB","🚌","Carries many passengers"),
-      qe("Taxi","IXAT","🚕","A car you pay to ride"),
-      qe("Ship","PIHS","🚢","Large sea transport"),
-      qe("Truck","KCURT","🚚","Carries goods")
+      qe("Bicycle", "CLEBICY", "🚲", "A vehicle with two wheels and pedals.", "Medium"),
+      qe("Motorcycle", "CYCLEMOTOR", "🏍️", "A two-wheeled vehicle with an engine.", "Hard"),
+      qe("Airplane", "PLANEAIR", "✈️", "It carries passengers through the sky.", "Medium"),
+      qe("Helicopter", "COPTERHELI", "🚁", "It flies using rotating blades.", "Hard"),
+      qe("Train", "NIRAT", "🚆", "It runs on rails.", "Easy"),
+      qe("Subway", "WAYSUB", "🚇", "An underground city train.", "Easy"),
+      qe("Bus", "SUB", "🚌", "A large road vehicle for many passengers.", "Easy"),
+      qe("Taxi", "IXAT", "🚕", "A car you pay to ride.", "Easy"),
+      qe("Ship", "PIHS", "🚢", "A large vehicle that travels on water.", "Easy"),
+      qe("Truck", "KCURT", "🚚", "A road vehicle that carries goods.", "Easy"),
+      qe("Ferry", "RYFER", "⛴️", "A boat that carries people or vehicles.", "Easy"),
+      qe("Scooter", "TERSCOO", "🛴", "A small vehicle with two wheels.", "Medium"),
     ],
     "Daily Activities": [
-      qe("Breakfast","FASTBREAK","🍳","Morning meal"),
-      qe("Homework","WORKHOME","📚","School work done at home"),
-      qe("Exercise","CISEEXER","🏃","Physical activity"),
-      qe("Shopping","PINGSHOP","🛍️","Buying things"),
-      qe("Cooking","KINGCOO","🍳","Making food"),
-      qe("Reading","INGREAD","📖","Looking at words in a book"),
-      qe("Writing","INGWRIT","✍️","Putting words on paper"),
-      qe("Cleaning","INGCLEAN","🧹","Making a place tidy"),
-      qe("Sleeping","INGSLEEP","😴","Resting at night"),
-      qe("Studying","INGSTUDY","📚","Learning something")
+      qe("Breakfast", "FASTBREAK", "🍳", "The first meal of the day.", "Medium"),
+      qe("Homework", "WORKHOME", "📚", "School work done at home.", "Medium"),
+      qe("Exercise", "CISEEXER", "🏃", "Physical activity for fitness.", "Medium"),
+      qe("Shopping", "PINGSHOP", "🛍️", "Buying things from stores.", "Medium"),
+      qe("Cooking", "KINGCOO", "🍳", "Preparing food.", "Medium"),
+      qe("Reading", "INGREAD", "📖", "Looking at and understanding written words.", "Medium"),
+      qe("Writing", "INGWRIT", "✍️", "Putting words on paper or a screen.", "Medium"),
+      qe("Cleaning", "INGCLEAN", "🧹", "Making a place tidy.", "Medium"),
+      qe("Sleeping", "INGSLEEP", "😴", "Resting at night.", "Medium"),
+      qe("Studying", "INGSTUDY", "📚", "Learning or reviewing lessons.", "Medium"),
+      qe("Brushing", "INGBRUSH", "🪥", "Cleaning your teeth with a toothbrush.", "Medium"),
+      qe("Practicing", "INGPRACTIC", "🎯", "Repeating something to improve.", "Hard"),
     ],
     "Places": [
-      qe("Hospital","PITALHOS","🏥","A place for medical care"),
-      qe("Library","RARYLIB","📚","A place with many books"),
-      qe("Airport","PORTAIR","✈️","A place for airplanes"),
-      qe("Market","KETMAR","🛒","A place to buy things"),
-      qe("Museum","SEUMMU","🏛️","A place with exhibitions"),
-      qe("Station","TIONSTA","🚉","A place where trains stop"),
-      qe("Restaurant","TAURANTRES","🍽️","A place to eat"),
-      qe("Playground","GROUNDPLAY","🛝","A place for children to play"),
-      qe("Pharmacy","MACYPHAR","💊","A place to buy medicine"),
-      qe("Cinema","MANECI","🎬","A place to watch movies")
-    ]
+      qe("Hospital", "PITALHOS", "🏥", "A place for medical care.", "Medium"),
+      qe("Library", "RARYLIB", "📚", "A place where you can borrow books.", "Medium"),
+      qe("Airport", "PORTAIR", "✈️", "A place where airplanes arrive and depart.", "Medium"),
+      qe("Market", "KETMAR", "🛒", "A place where people buy and sell things.", "Easy"),
+      qe("Museum", "SEUMMU", "🏛️", "A place with objects from history, art, or science.", "Easy"),
+      qe("Station", "TIONSTA", "🚉", "A place where trains or buses stop.", "Medium"),
+      qe("Restaurant", "TAURANTRES", "🍽️", "A place where people pay to eat.", "Hard"),
+      qe("Playground", "GROUNDPLAY", "🛝", "A place for children to play.", "Hard"),
+      qe("Pharmacy", "MACYPHAR", "💊", "A place where medicine is sold.", "Medium"),
+      qe("Cinema", "MANECI", "🎬", "A place to watch movies.", "Easy"),
+      qe("Bakery", "RYBAKE", "🥐", "A place that sells bread and cakes.", "Easy"),
+      qe("Stadium", "DIUMSTA", "🏟️", "A large place for sports events.", "Medium"),
+    ],
+    "Everyday Adjectives": [
+      qe("Hungry", "GRYHUN", "🍽️", "Wanting food.", "Easy"),
+      qe("Thirsty", "TYTHIRS", "🥤", "Wanting a drink.", "Medium"),
+      qe("Tired", "REDTI", "😴", "Needing rest.", "Easy"),
+      qe("Excited", "CITEDEX", "🤩", "Very happy and interested.", "Medium"),
+      qe("Nervous", "VOUSNER", "😬", "Worried about what may happen.", "Medium"),
+      qe("Friendly", "LYFRIEND", "😊", "Kind and pleasant to others.", "Medium"),
+      qe("Careful", "FULCARE", "⚠️", "Trying to avoid mistakes or danger.", "Medium"),
+      qe("Helpful", "FULHELP", "🤝", "Ready to help others.", "Medium"),
+      qe("Noisy", "SYNOI", "🔊", "Making a lot of sound.", "Easy"),
+      qe("Quiet", "ETQUI", "🤫", "Making very little sound.", "Easy"),
+      qe("Strong", "ONGSTR", "💪", "Having a lot of physical power.", "Easy"),
+      qe("Healthy", "THYHEAL", "🥗", "Good for your body.", "Medium"),
+    ],
   },
-
   "SMP": {
-    "School Life": [
-      qe("Science","ENCESCI","🔬","A school subject about the natural world"),
-      qe("History","TORYHIS","📜","A subject about the past"),
-      qe("Project","JECTPRO","📊","A task completed over time"),
-      qe("Library","RARYLIB","📚","A place to borrow books"),
-      qe("Uniform","FORMUNI","👕","Clothes worn at school"),
-      qe("Schedule","DULESCHE","🗓️","A plan of times and activities"),
-      qe("Homework","WORKHOME","📚","School work done at home"),
-      qe("Subject","JECTSUB","📘","An area of study"),
-      qe("Classmate","MATECLASS","👥","A student in the same class"),
-      qe("Presentation","TATIONPRESEN","🖥️","Speaking to an audience about a topic")
+    "School & Learning": [
+      qe("Science", "ENCESCI", "🔬", "A subject that studies the natural world.", "Easy"),
+      qe("History", "TORYHIS", "📜", "A subject about people and events in the past.", "Easy"),
+      qe("Project", "JECTPRO", "📊", "A planned piece of work completed over time.", "Easy"),
+      qe("Library", "RARYLIB", "📚", "A place to read or borrow books.", "Easy"),
+      qe("Uniform", "FORMUNI", "👕", "Special clothes worn by students.", "Easy"),
+      qe("Schedule", "DULESCHE", "🗓️", "A plan showing times and activities.", "Medium"),
+      qe("Homework", "WORKHOME", "📚", "Tasks students complete outside class.", "Medium"),
+      qe("Subject", "JECTSUB", "📘", "An area studied at school.", "Easy"),
+      qe("Classmate", "MATECLASS", "👥", "A student in the same class.", "Medium"),
+      qe("Presentation", "TATIONPRESEN", "🖥️", "A talk given to explain a topic.", "Hard"),
+      qe("Assignment", "MENTSASSIGN", "📝", "A piece of work given by a teacher.", "Medium"),
+      qe("Discussion", "CUSSIONDIS", "💬", "An exchange of ideas about a topic.", "Medium"),
     ],
     "Technology": [
-      qe("Internet","TERNETIN","🌐","A global computer network"),
-      qe("Website","SITEWEB","💻","A collection of pages online"),
-      qe("Password","WORDPASS","🔑","A secret code for an account"),
-      qe("Keyboard","BOARDKEY","⌨️","Used for typing"),
-      qe("Screen","REENSC","🖥️","Displays information"),
-      qe("Download","LOADDOWN","⬇️","Copy data to your device"),
-      qe("Upload","LOADUP","⬆️","Send data from your device"),
-      qe("Message","SAGEMES","💬","A piece of communication"),
-      qe("Application","CATIONAPPLI","📱","Software used for a purpose"),
-      qe("Digital","TALDIGI","💻","Related to computers and electronic technology")
+      qe("Internet", "TERNETIN", "🌐", "A worldwide network connecting computers.", "Medium"),
+      qe("Website", "SITEWEB", "💻", "A collection of pages available online.", "Easy"),
+      qe("Password", "WORDPASS", "🔑", "A secret code used to enter an account.", "Medium"),
+      qe("Keyboard", "BOARDKEY", "⌨️", "A device used for typing.", "Medium"),
+      qe("Screen", "REENSC", "🖥️", "A surface that displays digital information.", "Easy"),
+      qe("Download", "LOADDOWN", "⬇️", "To copy data from the internet to your device.", "Medium"),
+      qe("Upload", "LOADUP", "⬆️", "To send data from your device to the internet.", "Easy"),
+      qe("Message", "SAGEMES", "💬", "Information sent to another person.", "Easy"),
+      qe("Application", "CATIONAPPLI", "📱", "Software designed for a particular task.", "Hard"),
+      qe("Digital", "TALDIGI", "💻", "Using computer or electronic technology.", "Easy"),
+      qe("Browser", "SERBROW", "🌐", "Software used to open websites.", "Easy"),
+      qe("Account", "COUNTAC", "👤", "A personal profile used to access a service.", "Easy"),
     ],
-    "Health": [
-      qe("Healthy","THYHEAL","🥗","Good for your body"),
-      qe("Exercise","CISEEXER","🏃","Physical activity"),
-      qe("Medicine","CINEMEDI","💊","Used to treat illness"),
-      qe("Hospital","PITALHOS","🏥","A place for medical treatment"),
-      qe("Vitamin","MINTAVI","🍊","A nutrient needed by the body"),
-      qe("Sleep","PEELS","😴","Rest for the body"),
-      qe("Energy","GYENER","⚡","Strength to do activities"),
-      qe("Doctor","TORDOC","🧑‍⚕️","A medical professional"),
-      qe("Patient","TIENTPA","🧑","A person receiving medical care"),
-      qe("Nutrition","TRITIONNU","🥦","How food supports health")
+    "Health & Lifestyle": [
+      qe("Healthy", "THYHEAL", "🥗", "In good physical condition.", "Easy"),
+      qe("Exercise", "CISEEXER", "🏃", "Activity that improves physical fitness.", "Medium"),
+      qe("Medicine", "CINEMEDI", "💊", "A substance used to treat illness.", "Medium"),
+      qe("Hospital", "PITALHOS", "🏥", "A place where people receive medical treatment.", "Medium"),
+      qe("Vitamin", "MINTAVI", "🍊", "A nutrient the body needs in small amounts.", "Easy"),
+      qe("Sleep", "PEELS", "😴", "Natural rest for the body and mind.", "Easy"),
+      qe("Energy", "GYENER", "⚡", "The strength needed to do activities.", "Easy"),
+      qe("Patient", "TIENTPA", "🧑", "A person receiving medical care.", "Easy"),
+      qe("Nutrition", "TRITIONNU", "🥦", "How food affects health and growth.", "Medium"),
+      qe("Stress", "SSSTRE", "😣", "Mental or emotional pressure.", "Easy"),
+      qe("Habit", "BITHA", "🔁", "Something you do regularly.", "Easy"),
+      qe("Balance", "ANCEBAL", "⚖️", "A healthy mix of different activities or needs.", "Easy"),
     ],
     "Environment": [
-      qe("Recycle","CLECYRE","♻️","Use materials again"),
-      qe("Pollution","LUTIONPOL","🌫️","Harmful substances in the environment"),
-      qe("Climate","MATECLI","🌦️","Long-term weather pattern"),
-      qe("Forest","RESTFO","🌲","A large area of trees"),
-      qe("Plastic","TICPLAS","🧴","A common synthetic material"),
-      qe("Waste","STEWA","🗑️","Things thrown away"),
-      qe("Nature","TURENA","🌿","The physical world around us"),
-      qe("Energy","GYENER","⚡","Power used to make things work"),
-      qe("Ocean","CEANO","🌊","A very large body of salt water"),
-      qe("Protect","TECTPRO","🛡️","Keep something safe")
+      qe("Recycle", "CLECYRE", "♻️", "To process used material so it can be used again.", "Easy"),
+      qe("Pollution", "LUTIONPOL", "🌫️", "Harmful substances in air, water, or land.", "Medium"),
+      qe("Climate", "MATECLI", "🌦️", "The usual weather pattern of a place over many years.", "Easy"),
+      qe("Forest", "RESTFO", "🌲", "A large area covered mainly with trees.", "Easy"),
+      qe("Plastic", "TICPLAS", "🧴", "A common man-made material.", "Easy"),
+      qe("Waste", "STEWA", "🗑️", "Material that is no longer wanted.", "Easy"),
+      qe("Nature", "TURENA", "🌿", "The physical world not created by humans.", "Easy"),
+      qe("Energy", "GYENER", "⚡", "Power used to make things work.", "Easy"),
+      qe("Ocean", "CEANO", "🌊", "A very large area of salt water.", "Easy"),
+      qe("Protect", "TECTPRO", "🛡️", "To keep something safe from harm.", "Easy"),
+      qe("Wildlife", "LIFEWILD", "🦜", "Animals and plants living naturally.", "Medium"),
+      qe("Conserve", "SERVECON", "🌱", "To protect resources and avoid waste.", "Medium"),
     ],
     "Travel": [
-      qe("Journey","NEYJOUR","🧳","A trip from one place to another"),
-      qe("Passport","PORTPASS","🛂","Document for international travel"),
-      qe("Ticket","KETTIC","🎫","Proof that you paid to travel"),
-      qe("Luggage","GAGELUG","🧳","Bags used for travel"),
-      qe("Airport","PORTAIR","✈️","A place where airplanes arrive and depart"),
-      qe("Tourist","RISTTOU","📷","A person visiting a place"),
-      qe("Destination","NATIONDESTI","📍","The place you are going to"),
-      qe("Hotel","TELHO","🏨","A place to stay while traveling"),
-      qe("Map","PAM","🗺️","Shows locations and routes"),
-      qe("Adventure","TUREADVEN","🧭","An exciting or unusual experience")
-    ]
-  },
-
-  "SMA–Umum": {
-    "Work & Career": [
-      qe("Career","REERCA","💼","A long-term professional path"),
-      qe("Interview","VIEWINTER","🎤","A meeting to assess a job candidate"),
-      qe("Salary","LARYSA","💰","Money paid for work"),
-      qe("Experience","RIENCEEXPE","🧠","Knowledge gained from doing something"),
-      qe("Leadership","SHIPLEADER","👥","The ability to guide others"),
-      qe("Professional","SIONALPROFES","💼","Related to a skilled occupation"),
-      qe("Responsibility","SIBILITYRESPON","📋","A duty or obligation"),
-      qe("Promotion","MOTIONPRO","📈","Moving to a higher position at work"),
-      qe("Colleague","LEAGUECOL","🤝","A person you work with"),
-      qe("Productivity","TIVITYPRODUC","⚙️","How efficiently work is completed")
+      qe("Journey", "NEYJOUR", "🧳", "Travel from one place to another.", "Easy"),
+      qe("Passport", "PORTPASS", "🛂", "An official document used for international travel.", "Medium"),
+      qe("Ticket", "KETTIC", "🎫", "A document showing you paid for travel or entry.", "Easy"),
+      qe("Luggage", "GAGELUG", "🧳", "Bags and suitcases used when traveling.", "Easy"),
+      qe("Airport", "PORTAIR", "✈️", "A place where airplanes take off and land.", "Easy"),
+      qe("Tourist", "RISTTOU", "📷", "A person visiting a place for pleasure.", "Easy"),
+      qe("Destination", "NATIONDESTI", "📍", "The place someone is traveling to.", "Hard"),
+      qe("Hotel", "TELHO", "🏨", "A place where travelers pay to stay.", "Easy"),
+      qe("Adventure", "TUREADVEN", "🧭", "An exciting or unusual experience.", "Medium"),
+      qe("Itinerary", "RARYITINE", "🗓️", "A plan of places and activities for a trip.", "Medium"),
+      qe("Departure", "TUREDEPAR", "🛫", "The act or time of leaving.", "Medium"),
+      qe("Arrival", "RIVALAR", "🛬", "The act or time of reaching a place.", "Easy"),
     ],
-    "Business": [
-      qe("Customer","TOMERCUS","🧑‍💼","A person who buys a product or service"),
-      qe("Marketing","KETINGMAR","📣","Activities used to promote and sell"),
-      qe("Revenue","VENUERE","💵","Income generated by a business"),
-      qe("Strategy","TEGYSTRA","♟️","A plan to achieve a goal"),
-      qe("Branding","DINGBRAN","🏷️","Building a distinctive brand identity"),
-      qe("Competition","TITIONCOMPE","🏁","Rivalry between businesses"),
-      qe("Innovation","VATIONINNO","💡","Introducing new ideas or methods"),
-      qe("Investment","MENTINVEST","📊","Putting resources in for future return"),
-      qe("Entrepreneur","PRENEURENTRE","🚀","A person who starts and runs a business"),
-      qe("Sustainable","TAINABLESUS","🌱","Able to continue with limited harm")
+    "Feelings & Personality": [
+      qe("Confident", "DENTCONFI", "😎", "Sure about your own ability.", "Medium"),
+      qe("Curious", "OUSCURI", "🤔", "Wanting to know or learn more.", "Easy"),
+      qe("Patient", "TIENTPA", "🙂", "Able to wait calmly.", "Easy"),
+      qe("Honest", "NESTHO", "🤝", "Telling the truth.", "Easy"),
+      qe("Creative", "TIVECREA", "🎨", "Good at producing new ideas.", "Medium"),
+      qe("Responsible", "SIBLERESPON", "📋", "Able to be trusted to do what is expected.", "Hard"),
+      qe("Generous", "OUSGENER", "🎁", "Willing to give or share.", "Medium"),
+      qe("Polite", "LITEPO", "🙏", "Showing good manners.", "Easy"),
+      qe("Independent", "PENDENTINDE", "🧍", "Able to do things without much help.", "Hard"),
+      qe("Ambitious", "TIOUSAMBI", "🚀", "Strongly wanting to achieve success.", "Medium"),
+      qe("Embarrassed", "RASSEDEMBAR", "😳", "Feeling ashamed or uncomfortable.", "Hard"),
+      qe("Disappointed", "POINTEDDISAP", "😞", "Unhappy because something was not as good as expected.", "Hard"),
+    ],
+  },
+  "SMA\u2013Umum": {
+    "Work & Career": [
+      qe("Career", "REERCA", "💼", "A long-term path through work and professional development.", "Easy"),
+      qe("Interview", "VIEWINTER", "🎤", "A formal meeting used to assess a job candidate.", "Medium"),
+      qe("Salary", "LARYSA", "💰", "Regular payment received for work.", "Easy"),
+      qe("Experience", "RIENCEEXPE", "🧠", "Knowledge or skill gained through doing something.", "Medium"),
+      qe("Leadership", "SHIPLEADER", "👥", "The ability to guide and influence a group.", "Medium"),
+      qe("Professional", "SIONALPROFES", "💼", "Related to skilled work and workplace standards.", "Hard"),
+      qe("Responsibility", "SIBILITYRESPON", "📋", "A duty that someone is expected to handle.", "Hard"),
+      qe("Promotion", "MOTIONPRO", "📈", "Advancement to a higher position at work.", "Medium"),
+      qe("Colleague", "LEAGUECOL", "🤝", "A person you work with.", "Medium"),
+      qe("Productivity", "TIVITYPRODUC", "⚙️", "How efficiently useful work is completed.", "Hard"),
+      qe("Qualification", "CATIONQUALIFI", "🎓", "A skill, certificate, or experience that makes someone suitable for a role.", "Hard"),
+      qe("Recruitment", "MENTRECRUIT", "📣", "The process of finding and hiring employees.", "Hard"),
+    ],
+    "Business & Entrepreneurship": [
+      qe("Customer", "TOMERCUS", "🧑‍💼", "A person or organization that buys a product or service.", "Medium"),
+      qe("Marketing", "KETINGMAR", "📣", "Activities used to attract, communicate with, and serve customers.", "Medium"),
+      qe("Revenue", "VENUERE", "💵", "Income generated by business activities.", "Easy"),
+      qe("Strategy", "TEGYSTRA", "♟️", "A plan designed to achieve a long-term goal.", "Medium"),
+      qe("Branding", "DINGBRAN", "🏷️", "Creating a distinctive identity for a product or organization.", "Medium"),
+      qe("Competition", "TITIONCOMPE", "🏁", "Rivalry between businesses serving similar markets.", "Hard"),
+      qe("Innovation", "VATIONINNO", "💡", "Introducing useful new ideas, products, or methods.", "Medium"),
+      qe("Investment", "MENTINVEST", "📊", "Using money or resources with the expectation of future benefit.", "Medium"),
+      qe("Entrepreneur", "PRENEURENTRE", "🚀", "A person who creates and develops a business venture.", "Hard"),
+      qe("Sustainable", "TAINABLESUS", "🌱", "Able to continue over time with responsible use of resources.", "Hard"),
+      qe("Profit", "FITPRO", "💰", "Money left after business costs are deducted.", "Easy"),
+      qe("Market", "KETMAR", "📈", "A group of buyers and sellers for a product or service.", "Easy"),
     ],
     "Communication": [
-      qe("Confidence","DENCECONFI","🗣️","Belief in your own ability"),
-      qe("Discussion","CUSSIONDIS","💬","An exchange of ideas"),
-      qe("Negotiate","TIATENEGO","🤝","Try to reach an agreement"),
-      qe("Persuasion","SUASIONPER","🎯","The act of influencing someone through reasons"),
-      qe("Audience","ENCEAUDI","👥","People listening or watching"),
-      qe("Feedback","BACKFEED","🔁","Information about performance"),
-      qe("Clarify","IFYCLAR","🔎","Make something easier to understand"),
-      qe("Opinion","NIONOPI","💭","A personal view"),
-      qe("Argument","MENTARGU","⚖️","A reasoned statement supporting a position"),
-      qe("Presentation","TATIONPRESEN","🖥️","A structured talk for an audience")
+      qe("Confidence", "DENCECONFI", "🗣️", "Belief in your ability to communicate or perform effectively.", "Medium"),
+      qe("Discussion", "CUSSIONDIS", "💬", "An exchange of ideas intended to explore a topic.", "Medium"),
+      qe("Negotiate", "TIATENEGO", "🤝", "To communicate in order to reach an agreement.", "Medium"),
+      qe("Persuasion", "SUASIONPER", "🎯", "The process of convincing someone through reasons or communication.", "Medium"),
+      qe("Audience", "ENCEAUDI", "👥", "The people listening to or watching a message.", "Medium"),
+      qe("Feedback", "BACKFEED", "🔁", "Information given to help improve performance or understanding.", "Medium"),
+      qe("Clarify", "IFYCLAR", "🔎", "To make an idea or statement easier to understand.", "Easy"),
+      qe("Opinion", "NIONOPI", "💭", "A personal belief or judgment.", "Easy"),
+      qe("Argument", "MENTARGU", "⚖️", "A reasoned set of claims supporting a position.", "Medium"),
+      qe("Presentation", "TATIONPRESEN", "🖥️", "A structured talk delivered to an audience.", "Hard"),
+      qe("Concise", "CISECON", "✂️", "Using few words while remaining clear.", "Easy"),
+      qe("Empathy", "THYEMPA", "❤️", "The ability to understand another person's feelings or perspective.", "Easy"),
     ],
-    "Academic Vocabulary": [
-      qe("Analysis","LYSISANA","📊","Detailed examination of information"),
-      qe("Research","SEARCHRE","🔬","Systematic investigation"),
-      qe("Evidence","DENCEEVI","📑","Information supporting a claim"),
-      qe("Theory","ORYTHE","🧠","A system of ideas explaining something"),
-      qe("Concept","CEPTCON","💡","An abstract idea"),
-      qe("Method","THODME","🧪","A way of doing something"),
-      qe("Variable","ABLEVARI","📈","A factor that can change"),
-      qe("Conclusion","CLUSIONCON","✅","A judgment reached after analysis"),
-      qe("Evaluate","UATEEVAL","📝","Judge quality or value"),
-      qe("Interpret","PRETINTER","🔍","Explain the meaning of something")
+    "Academic Skills": [
+      qe("Analysis", "LYSISANA", "📊", "Detailed examination of information or evidence.", "Medium"),
+      qe("Research", "SEARCHRE", "🔬", "Systematic investigation intended to answer a question.", "Medium"),
+      qe("Evidence", "DENCEEVI", "📑", "Information used to support a claim or conclusion.", "Medium"),
+      qe("Theory", "ORYTHE", "🧠", "A set of ideas used to explain how or why something happens.", "Easy"),
+      qe("Concept", "CEPTCON", "💡", "A general or abstract idea.", "Easy"),
+      qe("Method", "THODME", "🧪", "A systematic way of doing something.", "Easy"),
+      qe("Variable", "ABLEVARI", "📈", "A factor that can change and be measured.", "Medium"),
+      qe("Conclusion", "CLUSIONCON", "✅", "A judgment reached after considering evidence.", "Medium"),
+      qe("Evaluate", "UATEEVAL", "📝", "To judge quality, value, or effectiveness using criteria.", "Medium"),
+      qe("Interpret", "PRETINTER", "🔍", "To explain the meaning or significance of information.", "Medium"),
+      qe("Citation", "TATIONCI", "📚", "A reference identifying the source of information.", "Medium"),
+      qe("Hypothesis", "THESISHYPO", "🧪", "A testable explanation or prediction.", "Medium"),
     ],
-    "Society": [
-      qe("Community","MUNITYCOM","🏘️","People living or working together"),
-      qe("Culture","TURECUL","🌏","Shared values, customs and traditions"),
-      qe("Education","CATIONEDU","🎓","The process of learning"),
-      qe("Economy","NOMYECO","📈","The system of production and trade"),
-      qe("Environment","RONMENTENVI","🌍","The natural world around us"),
-      qe("Technology","NOLOGYTECH","💻","Tools and systems based on science"),
-      qe("Equality","ALITYEQU","⚖️","Equal rights or treatment"),
-      qe("Opportunity","TUNITYOPPOR","🚪","A favorable chance"),
-      qe("Development","MENTDEVELOP","🏗️","Growth or improvement over time"),
-      qe("Globalization","ZATIONGLOBALI","🌐","Increasing worldwide connection")
-    ]
-  }
+    "Society & Global Issues": [
+      qe("Community", "MUNITYCOM", "🏘️", "A group of people connected by place, identity, or shared interests.", "Medium"),
+      qe("Culture", "TURECUL", "🌏", "Shared values, customs, beliefs, and practices.", "Easy"),
+      qe("Education", "CATIONEDU", "🎓", "The process of teaching and learning.", "Medium"),
+      qe("Economy", "NOMYECO", "📈", "The system through which goods and services are produced and exchanged.", "Easy"),
+      qe("Environment", "RONMENTENVI", "🌍", "The natural and built surroundings in which people live.", "Hard"),
+      qe("Technology", "NOLOGYTECH", "💻", "Tools and systems developed through scientific knowledge.", "Medium"),
+      qe("Equality", "ALITYEQU", "⚖️", "The state of having equal rights, status, or opportunities.", "Medium"),
+      qe("Opportunity", "TUNITYOPPOR", "🚪", "A favorable situation that makes progress possible.", "Hard"),
+      qe("Development", "MENTDEVELOP", "🏗️", "A process of growth, improvement, or change.", "Hard"),
+      qe("Globalization", "ZATIONGLOBALI", "🌐", "Growing economic, cultural, and social connections across countries.", "Hard"),
+      qe("Diversity", "SITYDIVER", "🌈", "The presence of different people, ideas, or characteristics.", "Medium"),
+      qe("Sustainability", "ABILITYSUSTAIN", "🌱", "Meeting present needs without harming future generations.", "Hard"),
+    ],
+    "Critical Thinking": [
+      qe("Assumption", "PTIONASSUM", "🤔", "Something accepted as true without complete proof.", "Medium"),
+      qe("Bias", "SIAB", "⚖️", "A tendency that can unfairly influence judgment.", "Easy"),
+      qe("Source", "CESOUR", "📚", "The origin of information or evidence.", "Easy"),
+      qe("Claim", "MICAL", "💬", "A statement that something is true.", "Easy"),
+      qe("Reasoning", "INGREASON", "🧠", "The process of using logic to reach a conclusion.", "Medium"),
+      qe("Perspective", "TIVEPERSPEC", "👁️", "A particular way of viewing an issue.", "Hard"),
+      qe("Reliable", "ABLERELI", "✅", "Consistently trustworthy or dependable.", "Medium"),
+      qe("Relevant", "VANTRELE", "🎯", "Closely connected to the question or purpose.", "Medium"),
+      qe("Compare", "PARECOM", "↔️", "To examine similarities and differences.", "Easy"),
+      qe("Infer", "FERIN", "🔍", "To reach a conclusion from available evidence.", "Easy"),
+      qe("Question", "TIONQUES", "❓", "A sentence or idea that asks for information.", "Medium"),
+      qe("Reflect", "FLECTRE", "🪞", "To think carefully about an experience or idea.", "Easy"),
+    ],
+  },
 };
 
 let banks=loadBanks();
 let selectedLevel="",selectedTopic="",current=null,used=new Set(),scores=[],activeQuestions=[],timerId=null,timeLeft=0,currentTeam=0;
 let settings={
   teams:4,timer:15,sound:true,questionOrder:"random",anagramMode:"random",
-  pointMode:"random",events:true,teamNames:["Team A","Team B","Team C","Team D"]
+  pointMode:"random",events:true,difficulty:"all",teamNames:["Team A","Team B","Team C","Team D"]
 };
 let editingIndex=null;
 
 function deepClone(o){return JSON.parse(JSON.stringify(o))}
 function loadBanks(){
   try{
-    const x=localStorage.getItem("kipQuestionBanksV18");
+    const x=localStorage.getItem("kipQuestionBanksV182");
     return x?JSON.parse(x):deepClone(DEFAULT_BANKS);
   }catch(e){return deepClone(DEFAULT_BANKS)}
 }
-function saveBanks(){localStorage.setItem("kipQuestionBanksV18",JSON.stringify(banks))}
+function saveBanks(){localStorage.setItem("kipQuestionBanksV182",JSON.stringify(banks))}
 function go(id){stopTimer();document.querySelectorAll("section").forEach(s=>s.classList.add("hidden"));document.getElementById(id).classList.remove("hidden")}
 function toggleFullscreen(){if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()}
 
@@ -625,7 +729,7 @@ renderTeamNameInputs();
 
 function saveSettings(){
   settings.teams=+teamCount.value;settings.timer=+timerSeconds.value;settings.sound=soundEnabled.checked;
-  settings.questionOrder=questionOrder.value;settings.anagramMode=anagramMode.value;settings.pointMode=pointMode.value;settings.events=eventEnabled.checked;
+  settings.questionOrder=questionOrder.value;settings.anagramMode=anagramMode.value;settings.pointMode=pointMode.value;settings.events=eventEnabled.checked;settings.difficulty=difficultyMode.value;
   settings.teamNames=[];
   for(let i=0;i<settings.teams;i++){
     const v=(document.getElementById(`teamName${i}`)?.value||"").trim();
@@ -657,8 +761,10 @@ function renderTopicButtons(){
 }
 function prepareTopic(v){
   selectedTopic=v;
-  const count=((banks[selectedLevel]||{})[v]||[]).length;
-  questionCountInfo.textContent=`${selectedLevel} • ${v} has ${count} questions.`;
+  const allItems=((banks[selectedLevel]||{})[v]||[]);
+  const filteredItems=settings.difficulty==="all" ? allItems : allItems.filter(x=>(x.difficulty||"Medium")===settings.difficulty);
+  const count=filteredItems.length;
+  questionCountInfo.textContent=`${selectedLevel} • ${v} has ${count} ${settings.difficulty==="all"?"available":settings.difficulty.toLowerCase()} questions.`;
   questionCountButtons.innerHTML="";
   const choices=[6,8,10,12,15,20].filter(n=>n<count);choices.push(count);
   [...new Set(choices)].filter(n=>n>0).forEach(n=>{
@@ -672,6 +778,7 @@ function startTopicWithCount(v,count){
   selectedTopic=v;levelBadge.textContent=selectedLevel;topicBadge.textContent=selectedTopic;
   used=new Set();scores=Array(settings.teams).fill(0);currentTeam=0;
   let arr=deepClone((banks[selectedLevel]||{})[v]||[]);
+  if(settings.difficulty!=="all") arr=arr.filter(x=>(x.difficulty||"Medium")===settings.difficulty);
   if(settings.questionOrder==="random")arr=shuffleArray(arr);
   activeQuestions=arr.slice(0,Math.min(count,arr.length));
   buildBoard();buildScores();updateTurnBanners();updateRoundSummary();saveGameState();go("board");
@@ -721,6 +828,9 @@ function renderLetters(scrambled){
 function openQuestion(i){
   current=i;const item=activeQuestions[i];questionNumber.textContent=`Question ${i+1}`;
   challengeLabel.textContent=`${selectedLevel.toUpperCase()} • ANAGRAM CHALLENGE`;
+  const diff=item.difficulty||"Medium";
+  difficultyBadge.textContent=diff;
+  difficultyBadge.className=`diff-badge diff-${diff}`;
   const scramble=settings.anagramMode==="random"?randomizeAnagram(item.a):(item.scr||randomizeAnagram(item.a));
   renderLetters(scramble);hintText.textContent=`Hint: ${item.hint||selectedTopic}`;answerText.textContent=item.a.toUpperCase();
 
@@ -782,26 +892,26 @@ function resetAll(){
 /* RESUME */
 function saveGameState(){
   if(!selectedTopic||!activeQuestions.length)return;
-  localStorage.setItem("kipGameStateV18",JSON.stringify({
+  localStorage.setItem("kipGameStateV182",JSON.stringify({
     selectedLevel,selectedTopic,current,currentTeam,used:[...used],scores,activeQuestions,settings
   }));
 }
 function checkResume(){
   try{
-    const x=localStorage.getItem("kipGameStateV18");
+    const x=localStorage.getItem("kipGameStateV182");
     if(x){const s=JSON.parse(x);resumeBox.classList.toggle("hidden",!(s&&s.activeQuestions&&s.activeQuestions.length))}
     else resumeBox.classList.add("hidden");
   }catch(e){resumeBox.classList.add("hidden")}
 }
 function resumeSavedGame(){
   try{
-    const s=JSON.parse(localStorage.getItem("kipGameStateV18"));if(!s)return;
+    const s=JSON.parse(localStorage.getItem("kipGameStateV182"));if(!s)return;
     selectedLevel=s.selectedLevel;selectedTopic=s.selectedTopic;current=s.current;currentTeam=s.currentTeam||0;
     used=new Set(s.used||[]);scores=s.scores||[];activeQuestions=s.activeQuestions||[];settings=s.settings||settings;
     levelBadge.textContent=selectedLevel;topicBadge.textContent=selectedTopic;updateTurnBanners();buildBoard();buildScores();updateRoundSummary();go("board");
   }catch(e){alert("Could not resume saved game.")}
 }
-function clearSavedGame(update=true){localStorage.removeItem("kipGameStateV18");if(update)checkResume()}
+function clearSavedGame(update=true){localStorage.removeItem("kipGameStateV182");if(update)checkResume()}
 
 /* TIMER / AUDIO */
 function startTimer(){
@@ -843,7 +953,7 @@ function renderEditorList(){
   editorList.innerHTML="";
   arr.forEach((item,i)=>{
     const row=document.createElement("div");row.className="qrow";
-    row.innerHTML=`<div><strong>${i+1}. ${escapeHtml(item.a)}</strong><small>${escapeHtml(item.scr)} • ${escapeHtml(item.hint||"")}</small></div>
+    row.innerHTML=`<div><strong>${i+1}. ${escapeHtml(item.a)} <span class="diff-badge diff-${escapeHtml(item.difficulty||"Medium")}">${escapeHtml(item.difficulty||"Medium")}</span></strong><small>${escapeHtml(item.scr)} • ${escapeHtml(item.hint||"")}</small></div>
     <div class="qrow-actions"><button class="secondary" onclick="editQuestion(${i})">Edit</button><button class="bad" onclick="deleteQuestion(${i})">Delete</button></div>`;
     editorList.appendChild(row);
   });
@@ -859,11 +969,11 @@ function newTopic(){
 }
 function newQuestion(){editingIndex=null;formTitle.textContent="Add Question";clearFormFields()}
 function clearForm(){editingIndex=null;formTitle.textContent="Add Question";clearFormFields()}
-function clearFormFields(){fAnswer.value="";fScramble.value="";fScramble.dataset.touched="";fHint.value="";fEmoji.value="";fImage.value="";updatePreview()}
+function clearFormFields(){fAnswer.value="";fScramble.value="";fScramble.dataset.touched="";fHint.value="";fDifficulty.value="Medium";fEmoji.value="";fImage.value="";updatePreview()}
 function editQuestion(i){
   editingIndex=i;const item=banks[editorLevel.value][editorTopic.value][i];
   formTitle.textContent="Edit Question";fAnswer.value=item.a||"";fScramble.value=item.scr||"";fScramble.dataset.touched="1";
-  fHint.value=item.hint||"";fEmoji.value=item.e||"";fImage.value=item.img||"";updatePreview();
+  fHint.value=item.hint||"";fDifficulty.value=item.difficulty||"Medium";fEmoji.value=item.e||"";fImage.value=item.img||"";updatePreview();
 }
 function deleteQuestion(i){
   if(!confirm("Delete this question?"))return;
@@ -877,14 +987,14 @@ fScramble.addEventListener("input",()=>{fScramble.dataset.touched="1";updatePrev
 function updatePreview(){previewText.textContent=`${(fScramble.value||"TAC").toUpperCase()} → ${(fAnswer.value||"CAT").toUpperCase()}`}
 function saveQuestion(){
   const level=editorLevel.value,t=editorTopic.value;
-  const item={a:fAnswer.value.trim(),scr:fScramble.value.trim().toUpperCase(),hint:fHint.value.trim(),e:fEmoji.value.trim(),img:fImage.value.trim()};
+  const item={a:fAnswer.value.trim(),scr:fScramble.value.trim().toUpperCase(),hint:fHint.value.trim(),difficulty:fDifficulty.value,e:fEmoji.value.trim(),img:fImage.value.trim()};
   if(!item.a||!item.scr){alert("Answer and Saved Anagram are required.");return}
   if(editingIndex===null)banks[level][t].push(item);else banks[level][t][editingIndex]=item;
   saveBanks();renderEditorList();clearForm();alert("Question saved.");
 }
 function exportBank(){
   const blob=new Blob([JSON.stringify(banks,null,2)],{type:"application/json"});
-  const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="kip-question-bank-v1.8.json";a.click();URL.revokeObjectURL(url);
+  const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="kip-question-bank-v1.8.2.json";a.click();URL.revokeObjectURL(url);
 }
 function importBank(ev){
   const file=ev.target.files[0];if(!file)return;
