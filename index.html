@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KIP Anagram Party v1.14</title>
+<title>KIP Anagram Party v1.14.1</title>
 <style>
 :root {
   --bg: #07111f;
@@ -400,6 +400,25 @@ button { cursor:pointer; }
   .real-image-fallback{font-size:90px;padding:42px}
 }
 
+
+.real-image-wrap{
+  min-height:360px;
+}
+.real-image{
+  height:460px;
+  object-fit:contain;
+}
+.real-image-loading{
+  max-width:560px;
+  line-height:1.6;
+}
+.real-image-source{
+  margin-top:8px;
+  color:#64748b;
+  font-size:11px;
+  text-align:center;
+}
+
 </style>
 </head>
 <body>
@@ -424,7 +443,7 @@ button { cursor:pointer; }
           <button class="btn btn-ghost" onclick="clearSaved()">Discard</button>
         </div>
       </div>
-      <div class="version">KIP Play • v1.14 • Smart Real Image Edition</div>
+      <div class="version">KIP Play • v1.14.1 • Exact Visual Match</div>
 <div id="dbStatus" class="db-status loading">● Connecting to question database...</div>
     </div>
   </div>
@@ -513,10 +532,7 @@ button { cursor:pointer; }
       <div id="realImageFallback" class="real-image-fallback hidden"></div>
     </div>
 
-    <button id="textHintBtn" class="btn btn-ghost" onclick="toggleTextHint()">💡 Show Text Hint</button>
-    <div id="hint" class="hint hidden"></div>
-
-    <div id="answerPanel" class="answer-panel hidden"><div id="answerEmoji" class="answer-emoji"></div><div id="answerWord" class="answer-word"></div></div>
+    <div id="answerPanel" class="answer-panel hidden"><div id="answerWord" class="answer-word"></div></div>
     <div id="result" class="result hidden"></div>
     <div class="actions">
       <button id="showAnswerBtn" class="btn btn-primary" onclick="reveal()">Show Answer</button>
@@ -671,7 +687,7 @@ async function initOnlineBank(){
   }
 }
 
-const STORE="kip-v114-game";
+const STORE="kip-v1141-game";
 
 const levelMeta={
   "Junior Kid":{icon:"🟢",desc:"Simple concrete vocabulary for early learners."},
@@ -771,113 +787,363 @@ function adjustScore(index,amount){
   saveState();
 }
 
+
 const imageCache = new Map();
 let imageRequestToken = 0;
 
-function topicSearchContext(topic){
-  const map={
-    "Animals":"animal","Animals Advanced":"animal wildlife","Farm Animals":"farm animal","Sea Animals":"sea animal",
-    "Food & Drinks":"food drink","Fruits":"fruit","Colors & Shapes":"shape color","Body Parts":"human body",
-    "Classroom Objects":"school object","Family":"family person","Toys":"children toy","Weather":"weather",
-    "Clothes":"clothing","Home":"home object","Numbers":"number","Action Words":"action","Daily Routines":"daily routine",
-    "Jobs":"profession job","Transportation":"transport vehicle","Daily Activities":"daily activity","Places":"place building",
-    "Sports":"sport","School Subjects":"school subject","Nature":"nature","Household Items":"household object",
-    "Feelings":"emotion","Technology Basics":"technology device","Time & Calendar":"calendar time","Community Places":"public place",
-    "Health":"health","Hobbies":"hobby","Shopping":"shopping",
-    "School & Learning":"education learning","Technology":"technology","Health & Lifestyle":"healthy lifestyle",
-    "Environment":"environment","Travel":"travel","Feelings & Personality":"emotion personality","Food & Nutrition":"nutrition food",
-    "Friendship":"friendship","Money":"money finance","Media":"media","Science":"science","Geography":"geography",
-    "Public Places":"public building","Teen Life":"teenager life","Study Skills":"study education","Global Culture":"culture",
-    "Safety":"safety",
-    "Work & Career":"work career","Business & Entrepreneurship":"business startup","Communication":"communication",
-    "Academic Skills":"academic research","Critical Thinking":"critical thinking","Leadership":"leadership team",
-    "Marketing":"marketing business","Finance":"finance business","Human Resources":"human resources workplace",
-    "Operations":"business operations","Entrepreneurship":"entrepreneurship startup","Economics":"economics",
-    "Customer Service":"customer service","Digital Business":"digital business","Research Methods":"research method",
-    "Global Issues":"global issue"
-  };
-  return map[topic] || topic;
+/*
+  Exact Visual Match v1.14.1
+  Principle: a weak/misleading image is worse than no image.
+  We search several targeted queries, score each result against the answer,
+  and reject unrelated images.
+*/
+
+const IMAGE_QUERY_OVERRIDES={
+  "technician":[
+    "maintenance technician worker repairing equipment",
+    "service technician person repairing machine",
+    "electronics technician at work"
+  ],
+  "sailing":[
+    "sailing yacht sea sport",
+    "person sailing sailboat",
+    "sailboat sailing ocean"
+  ],
+  "mechanic":[
+    "car mechanic repairing vehicle worker",
+    "auto mechanic at work"
+  ],
+  "engineer":[
+    "engineer person working equipment",
+    "engineer at work machinery"
+  ],
+  "electrician":[
+    "electrician worker repairing electrical wiring",
+    "electrician at work"
+  ],
+  "plumber":[
+    "plumber worker repairing pipe",
+    "plumber at work"
+  ],
+  "carpenter":[
+    "carpenter worker woodworking",
+    "carpenter at work"
+  ],
+  "receptionist":[
+    "receptionist person front desk",
+    "hotel receptionist at desk"
+  ],
+  "cashier":[
+    "cashier person checkout counter",
+    "store cashier worker"
+  ],
+  "clerk":[
+    "office clerk person working desk",
+    "administrative clerk worker"
+  ],
+  "coach":[
+    "sports coach person team",
+    "coach training athletes"
+  ],
+  "pilot":[
+    "airline pilot person cockpit",
+    "commercial pilot uniform"
+  ],
+  "dentist":[
+    "dentist treating patient dental clinic",
+    "dentist person at work"
+  ],
+  "nurse":[
+    "nurse person hospital patient",
+    "nurse at work"
+  ],
+  "doctor":[
+    "doctor person examining patient",
+    "doctor at work hospital"
+  ],
+  "chef":[
+    "chef person cooking kitchen",
+    "professional chef at work"
+  ],
+  "baker":[
+    "baker person bakery bread",
+    "professional baker at work"
+  ],
+  "barber":[
+    "barber cutting hair person",
+    "barber at work"
+  ],
+  "photographer":[
+    "photographer person camera at work",
+    "professional photographer taking photo"
+  ],
+  "journalist":[
+    "journalist reporter person interviewing",
+    "journalist at work"
+  ],
+  "scientist":[
+    "scientist person laboratory working",
+    "scientist at work lab"
+  ],
+  "programmer":[
+    "programmer person coding computer",
+    "software programmer at work"
+  ],
+  "developer":[
+    "software developer person coding",
+    "developer at computer"
+  ],
+  "accountant":[
+    "accountant person working finance office",
+    "accountant at desk"
+  ],
+  "manager":[
+    "manager person leading team meeting",
+    "business manager at work"
+  ],
+  "entrepreneur":[
+    "entrepreneur person business startup",
+    "entrepreneur presenting business"
+  ],
+  "leadership":[
+    "leader person leading team meeting",
+    "business leadership team"
+  ],
+  "inflation":[
+    "inflation rising prices groceries economy",
+    "inflation price increase concept"
+  ],
+  "marketing":[
+    "marketing team campaign meeting",
+    "marketing business advertising team"
+  ],
+  "finance":[
+    "finance professional financial analysis",
+    "financial analyst working"
+  ],
+  "research":[
+    "researcher person conducting research",
+    "research work study"
+  ]
+};
+
+const TOPIC_QUERY_CONTEXT={
+  "Animals":"animal wildlife",
+  "Animals Advanced":"wild animal wildlife",
+  "Farm Animals":"farm animal",
+  "Sea Animals":"marine animal ocean",
+  "Food & Drinks":"food drink",
+  "Fruits":"fruit food",
+  "Colors & Shapes":"shape object",
+  "Body Parts":"human body",
+  "Classroom Objects":"school classroom object",
+  "Family":"family people",
+  "Toys":"children toy",
+  "Weather":"weather outdoors",
+  "Clothes":"clothing apparel",
+  "Home":"home household",
+  "Numbers":"number visual",
+  "Action Words":"person action",
+  "Daily Routines":"person daily activity",
+  "Jobs":"person worker occupation at work",
+  "Transportation":"vehicle transport",
+  "Daily Activities":"person activity",
+  "Places":"place building",
+  "Sports":"person sport activity",
+  "School Subjects":"education subject",
+  "Nature":"nature landscape",
+  "Household Items":"household object",
+  "Feelings":"person emotion face",
+  "Technology Basics":"technology device",
+  "Time & Calendar":"time calendar",
+  "Community Places":"public building place",
+  "Health":"health medical",
+  "Hobbies":"person hobby activity",
+  "Shopping":"shopping retail",
+  "School & Learning":"student education learning",
+  "Technology":"technology computer",
+  "Health & Lifestyle":"healthy lifestyle person",
+  "Environment":"environment nature",
+  "Travel":"travel tourism",
+  "Feelings & Personality":"person emotion personality",
+  "Food & Nutrition":"healthy food nutrition",
+  "Friendship":"friends people",
+  "Money":"money finance",
+  "Media":"media journalism",
+  "Science":"science laboratory",
+  "Geography":"geography landscape map",
+  "Public Places":"public building",
+  "Teen Life":"teenager person",
+  "Study Skills":"student studying",
+  "Global Culture":"people culture",
+  "Safety":"safety person",
+  "Work & Career":"professional person at work",
+  "Business & Entrepreneurship":"business startup people",
+  "Communication":"people communication",
+  "Academic Skills":"student academic study",
+  "Critical Thinking":"person thinking analysis",
+  "Leadership":"leader team people",
+  "Marketing":"marketing team business",
+  "Finance":"finance professional money",
+  "Human Resources":"human resources workplace people",
+  "Operations":"business operations workplace",
+  "Entrepreneurship":"entrepreneur startup person",
+  "Economics":"economics money market",
+  "Customer Service":"customer service person",
+  "Digital Business":"digital business computer",
+  "Research Methods":"researcher study research",
+  "Global Issues":"global issue world"
+};
+
+const GENERIC_IMAGE_BAD_WORDS=[
+  "book","cover","volume","vol.","logo","icon","diagram","chart","map",
+  "poster","stamp","coin","manuscript","painting","drawing","illustration",
+  "petri","agar","culture","colony","microbiology","bacteria","fungus"
+];
+
+function normalizeSearchText(s){
+  return String(s||"")
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g," ")
+    .replace(/\s+/g," ")
+    .trim();
+}
+
+function answerTokens(answer){
+  const stop=new Set(["the","a","an","and","of","to","in","for","with","on","at","by"]);
+  return normalizeSearchText(answer).split(" ").filter(w=>w.length>2&&!stop.has(w));
+}
+
+function buildImageQueries(q){
+  const exact=normalizeSearchText(q.a);
+  const override=IMAGE_QUERY_OVERRIDES[exact];
+  if(override) return override;
+
+  const ctx=TOPIC_QUERY_CONTEXT[q.topic] || normalizeSearchText(q.topic);
+  const queries=[
+    `${q.a} ${ctx}`,
+    `${q.a} real photo ${ctx}`,
+  ];
+
+  if(q.topic==="Jobs" || q.topic==="Work & Career" || q.topic==="Human Resources"){
+    queries.unshift(`${q.a} person at work occupation`);
+  }else if(q.topic==="Sports" || q.topic==="Hobbies" || q.topic==="Action Words" || q.topic==="Daily Activities"){
+    queries.unshift(`${q.a} person doing activity`);
+  }
+  return [...new Set(queries)];
+}
+
+function relevanceScore(item,q){
+  const answer=normalizeSearchText(q.a);
+  const tokens=answerTokens(q.a);
+  const title=normalizeSearchText(item.title);
+  const tags=normalizeSearchText(item.tags||"");
+  const text=`${title} ${tags}`;
+
+  let score=0;
+  if(title===answer) score+=120;
+  if(title.includes(answer)) score+=80;
+
+  let tokenHits=0;
+  for(const t of tokens){
+    if(title.includes(t)){score+=28;tokenHits++;}
+    else if(tags.includes(t)){score+=12;tokenHits++;}
+  }
+
+  if(tokens.length && tokenHits===tokens.length) score+=40;
+  if(/\b(person|people|worker|working|work|professional|employee)\b/.test(text)
+     && (q.topic==="Jobs" || q.topic==="Work & Career" || q.topic==="Human Resources")) score+=30;
+
+  for(const bad of GENERIC_IMAGE_BAD_WORDS){
+    if(text.includes(bad)) score-=45;
+  }
+
+  // Occupations must preferably show a person, not an object associated with the profession.
+  if(q.topic==="Jobs" && !/\b(person|people|worker|working|man|woman|employee|technician|mechanic|doctor|nurse|chef|pilot|dentist|engineer|teacher|scientist|cashier|barber|baker|journalist|photographer)\b/.test(text)){
+    score-=35;
+  }
+
+  return score;
+}
+
+async function openverseSearch(query,q){
+  const url="https://api.openverse.org/v1/images/?page_size=20&mature=false&q="+encodeURIComponent(query);
+  const res=await fetch(url,{headers:{"Accept":"application/json"}});
+  if(!res.ok) throw new Error("Openverse request failed");
+  const data=await res.json();
+
+  return (data.results||[]).map(x=>({
+    url:x.thumbnail || x.url,
+    title:x.title || "",
+    tags:(x.tags||[]).map(t=>t.name||t).join(" "),
+    source:"Openverse",
+    score:0
+  })).filter(x=>x.url).map(x=>({...x,score:relevanceScore(x,q)}));
+}
+
+async function commonsSearch(query,q){
+  const url="https://commons.wikimedia.org/w/api.php?action=query&generator=search"
+    +"&gsrsearch="+encodeURIComponent(query)
+    +"&gsrnamespace=6&gsrlimit=15"
+    +"&prop=imageinfo&iiprop=url&iiurlwidth=1200"
+    +"&format=json&origin=*";
+
+  const res=await fetch(url);
+  if(!res.ok) throw new Error("Commons request failed");
+  const data=await res.json();
+
+  return Object.values(data?.query?.pages||{}).map(p=>{
+    const ii=p.imageinfo?.[0]||{};
+    return {
+      url:ii.thumburl||ii.url||"",
+      title:(p.title||"").replace(/^File:/i,""),
+      tags:"",
+      source:"Wikimedia Commons",
+      score:0
+    };
+  }).filter(x=>x.url && !x.url.toLowerCase().endsWith(".svg"))
+    .map(x=>({...x,score:relevanceScore(x,q)}));
+}
+
+async function findExactMatchedImage(q){
+  const key=`${q.level}|${q.topic}|${q.a}`.toLowerCase();
+  if(imageCache.has(key)) return imageCache.get(key);
+
+  const queries=buildImageQueries(q);
+  let candidates=[];
+
+  for(const query of queries){
+    try{
+      candidates.push(...await openverseSearch(query,q));
+    }catch(e){}
+    if(candidates.some(x=>x.score>=85)) break;
+  }
+
+  if(!candidates.some(x=>x.score>=65)){
+    for(const query of queries){
+      try{
+        candidates.push(...await commonsSearch(query,q));
+      }catch(e){}
+      if(candidates.some(x=>x.score>=75)) break;
+    }
+  }
+
+  candidates.sort((a,b)=>b.score-a.score);
+  const best=candidates[0]||null;
+
+  // Important: reject weak result instead of showing a misleading image.
+  const accepted=best && best.score>=45 ? best : null;
+  imageCache.set(key,accepted);
+  return accepted;
 }
 
 function resetImageArea(){
   realImage.classList.add("hidden");
   realImage.removeAttribute("src");
   realImageFallback.classList.add("hidden");
-  realImageFallback.textContent="";
+  realImageFallback.innerHTML="";
   realImageLoading.classList.remove("hidden");
-  realImageLoading.textContent="Finding the best matching picture…";
-}
-
-async function wikiPageImageSearch(answer,topic){
-  const query=`${answer} ${topicSearchContext(topic)}`.trim();
-  const url="https://en.wikipedia.org/w/api.php?action=query&generator=search"
-    +"&gsrsearch="+encodeURIComponent(query)
-    +"&gsrnamespace=0&gsrlimit=8"
-    +"&prop=pageimages|pageterms"
-    +"&piprop=thumbnail&pithumbsize=1000"
-    +"&wbptterms=description"
-    +"&format=json&origin=*";
-
-  const res=await fetch(url);
-  if(!res.ok) throw new Error("Wikipedia image search failed");
-  const data=await res.json();
-  const pages=Object.values(data?.query?.pages||{});
-  if(!pages.length) return null;
-
-  const clean=answer.toLowerCase().replace(/[^a-z0-9 ]/g,"").trim();
-  const words=clean.split(/\s+/).filter(Boolean);
-
-  pages.sort((a,b)=>{
-    const ta=(a.title||"").toLowerCase();
-    const tb=(b.title||"").toLowerCase();
-    const score=t=>{
-      let s=0;
-      if(t===clean) s+=100;
-      if(t.includes(clean)) s+=50;
-      words.forEach(w=>{if(t.includes(w)) s+=8});
-      return s;
-    };
-    return score(tb)-score(ta);
-  });
-
-  const hit=pages.find(p=>p.thumbnail?.source);
-  return hit ? {url:hit.thumbnail.source,title:hit.title||""} : null;
-}
-
-async function commonsImageSearch(answer,topic){
-  const query=`${answer} ${topicSearchContext(topic)}`.trim();
-  const url="https://commons.wikimedia.org/w/api.php?action=query&generator=search"
-    +"&gsrsearch="+encodeURIComponent(query)
-    +"&gsrnamespace=6&gsrlimit=12"
-    +"&prop=imageinfo&iiprop=url&iiurlwidth=1000"
-    +"&format=json&origin=*";
-
-  const res=await fetch(url);
-  if(!res.ok) throw new Error("Commons image search failed");
-  const data=await res.json();
-  const pages=Object.values(data?.query?.pages||{});
-  const usable=pages.filter(p=>{
-    const ii=p.imageinfo?.[0];
-    const u=(ii?.thumburl||ii?.url||"").toLowerCase();
-    return u && !u.endsWith(".svg");
-  });
-  if(!usable.length) return null;
-
-  const p=usable[0], ii=p.imageinfo[0];
-  return {url:ii.thumburl||ii.url,title:p.title||""};
-}
-
-async function findMatchedRealImage(q){
-  const key=`${q.level}|${q.topic}|${q.a}`.toLowerCase();
-  if(imageCache.has(key)) return imageCache.get(key);
-
-  let hit=null;
-  try{ hit=await wikiPageImageSearch(q.a,q.topic); }catch(e){}
-  if(!hit){
-    try{ hit=await commonsImageSearch(q.a,q.topic); }catch(e){}
-  }
-  imageCache.set(key,hit);
-  return hit;
+  realImageLoading.textContent="Finding a matching real picture…";
 }
 
 async function renderRealImage(q){
@@ -885,53 +1151,87 @@ async function renderRealImage(q){
   resetImageArea();
 
   try{
-    const hit=await findMatchedRealImage(q);
+    const hit=await findExactMatchedImage(q);
     if(token!==imageRequestToken) return;
 
-    if(hit?.url){
-      realImage.onload=()=>{
-        if(token!==imageRequestToken) return;
-        realImageLoading.classList.add("hidden");
-        realImage.classList.remove("hidden");
-      };
-      realImage.onerror=()=>{
-        if(token!==imageRequestToken) return;
-        showImageFallback(q);
-      };
-      realImage.src=hit.url;
-    }else{
-      showImageFallback(q);
+    if(!hit){
+      showNoReliableImage(q);
+      return;
     }
+
+    realImage.onload=()=>{
+      if(token!==imageRequestToken) return;
+      realImageLoading.classList.add("hidden");
+      realImage.classList.remove("hidden");
+    };
+    realImage.onerror=()=>{
+      if(token!==imageRequestToken) return;
+      showNoReliableImage(q);
+    };
+    realImage.src=hit.url;
   }catch(e){
-    showImageFallback(q);
+    showNoReliableImage(q);
   }
 }
 
-function showImageFallback(q){
+function showNoReliableImage(q){
   realImageLoading.classList.add("hidden");
   realImage.classList.add("hidden");
-  realImageFallback.textContent=q.e||"🖼️";
-  realImageFallback.classList.remove("hidden");
-}
+  // Deliberately do NOT show a random or misleading picture.
+  // Use only a neutral topic symbol while the word itself remains hidden.
+  const neutral={
+    "Jobs":"👷",
+    "Sports":"🏅",
+    "Food & Drinks":"🍽️",
+    "Animals":"🐾",
+    "Technology":"💻",
+    "Science":"🔬",
+    "Marketing":"📣",
+    "Finance":"💹",
+    "Leadership":"👥"
+  }[q.topic] || "🖼️";
 
-function toggleTextHint(){
-  const hidden=hint.classList.contains("hidden");
-  hint.classList.toggle("hidden");
-  textHintBtn.textContent=hidden ? "💡 Hide Text Hint" : "💡 Show Text Hint";
+  realImageFallback.innerHTML=`<div style="font-size:110px">${neutral}</div><div style="font-size:16px;color:#64748b;margin-top:18px">No reliable matching photo found. A wrong photo was rejected.</div>`;
+  realImageFallback.classList.remove("hidden");
 }
 
 function updateTurn(){const t=settings.teamNames[team].toUpperCase()+"'S TURN";turnBoard.textContent=t;turnQuestion.textContent=t}
 function openQuestion(i){
-  currentIndex=i; const q=questions[i]; qPill.textContent="Question "+(i+1); diffBadge.textContent=q.difficulty; diffBadge.className="diff diff-"+q.difficulty;
-  const scr=settings.anagram==="saved"?q.scr:scrambleWord(q.a); letters.innerHTML="";
-  scr.split("").forEach(c=>{if(c===" "){const gap=document.createElement("div");gap.style.width="14px";letters.appendChild(gap)}else{const x=document.createElement("div");x.className="letter";x.textContent=c;letters.appendChild(x)}});
-  hint.textContent="Hint: "+q.hint;
-  hint.classList.add("hidden");
-  textHintBtn.textContent="💡 Show Text Hint";
-  answerEmoji.textContent=q.e||"✨"; answerWord.textContent=q.a.toUpperCase();
+  currentIndex=i;
+  const q=questions[i];
+  qPill.textContent="Question "+(i+1);
+  diffBadge.textContent=q.difficulty;
+  diffBadge.className="diff diff-"+q.difficulty;
+
+  const scr=settings.anagram==="saved"?q.scr:scrambleWord(q.a);
+  letters.innerHTML="";
+  scr.split("").forEach(c=>{
+    if(c===" "){
+      const gap=document.createElement("div");
+      gap.style.width="14px";
+      letters.appendChild(gap);
+    }else{
+      const x=document.createElement("div");
+      x.className="letter";
+      x.textContent=c;
+      letters.appendChild(x);
+    }
+  });
+
+  answerWord.textContent=q.a.toUpperCase();
   renderRealImage(q);
-  answerPanel.classList.add("hidden"); result.classList.add("hidden"); showAnswerBtn.classList.remove("hidden"); correctBtn.classList.add("hidden"); wrongBtn.classList.add("hidden"); nextBtn.classList.add("hidden");
-  updateTurn(); startTimer(); saveState(); go("question");
+
+  answerPanel.classList.add("hidden");
+  result.classList.add("hidden");
+  showAnswerBtn.classList.remove("hidden");
+  correctBtn.classList.add("hidden");
+  wrongBtn.classList.add("hidden");
+  nextBtn.classList.add("hidden");
+
+  updateTurn();
+  startTimer();
+  saveState();
+  go("question");
 }
 function reveal(){stopTimer();answerPanel.classList.remove("hidden");showAnswerBtn.classList.add("hidden");correctBtn.classList.remove("hidden");wrongBtn.classList.remove("hidden")}
 function getPoints(){if(settings.points==="10")return 10;if(settings.points==="20")return 20;return [10,20,30,40,50][Math.floor(Math.random()*5)]}
