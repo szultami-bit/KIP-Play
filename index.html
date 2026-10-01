@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KIP Anagram Party v1.13.2</title>
+<title>KIP Anagram Party v1.13.3</title>
 <style>
 :root {
   --bg: #07111f;
@@ -357,6 +357,52 @@ button { cursor:pointer; }
 .db-status.loading{color:#fde68a;border-color:rgba(253,230,138,.35);background:rgba(245,158,11,.08)}
 .db-status.fallback{color:#fca5a5;border-color:rgba(252,165,165,.35);background:rgba(239,68,68,.08)}
 
+
+.visual-wrap{
+  margin:16px auto 10px;
+  max-width:760px;
+}
+.visual-topline{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:7px 12px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.05);
+  color:var(--muted);
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.5px;
+  text-transform:uppercase;
+  margin-bottom:10px;
+}
+.visual-topline::before{
+  content:"🖼️";
+}
+.visual-card{
+  border:1px solid var(--line);
+  border-radius:24px;
+  padding:10px;
+  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));
+  box-shadow:0 18px 40px rgba(0,0,0,.18);
+}
+.visual-image{
+  display:block;
+  width:100%;
+  aspect-ratio: 16 / 9;
+  object-fit:cover;
+  border-radius:18px;
+  background:#0b1527;
+}
+.visual-meta{
+  margin-top:10px;
+  color:var(--muted);
+  font-size:13px;
+  text-align:center;
+  line-height:1.5;
+}
+
 </style>
 </head>
 <body>
@@ -381,7 +427,7 @@ button { cursor:pointer; }
           <button class="btn btn-ghost" onclick="clearSaved()">Discard</button>
         </div>
       </div>
-      <div class="version">KIP Play • v1.13.2 • Question Quality Audit</div>
+      <div class="version">KIP Play • v1.13.3 • Visual Matching Edition</div>
 <div id="dbStatus" class="db-status loading">● Connecting to question database...</div>
     </div>
   </div>
@@ -463,6 +509,13 @@ button { cursor:pointer; }
     <h2 class="question-title">Unscramble the word</h2>
     <div id="timerWrap"><div id="timer" class="timer"></div></div>
     <div id="letters" class="letters"></div>
+    <div id="visualWrap" class="visual-wrap">
+      <div class="visual-topline">Picture Clue Matcher</div>
+      <div class="visual-card">
+        <img id="visualImage" class="visual-image" alt="Question visual clue">
+      </div>
+      <div id="visualMeta" class="visual-meta">Visual clue is being matched to the selected word or phrase.</div>
+    </div>
     <div id="hint" class="hint"></div>
     <div id="answerPanel" class="answer-panel hidden"><div id="answerEmoji" class="answer-emoji"></div><div id="answerWord" class="answer-word"></div></div>
     <div id="result" class="result hidden"></div>
@@ -525,7 +578,7 @@ function setDbStatus(mode,count){
   const el=document.getElementById("dbStatus");
   if(!el) return;
   if(mode==="online"){
-    el.textContent=`● Online Database • ${count.toLocaleString()} questions • Reviewed Questions`;
+    el.textContent=`● Online Database • ${count.toLocaleString()} questions • Visual Matching`;
     el.className="db-status online";
   }else if(mode==="loading"){
     el.textContent="● Connecting to question database...";
@@ -619,7 +672,7 @@ async function initOnlineBank(){
   }
 }
 
-const STORE="kip-v1132-game";
+const STORE="kip-v1133-game";
 
 const levelMeta={
   "Junior Kid":{icon:"🟢",desc:"Simple concrete vocabulary for early learners."},
@@ -718,16 +771,183 @@ function adjustScore(index,amount){
   renderScores();
   saveState();
 }
+
+const TOPIC_EMOJI={
+  "Animals":"🐾","Food & Drinks":"🍽️","Colors & Shapes":"🎨","Family":"👨‍👩‍👧‍👦","Toys":"🧸","Weather":"🌤️","Clothes":"👕","Home":"🏠","Numbers":"🔢","Action Words":"🏃","Daily Routines":"🕒","Fruits":"🍎","Farm Animals":"🐄","Sea Animals":"🌊",
+  "Animals Advanced":"🦊","Jobs":"💼","Transportation":"🚌","Daily Activities":"📅","Places":"📍","Sports":"🏅","School Subjects":"📚","Nature":"🌿","Household Items":"🪑","Feelings":"😊","Technology Basics":"💻","Time & Calendar":"📆","Community Places":"🏘️","Health":"🩺","Hobbies":"🎯","Shopping":"🛒",
+  "School & Learning":"📘","Technology":"🖥️","Health & Lifestyle":"💪","Environment":"🌍","Travel":"✈️","Feelings & Personality":"🙂","Food & Nutrition":"🥗","Friendship":"🤝","Money":"💵","Media":"📰","Science":"🔬","Geography":"🗺️","Public Places":"🏙️","Teen Life":"🎒","Study Skills":"📝","Global Culture":"🌐","Safety":"🦺",
+  "Work & Career":"📈","Business & Entrepreneurship":"🚀","Communication":"💬","Academic Skills":"🎓","Critical Thinking":"🧠","Leadership":"👑","Marketing":"📣","Finance":"💹","Human Resources":"👥","Operations":"⚙️","Entrepreneurship":"💡","Economics":"📊","Customer Service":"🤝","Digital Business":"📱","Research Methods":"🧪","Global Issues":"🌏"
+};
+
+const LEVEL_PALETTE={
+  "Junior Kid":["#0ea5e9","#2563eb"],
+  "Senior Kid":["#22c55e","#15803d"],
+  "SMP":["#f59e0b","#ea580c"],
+  "SMA–Umum":["#a855f7","#7c3aed"]
+};
+
+const DIFF_BADGE={
+  "Easy":"🌱 Easy",
+  "Medium":"⚡ Medium",
+  "Hard":"🔥 Hard"
+};
+
+const KEYWORD_EMOJI={
+  "cat":["🐱","🐾"],"dog":["🐶","🐾"],"fish":["🐟","🌊"],"bird":["🐦","🪶"],"duck":["🦆","🌊"],"cow":["🐮","🥛"],"pig":["🐷","🌾"],
+  "frog":["🐸","💧"],"bee":["🐝","🍯"],"fox":["🦊","🌲"],"bat":["🦇","🌙"],"goat":["🐐","🌿"],"rat":["🐀","🧀"],"owl":["🦉","🌙"],
+  "lion":["🦁","🌿"],"tiger":["🐯","🌿"],"panda":["🐼","🎋"],"rabbit":["🐰","🥕"],"horse":["🐴","🌾"],"sheep":["🐑","🧶"],"snake":["🐍","🌿"],
+  "whale":["🐋","🌊"],"shark":["🦈","🌊"],"koala":["🐨","🌿"],"camel":["🐫","🏜️"],"eagle":["🦅","☁️"],"parrot":["🦜","🌴"],"turtle":["🐢","🌊"],
+  "giraffe":["🦒","🌿"],"dolphin":["🐬","🌊"],"octopus":["🐙","🌊"],"crocodile":["🐊","🌿"],"kangaroo":["🦘","🌿"],"squirrel":["🐿️","🌰"],
+  "butterfly":["🦋","🌸"],"penguin":["🐧","❄️"],"leopard":["🐆","🌿"],"hippopotamus":["🦛","💧"],"rhinoceros":["🦏","🌿"],"porcupine":["🦔","🍂"],"flamingo":["🦩","🌊"],"chimpanzee":["🐵","🌴"],
+  "rice":["🍚","🌾"],"egg":["🥚","🐔"],"milk":["🥛","🐄"],"water":["💧","🚰"],"tea":["🍵","🌿"],"soup":["🥣","🥄"],"corn":["🌽","🌿"],"pear":["🍐","🌿"],"grape":["🍇","🍃"],"lemon":["🍋","✨"],"candy":["🍬","✨"],"meat":["🥩","🍽️"],"bread":["🍞","🥪"],"apple":["🍎","🌿"],"banana":["🍌","🌿"],"mango":["🥭","🌴"],"juice":["🧃","🍊"],"orange":["🍊","🌿"],"burger":["🍔","🍽️"],"cheese":["🧀","🥛"],"biscuit":["🍪","☕"],"yogurt":["🥛","🥄"],"salad":["🥗","🥬"],"sausage":["🌭","🍽️"],"potato":["🥔","🌱"],"tomato":["🍅","🌿"],"carrot":["🥕","🌿"],"honey":["🍯","🐝"],"cereal":["🥣","🥛"],"pizza":["🍕","🧀"],"noodles":["🍜","🥢"],"chicken":["🍗","🐔"],"sandwich":["🥪","🍞"],"chocolate":["🍫","🍬"],"pineapple":["🍍","🌴"],"watermelon":["🍉","🌞"],"strawberry":["🍓","🌿"],"spaghetti":["🍝","🍽️"],"pancake":["🥞","🍯"],"vegetable":["🥦","🥕"],"milkshake":["🥤","🥛"],"breakfast":["🍳","☀️"],"hamburger":["🍔","🍽️"],"cream":["🍦","❄️"],"fried":["🍳","🔥"],"fruit":["🍎","🍇"],"hot":["☕","🔥"],
+  "red":["🔴","❤️"],"blue":["🔵","🌊"],"green":["🟢","🌿"],"yellow":["🟡","🌞"],"purple":["🟣","✨"],"orange":["🟠","🍊"],"circle":["⚪","⭕"],"square":["🟥","⬜"],"triangle":["🔺","📐"],"star":["⭐","✨"],"heart":["❤️","💖"],
+  "mother":["👩","🏠"],"father":["👨","🏠"],"sister":["👧","💞"],"brother":["👦","💞"],"grandmother":["👵","💗"],"grandfather":["👴","💗"],"family":["👨‍👩‍👧‍👦","🏡"],"baby":["👶","🍼"],"uncle":["👨","👪"],"aunt":["👩","👪"],"cousin":["🧒","👪"],
+  "doctor":["🩺","🏥"],"nurse":["💉","🏥"],"teacher":["👩‍🏫","📚"],"student":["🧑‍🎓","📚"],"engineer":["⚙️","🏗️"],"entrepreneur":["🚀","💡"],"manager":["👔","📈"],"worker":["🧑‍💼","🏢"],
+  "school":["🏫","📘"],"book":["📘","✏️"],"study":["📚","📝"],"learning":["📘","🧠"],"homework":["📝","🏠"],"science":["🔬","🧪"],"math":["➗","📐"],"history":["🏛️","📚"],"geography":["🗺️","🌍"],"research":["🔬","📑"],"analysis":["📊","🧠"],"method":["🧪","📋"],
+  "computer":["💻","⌨️"],"internet":["🌐","💻"],"phone":["📱","🔋"],"digital":["📱","💡"],"data":["📊","💾"],"analytics":["📈","📊"],"media":["📰","📺"],"news":["📰","🌍"],"website":["🌐","💻"],"platform":["📱","💻"],"network":["🕸️","🌐"],
+  "travel":["✈️","🧳"],"airport":["🛫","🧳"],"hotel":["🏨","🛏️"],"journey":["🛣️","🧳"],"map":["🗺️","📍"],"station":["🚉","🧳"],"bus":["🚌","🛣️"],"train":["🚆","🛤️"],"car":["🚗","🛣️"],"plane":["✈️","☁️"],
+  "friendship":["🤝","😊"],"friend":["🧑‍🤝‍🧑","😊"],"feeling":["😊","💭"],"happy":["😄","🌞"],"sad":["😢","🌧️"],"angry":["😠","⚡"],"brave":["🦁","✨"],"kind":["💖","😊"],"confident":["💪","✨"],
+  "money":["💵","💰"],"account":["🏦","💳"],"bank":["🏦","💵"],"price":["🏷️","💵"],"budget":["💰","📋"],"investment":["📈","💹"],"risk":["⚠️","📉"],"profit":["💵","📈"],"revenue":["💰","📊"],"economy":["📊","🌍"],"inflation":["📈","💸"],
+  "business":["🏢","📈"],"market":["🛍️","📊"],"marketing":["📣","🎯"],"brand":["🏷️","✨"],"customer":["🛒","😊"],"service":["🤝","⭐"],"strategy":["🧭","📈"],"sales":["🛍️","💵"],"product":["📦","✨"],"promotion":["📣","🎁"],"campaign":["🎯","📣"],"value":["💎","📈"],"benefit":["🎁","✨"],
+  "leadership":["👑","👥"],"team":["👥","🤝"],"communication":["💬","🗣️"],"critical":["🧠","🔍"],"thinking":["🧠","💭"],"operations":["⚙️","🏭"],"human":["👥","💼"],"resources":["👥","📋"],"customer service":["🤝","⭐"],
+  "health":["🩺","💚"],"fitness":["💪","🏃"],"food":["🍽️","🥗"],"nutrition":["🥗","💪"],"environment":["🌍","🌿"],"climate":["🌍","🌡️"],"pollution":["🏭","🌫️"],"sustainable":["♻️","🌱"],"global":["🌐","🌍"],"culture":["🌍","🎎"],"rights":["⚖️","🤝"],"security":["🛡️","🔒"],"safety":["🦺","⚠️"],"crisis":["⚠️","🌍"],"population":["👥","🌍"]
+};
+
+function escapeXml(s){
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+function pickPalette(q){
+  const base=LEVEL_PALETTE[q.level] || ["#1d4ed8","#2563eb"];
+  const byDiff={
+    "Easy":[base[0],base[1]],
+    "Medium":[base[0],"#f59e0b"],
+    "Hard":[base[0],"#ef4444"]
+  };
+  return byDiff[q.difficulty] || base;
+}
+
+function cleanWords(text){
+  return String(text||"").toLowerCase().replace(/[^a-z0-9\s]/g," ").split(/\s+/).filter(Boolean);
+}
+
+function buildEmojiStack(q){
+  const out=[];
+  const push=x=>{ if(x && !out.includes(x)) out.push(x); };
+  const generic = ["📘","📙","✨","❓"];
+  if(q.e && !generic.includes(q.e)) push(q.e);
+
+  cleanWords(q.a).forEach(w=>{
+    const hits=KEYWORD_EMOJI[w];
+    if(hits) hits.forEach(push);
+  });
+
+  const whole=KEYWORD_EMOJI[String(q.a).toLowerCase()];
+  if(whole) whole.forEach(push);
+
+  push(TOPIC_EMOJI[q.topic] || "✨");
+  push(q.difficulty==="Hard" ? "🧩" : q.difficulty==="Medium" ? "💡" : "🌟");
+  push("✨");
+  return out.slice(0,4);
+}
+
+function badgeText(q, revealed){
+  if(revealed) return `Matched Visual • ${q.a}`;
+  return `Matched Visual • ${q.topic} • ${q.level}`;
+}
+
+function buildVisualSvg(q, revealed=false){
+  const [c1,c2]=pickPalette(q);
+  const [e1,e2,e3,e4]=buildEmojiStack(q);
+  const topic=escapeXml(q.topic);
+  const diff=escapeXml(DIFF_BADGE[q.difficulty] || q.difficulty);
+  const level=escapeXml(q.level);
+  const caption=escapeXml(badgeText(q,revealed));
+  const bottom = revealed
+    ? `<text x="40" y="302" font-size="26" font-weight="800" fill="#0f172a">${escapeXml(q.a)}</text>`
+    : `<text x="40" y="302" font-size="22" font-weight="700" fill="#334155">Use the picture clue to guess the word or phrase.</text>`;
+
+  return `
+  <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="${c1}"/>
+        <stop offset="100%" stop-color="${c2}"/>
+      </linearGradient>
+      <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="rgba(255,255,255,.95)"/>
+        <stop offset="100%" stop-color="rgba(255,255,255,.85)"/>
+      </linearGradient>
+      <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+        <feDropShadow dx="0" dy="18" stdDeviation="22" flood-opacity="0.20"/>
+      </filter>
+    </defs>
+    <rect width="1280" height="720" fill="url(#bg)"/>
+    <circle cx="142" cy="125" r="84" fill="rgba(255,255,255,.12)"/>
+    <circle cx="1160" cy="120" r="120" fill="rgba(255,255,255,.10)"/>
+    <circle cx="1080" cy="570" r="170" fill="rgba(255,255,255,.08)"/>
+    <circle cx="220" cy="600" r="120" fill="rgba(255,255,255,.08)"/>
+
+    <rect x="36" y="34" rx="26" ry="26" width="1208" height="652" fill="rgba(15,23,42,.08)" stroke="rgba(255,255,255,.35)" stroke-width="2"/>
+    <rect x="68" y="68" rx="34" ry="34" width="1144" height="584" fill="rgba(255,255,255,.18)" filter="url(#shadow)"/>
+
+    <rect x="96" y="98" rx="22" ry="22" width="240" height="58" fill="rgba(255,255,255,.88)"/>
+    <text x="216" y="136" text-anchor="middle" font-size="28" font-weight="800" fill="#0f172a">${diff}</text>
+
+    <rect x="362" y="98" rx="22" ry="22" width="360" height="58" fill="rgba(255,255,255,.88)"/>
+    <text x="542" y="136" text-anchor="middle" font-size="28" font-weight="800" fill="#0f172a">${topic}</text>
+
+    <rect x="744" y="98" rx="22" ry="22" width="372" height="58" fill="rgba(255,255,255,.88)"/>
+    <text x="930" y="136" text-anchor="middle" font-size="28" font-weight="800" fill="#0f172a">${level}</text>
+
+    <text x="640" y="208" text-anchor="middle" font-size="34" font-weight="900" fill="white" opacity="0.95">${caption}</text>
+
+    <rect x="148" y="248" rx="42" ry="42" width="984" height="260" fill="rgba(255,255,255,.92)"/>
+    <text x="640" y="432" text-anchor="middle" font-size="172">${e1 || "✨"}</text>
+
+    <circle cx="360" cy="378" r="72" fill="rgba(14,165,233,.14)"/>
+    <text x="360" y="402" text-anchor="middle" font-size="84">${e2 || "✨"}</text>
+
+    <circle cx="920" cy="378" r="72" fill="rgba(168,85,247,.14)"/>
+    <text x="920" y="402" text-anchor="middle" font-size="84">${e3 || "💡"}</text>
+
+    <rect x="520" y="528" rx="18" ry="18" width="240" height="56" fill="rgba(15,23,42,.10)"/>
+    <text x="640" y="565" text-anchor="middle" font-size="30">${e4 || "✨"}  visual clue  ${e4 || "✨"}</text>
+
+    ${bottom}
+  </svg>`;
+}
+
+function svgToDataUri(svg){
+  return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+}
+
+function renderVisualMatch(q, revealed=false){
+  if(!q || !window.visualImage || !window.visualMeta) return;
+  visualImage.src = svgToDataUri(buildVisualSvg(q, revealed));
+  visualMeta.textContent = revealed
+    ? `Matched picture clue for: ${q.a} • Topic: ${q.topic} • Difficulty: ${q.difficulty}`
+    : `Auto-matched visual clue for this selected question • Topic: ${q.topic} • Difficulty: ${q.difficulty}`;
+}
+
 function updateTurn(){const t=settings.teamNames[team].toUpperCase()+"'S TURN";turnBoard.textContent=t;turnQuestion.textContent=t}
 function openQuestion(i){
   currentIndex=i; const q=questions[i]; qPill.textContent="Question "+(i+1); diffBadge.textContent=q.difficulty; diffBadge.className="diff diff-"+q.difficulty;
   const scr=settings.anagram==="saved"?q.scr:scrambleWord(q.a); letters.innerHTML="";
   scr.split("").forEach(c=>{if(c===" "){const gap=document.createElement("div");gap.style.width="14px";letters.appendChild(gap)}else{const x=document.createElement("div");x.className="letter";x.textContent=c;letters.appendChild(x)}});
   hint.textContent="Hint: "+q.hint; answerEmoji.textContent=q.e||"✨"; answerWord.textContent=q.a.toUpperCase();
+  renderVisualMatch(q,false);
   answerPanel.classList.add("hidden"); result.classList.add("hidden"); showAnswerBtn.classList.remove("hidden"); correctBtn.classList.add("hidden"); wrongBtn.classList.add("hidden"); nextBtn.classList.add("hidden");
   updateTurn(); startTimer(); saveState(); go("question");
 }
-function reveal(){stopTimer();answerPanel.classList.remove("hidden");showAnswerBtn.classList.add("hidden");correctBtn.classList.remove("hidden");wrongBtn.classList.remove("hidden")}
+function reveal(){
+  stopTimer();
+  answerPanel.classList.remove("hidden");
+  showAnswerBtn.classList.add("hidden");
+  correctBtn.classList.remove("hidden");
+  wrongBtn.classList.remove("hidden");
+  if(currentIndex!==null) renderVisualMatch(questions[currentIndex],true);
+}
 function getPoints(){if(settings.points==="10")return 10;if(settings.points==="20")return 20;return [10,20,30,40,50][Math.floor(Math.random()*5)]}
 function mark(ok){
   used.add(currentIndex); correctBtn.classList.add("hidden"); wrongBtn.classList.add("hidden");
@@ -862,6 +1082,13 @@ function renderBankList(){
 checkResume();
 initOnlineBank();
 
+
+window.kipVisualInfo=()=>({
+  mode:"smart_visual_matching",
+  source:DB_SOURCE,
+  visualEngine:"svg_picture_clue_matcher",
+  note:"Every selected question gets an automatically matched visual clue based on emoji, keywords, topic, level, and difficulty."
+});
 window.kipDatabaseInfo=()=>({
   source:DB_SOURCE,
   levels:Object.keys(BANK).length,
