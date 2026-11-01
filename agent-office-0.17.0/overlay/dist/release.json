@@ -1,0 +1,10 @@
+{
+  "service": "kip-agent-office",
+  "version": "0.17.0",
+  "rolesSchemaVersion": 1,
+  "mode": "owner-only-evidence-and-skill-configuration",
+  "boardSchemaVersion": 1,
+  "skillsSchemaVersion": 2,
+  "skillTestScope": "structure-and-tools",
+  "externalSkillExecution": false
+}
