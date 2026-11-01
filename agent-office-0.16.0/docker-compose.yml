@@ -1,0 +1,56 @@
+services:
+  office:
+    build:
+      context: https://github.com/szultami-bit/KIP-Play.git#deploy-agent-office-0.16.0:agent-office-0.16.0
+      pull: false
+    image: kip-agent-office:${OFFICE_IMAGE_TAG:-0.16.0}
+    user: "1000:1000"
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    init: true
+    restart: unless-stopped
+    mem_limit: 128m
+    cpus: 0.25
+    pids_limit: 64
+    environment:
+      OBSERVER_MODULE: /observer/src/store.mjs
+      OBSERVER_STATE: /observer-state/ops.sqlite
+      OFFICE_ORIGIN: https://agent.kampunginggrispontianak.com
+      OFFICE_SUPABASE_URL: https://lqoaqkhaxprwbwjfbjjt.supabase.co
+      OFFICE_PUBLISHABLE_KEY: ${OFFICE_PUBLISHABLE_KEY}
+      OFFICE_ALLOWED_EMAIL: szultami@gmail.com
+      OFFICE_ALLOWED_USER_ID: 204a2cd8-9cdf-490e-9bbf-6351b7febd63
+      OFFICE_BOARD_PATH: /office-state/board.json
+      OFFICE_SKILLS_PATH: /office-state/skills.json
+    ports:
+      - "127.0.0.1:${OFFICE_HOST_PORT:-18796}:3180"
+    volumes:
+      - observer-code:/observer:ro
+      - observer-state:/observer-state:ro
+      - office-state:/office-state
+    logging:
+      driver: json-file
+      options:
+        max-size: "2m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "node", "--input-type=module", "-e", "const r=await fetch('http://127.0.0.1:3180/healthz');if(!r.ok||(await r.json()).service!=='kip-agent-office')process.exit(1)"]
+      interval: 15s
+      timeout: 5s
+      retries: 4
+volumes:
+  observer-code:
+    external: true
+    name: kip-ops-hybrid-20261031_code_v01
+  observer-state:
+    external: true
+    name: kip-ops-hybrid-20261031_state_v01
+  office-state:
+    name: ${OFFICE_STATE_VOLUME:-kip-agent-office-skills016-candidate_state}
+networks:
+  default:
+    external: true
+    name: kip-ops-hybrid-20261031_default
