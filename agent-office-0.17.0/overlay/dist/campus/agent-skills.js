@@ -22,6 +22,7 @@ export function bindAgentSkills({announce}){
  function syncControls(){
   const skill=byId(registry?.skills,selectedSkillId),candidate=!!skill?.candidateVersion;
   $('#skills-refresh').disabled=busy;$('#skill-create').disabled=busy||!registry;
+  $('#agent-authority').disabled=busy||!byId(registry?.agents,selectedAgentId);
   $('#skill-form')?.querySelectorAll('button,input,select,textarea').forEach(control=>{control.disabled=busy||control.dataset.locked==='true';});
   $('#skill-save').disabled=busy||conflicted;
   $('#skill-test').disabled=busy||conflicted||dialogMode==='new'||!candidate;

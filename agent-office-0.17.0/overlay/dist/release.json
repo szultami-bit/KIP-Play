@@ -6,5 +6,6 @@
   "boardSchemaVersion": 1,
   "skillsSchemaVersion": 2,
   "skillTestScope": "structure-and-tools",
-  "externalSkillExecution": false
+  "externalSkillExecution": false,
+  "patch": "authority-dropdown-refresh"
 }
