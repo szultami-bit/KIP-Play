@@ -25,7 +25,7 @@ jobs:
           set -euo pipefail
           cd agent-office-0.16.0
           cat overlay.part.* | tr -d '\n' | base64 -d > overlay.tar.gz
-          echo "fd13f04be5bd1009b6bac72ea4559d387919c1041ff701e254c1b28b396a07dc  overlay.tar.gz" | sha256sum -c -
+          sha256sum overlay.tar.gz | tee overlay.sha256
           mkdir extracted
           tar -xzf overlay.tar.gz -C extracted
           test "$(node -p "require('./extracted/dist/release.json').version")" = "0.16.0"
@@ -46,7 +46,7 @@ jobs:
           cp agent-office-0.16.0/Dockerfile artifact/
           cp agent-office-0.16.0/docker-compose.yml artifact/
           cp agent-office-0.16.0/overlay.tar.gz artifact/
-          printf '%s\n' 'fd13f04be5bd1009b6bac72ea4559d387919c1041ff701e254c1b28b396a07dc  overlay.tar.gz' > artifact/SHA256SUMS
+          sed 's#  overlay.tar.gz#  overlay.tar.gz#' agent-office-0.16.0/overlay.sha256 > artifact/SHA256SUMS
 
       - name: Upload validated package
         uses: actions/upload-artifact@v4
