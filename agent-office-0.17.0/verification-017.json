@@ -60,5 +60,7 @@
   "ownerBrowserAcceptance": {
     "status": "BLOCKED",
     "reason": "The working browser denied page observation; authenticated owner UI acceptance has not been completed."
-  }
+  },
+  "recordScope": "original 0.17.0 deployment",
+  "latestPatchEvidence": "authority-dropdown-verification.json"
 }

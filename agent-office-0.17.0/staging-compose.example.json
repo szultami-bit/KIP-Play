@@ -21,9 +21,9 @@
         "OBSERVER_STATE": "/observer-state/ops.sqlite",
         "OFFICE_ORIGIN": "https://agent-staging.kampunginggrispontianak.com",
         "OFFICE_SUPABASE_URL": "${OFFICE_SUPABASE_URL}",
-        "OFFICE_PUBLISHABLE_KEY": "${OFFICE_PUBLISHABLE_KEY}",
-        "OFFICE_ALLOWED_EMAIL": "${OFFICE_ALLOWED_EMAIL}",
-        "OFFICE_ALLOWED_USER_ID": "${OFFICE_ALLOWED_USER_ID}",
+        "OFFICE_PUBLISHABLE_KEY": "sb_publishable_Gv9ickEe9qSEAqQffHUgTg_mqcU-Yf0",
+        "OFFICE_ALLOWED_EMAIL": "szultami@gmail.com",
+        "OFFICE_ALLOWED_USER_ID": "204a2cd8-9cdf-490e-9bbf-6351b7febd63",
         "OFFICE_BOARD_PATH": "/office-state/board.json",
         "OFFICE_SKILLS_PATH": "/office-state/skills.json"
       },
@@ -59,7 +59,7 @@
           "node",
           "--input-type=module",
           "-e",
-          "import{readFileSync}from'node:fs';const v=JSON.parse(readFileSync('/opt/kip017/runtime/dist/release.json'));const r=await fetch('http://127.0.0.1:3180/healthz');if(v.version!=='0.17.0'||!r.ok||(await r.json()).service!=='kip-agent-office')process.exit(1)"
+          "import{readFileSync}from'node:fs';const v=JSON.parse(readFileSync('/opt/kip017/runtime/dist/release.json'));const r=await fetch('http://127.0.0.1:3180/healthz');if(v.version!=='0.17.0'||v.patch!=='authority-dropdown-refresh'||!r.ok||(await r.json()).service!=='kip-agent-office')process.exit(1)"
         ],
         "interval": "15s",
         "timeout": "5s",
@@ -140,7 +140,7 @@
         "node",
         "--input-type=module",
         "-e",
-        "import{writeFileSync}from'node:fs';import{createHash}from'node:crypto';const r=await fetch('https://raw.githubusercontent.com/szultami-bit/KIP-Play/5791f898b75aeab676cb5131339015bd68d81e6c/agent-office-0.17.0/scripts/prepare-runtime.mjs',{signal:AbortSignal.timeout(20000)});if(!r.ok)throw Error('BOOTSTRAP_HTTP_'+r.status);const b=Buffer.from(await r.arrayBuffer());if(createHash('sha256').update(b).digest('hex')!=='da4e764695a03e7f58198910061969e463865cdc9a307364ab6f9f6c131b37c3')throw Error('BOOTSTRAP_HASH_MISMATCH');writeFileSync('/tmp/prepare-runtime.mjs',b);await import('file:///tmp/prepare-runtime.mjs');"
+        "import{writeFileSync}from'node:fs';import{createHash}from'node:crypto';const r=await fetch('https://raw.githubusercontent.com/szultami-bit/KIP-Play/58cec2e1155da1a2d374da587d9bc6a52af0689e/agent-office-0.17.0/scripts/prepare-runtime.mjs',{signal:AbortSignal.timeout(20000)});if(!r.ok)throw Error('BOOTSTRAP_HTTP_'+r.status);const b=Buffer.from(await r.arrayBuffer());if(createHash('sha256').update(b).digest('hex')!=='1d4fd076f2c08f291ac47474e7989ab19d61b3e90fc45be7c96eba90835052c7')throw Error('BOOTSTRAP_HASH_MISMATCH');writeFileSync('/tmp/prepare-runtime.mjs',b);await import('file:///tmp/prepare-runtime.mjs');"
       ],
       "logging": {
         "driver": "json-file",
@@ -211,7 +211,7 @@
       "name": "kip-ops-capacity-20261101_reports"
     },
     "runtime-code": {
-      "name": "kip-agent-office-017-runtime-c520bf9"
+      "name": "kip-agent-office-017-runtime-ce97894"
     }
   },
   "networks": {

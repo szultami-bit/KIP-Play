@@ -1,0 +1,65 @@
+{
+  "patch": "authority-dropdown-refresh",
+  "applicationCommit": "ce97894c10870477b0b78a7fdc4723543f3a5f58",
+  "bootstrapCommit": "58cec2e1155da1a2d374da587d9bc6a52af0689e",
+  "actionId": 123083258,
+  "developmentTests": {
+    "passed": 97,
+    "failed": 0
+  },
+  "vpsReleaseTests": {
+    "passed": 16,
+    "failed": 0
+  },
+  "focusedCheck": {
+    "before": "FAIL: selector remained disabled after first load",
+    "after": "PASS: initial load, refresh, save, switching selected agent while loading, failed refresh, empty registry",
+    "runtimeCopy": "PASS",
+    "method": "Temporary bounded DOM check; not owner browser acceptance"
+  },
+  "runtime": {
+    "containerId": "8687d78f93dd",
+    "health": "healthy",
+    "codeVolume": "kip-agent-office-017-runtime-ce97894",
+    "stateVolume": "kip-agent-office-017-candidate-20261101_state"
+  },
+  "productionPromoted": false,
+  "ownerBrowserAcceptance": "BLOCKED: prior browser page-observation policy denial; no browser workaround attempted",
+  "events": [
+    {
+      "service": "[build]",
+      "timestamp": "",
+      "line": "2026-11-01T11:10:16.175286  Container kip-agent-office-016-candidate-office-1 Healthy"
+    },
+    {
+      "service": "[build]",
+      "timestamp": "",
+      "line": "2026-11-01T11:10:16.311919 Project deployed successfully"
+    },
+    {
+      "service": "prepare-1",
+      "timestamp": "2026-11-01T11:09:59.425456065Z",
+      "line": "ℹ tests 16"
+    },
+    {
+      "service": "prepare-1",
+      "timestamp": "2026-11-01T11:09:59.425484988Z",
+      "line": "ℹ pass 16"
+    },
+    {
+      "service": "prepare-1",
+      "timestamp": "2026-11-01T11:09:59.425486270Z",
+      "line": "ℹ fail 0"
+    },
+    {
+      "service": "prepare-1",
+      "timestamp": "2026-11-01T11:09:59.492301174Z",
+      "line": "{\"type\":\"RUNTIME_PREPARED\",\"version\":\"0.17.0\",\"commit\":\"ce97894c10870477b0b78a7fdc4723543f3a5f58\",\"reused\":false}"
+    },
+    {
+      "service": "probe-1",
+      "timestamp": "2026-11-01T11:10:16.412320553Z",
+      "line": "{\"type\":\"REGISTRY_PERSISTENCE_PROBE\",\"version\":\"0.17.0\",\"phase\":\"READ_AFTER_RESTART\",\"revision\":8,\"activeVersion\":1,\"auditEvents\":8,\"testRuns\":2,\"status\":\"PASS\"}"
+    }
+  ]
+}

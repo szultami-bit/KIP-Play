@@ -9,7 +9,7 @@ Application source: `szultami-bit/KIP-Play`, branch `deploy-agent-office-0.17.0`
 - Real HTTP tests cover owner session, same-origin mutations, prefixed route, durable create/Test/activation, and stale revision.
 - Store tests cover schema 1 migration and backup, restart, invalid input, corrupt/symlink files, content-bound receipts, stale tests, previous-activation rollback, preserved candidate, concurrent writers and SIGKILL lock recovery.
 - Bounded DOM integration test invokes all four controls against the real persistent store. It also covers unsaved fields and a committed mutation whose response is lost. This is not browser acceptance.
-- Independent review found three important issues; all were reproduced and fixed. Inherited minor: authority dropdown can need a new agent-card click after loading. Deferred because it is outside the requested four controls.
+- Independent review found three important issues; all were reproduced and fixed. The initially deferred authority-dropdown issue was fixed in the requested follow-up; see [017-authority-dropdown.md](017-authority-dropdown.md) for its verification and current runtime identity.
 
 ## Implementation decisions
 
@@ -31,3 +31,7 @@ Restart action 123081700 was verified from actual logs at 17:58 WIB: READ_AFTER_
 Owner browser acceptance remains BLOCKED: the working browser denied page observation. No authenticated owner UI acceptance is claimed. Production has not been promoted. The staging candidate is at https://agent-staging.kampunginggrispontianak.com/ .
 
 Rollback of staging must use its previous image and previous state volume together. Never run schema-1-only 0.16.0 against schema 2 or overwrite new owner data with the old backup.
+
+## Follow-up
+
+The authority-dropdown patch is deployed on the same staging state volume. Current runtime and rollback guidance: [017-authority-dropdown.md](017-authority-dropdown.md). The initial-release evidence above remains historical.
