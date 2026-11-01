@@ -1,0 +1,223 @@
+{
+  "services": {
+    "office": {
+      "image": "kip-agent-office:0.16.0-candidate-ceab366",
+      "pull_policy": "never",
+      "user": "1000:1000",
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "init": true,
+      "restart": "unless-stopped",
+      "mem_limit": "128m",
+      "cpus": 0.25,
+      "pids_limit": 64,
+      "environment": {
+        "OBSERVER_MODULE": "/observer/src/store.mjs",
+        "OBSERVER_STATE": "/observer-state/ops.sqlite",
+        "OFFICE_ORIGIN": "https://agent-staging.kampunginggrispontianak.com",
+        "OFFICE_SUPABASE_URL": "${OFFICE_SUPABASE_URL}",
+        "OFFICE_PUBLISHABLE_KEY": "${OFFICE_PUBLISHABLE_KEY}",
+        "OFFICE_ALLOWED_EMAIL": "${OFFICE_ALLOWED_EMAIL}",
+        "OFFICE_ALLOWED_USER_ID": "${OFFICE_ALLOWED_USER_ID}",
+        "OFFICE_BOARD_PATH": "/office-state/board.json",
+        "OFFICE_SKILLS_PATH": "/office-state/skills.json"
+      },
+      "ports": [
+        "127.0.0.1:18796:3180"
+      ],
+      "volumes": [
+        "observer-code:/observer:ro",
+        "observer-state:/observer-state:ro",
+        "office-state:/office-state",
+        "capacity-reports:/capacity:ro",
+        {
+          "type": "bind",
+          "source": "/opt/kip-agent-office/releases/20261101-roles01-36af8f30/role-data",
+          "target": "/role-data",
+          "read_only": true,
+          "bind": {
+            "create_host_path": false
+          }
+        },
+        "runtime-code:/opt/kip017:ro"
+      ],
+      "logging": {
+        "driver": "json-file",
+        "options": {
+          "max-size": "2m",
+          "max-file": "3"
+        }
+      },
+      "healthcheck": {
+        "test": [
+          "CMD",
+          "node",
+          "--input-type=module",
+          "-e",
+          "import{readFileSync}from'node:fs';const v=JSON.parse(readFileSync('/opt/kip017/runtime/dist/release.json'));const r=await fetch('http://127.0.0.1:3180/healthz');if(v.version!=='0.17.0'||!r.ok||(await r.json()).service!=='kip-agent-office')process.exit(1)"
+        ],
+        "interval": "15s",
+        "timeout": "5s",
+        "retries": 4
+      },
+      "working_dir": "/opt/kip017/runtime",
+      "command": [
+        "node",
+        "server/main.mjs"
+      ],
+      "depends_on": {
+        "prepare": {
+          "condition": "service_completed_successfully"
+        }
+      }
+    },
+    "probe": {
+      "image": "kip-agent-office:0.16.0-candidate-ceab366",
+      "pull_policy": "never",
+      "user": "1000:1000",
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "init": true,
+      "restart": "no",
+      "mem_limit": "64m",
+      "cpus": 0.2,
+      "pids_limit": 32,
+      "depends_on": {
+        "office": {
+          "condition": "service_healthy"
+        }
+      },
+      "volumes": [
+        "office-state:/office-state",
+        "runtime-code:/opt/kip017:ro"
+      ],
+      "command": [
+        "node",
+        "scripts/registry-probe.mjs"
+      ],
+      "logging": {
+        "driver": "json-file",
+        "options": {
+          "max-size": "1m",
+          "max-file": "2"
+        }
+      },
+      "working_dir": "/opt/kip017/runtime"
+    },
+    "prepare": {
+      "image": "kip-agent-office:0.16.0-candidate-ceab366",
+      "pull_policy": "never",
+      "user": "1000:1000",
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "init": true,
+      "restart": "no",
+      "mem_limit": "256m",
+      "cpus": 0.5,
+      "pids_limit": 64,
+      "tmpfs": [
+        "/tmp:rw,nosuid,nodev,noexec,size=32m,mode=1777"
+      ],
+      "volumes": [
+        "runtime-code:/office-state"
+      ],
+      "command": [
+        "node",
+        "--input-type=module",
+        "-e",
+        "import{writeFileSync}from'node:fs';import{createHash}from'node:crypto';const r=await fetch('https://raw.githubusercontent.com/szultami-bit/KIP-Play/5791f898b75aeab676cb5131339015bd68d81e6c/agent-office-0.17.0/scripts/prepare-runtime.mjs',{signal:AbortSignal.timeout(20000)});if(!r.ok)throw Error('BOOTSTRAP_HTTP_'+r.status);const b=Buffer.from(await r.arrayBuffer());if(createHash('sha256').update(b).digest('hex')!=='da4e764695a03e7f58198910061969e463865cdc9a307364ab6f9f6c131b37c3')throw Error('BOOTSTRAP_HASH_MISMATCH');writeFileSync('/tmp/prepare-runtime.mjs',b);await import('file:///tmp/prepare-runtime.mjs');"
+      ],
+      "logging": {
+        "driver": "json-file",
+        "options": {
+          "max-size": "2m",
+          "max-file": "3"
+        }
+      },
+      "depends_on": {
+        "permissions": {
+          "condition": "service_completed_successfully"
+        }
+      }
+    },
+    "permissions": {
+      "image": "kip-agent-office:0.16.0-candidate-ceab366",
+      "pull_policy": "never",
+      "user": "0:0",
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "cap_add": [
+        "CHOWN",
+        "FOWNER",
+        "DAC_OVERRIDE"
+      ],
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "init": true,
+      "restart": "no",
+      "mem_limit": "64m",
+      "cpus": 0.2,
+      "pids_limit": 32,
+      "volumes": [
+        "runtime-code:/office-state"
+      ],
+      "command": [
+        "node",
+        "--input-type=module",
+        "-e",
+        "import{lstatSync,readdirSync,chownSync,chmodSync}from'node:fs';import{join}from'node:path';const visit=p=>{const s=lstatSync(p);if(s.isSymbolicLink())throw Error('NO_SYMLINKS');chownSync(p,1000,1000);chmodSync(p,s.isDirectory()?0o750:0o640);if(s.isDirectory())for(const name of readdirSync(p))visit(join(p,name));};visit('/office-state');console.log('CANDIDATE_CODE_VOLUME_OWNERSHIP_READY');"
+      ],
+      "logging": {
+        "driver": "json-file",
+        "options": {
+          "max-size": "1m",
+          "max-file": "2"
+        }
+      }
+    }
+  },
+  "volumes": {
+    "observer-code": {
+      "external": true,
+      "name": "kip-ops-hybrid-20261031_code_v01"
+    },
+    "observer-state": {
+      "external": true,
+      "name": "kip-ops-hybrid-20261031_state_v01"
+    },
+    "office-state": {
+      "name": "kip-agent-office-017-candidate-20261101_state"
+    },
+    "capacity-reports": {
+      "external": true,
+      "name": "kip-ops-capacity-20261101_reports"
+    },
+    "runtime-code": {
+      "name": "kip-agent-office-017-runtime-c520bf9"
+    }
+  },
+  "networks": {
+    "default": {
+      "external": true,
+      "name": "kip-ops-hybrid-20261031_default"
+    }
+  }
+}
