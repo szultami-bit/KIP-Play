@@ -1,0 +1,9 @@
+{
+  "name": "kip-agent-office-017-overlay",
+  "version": "0.17.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "node scripts/check.mjs"
+  }
+}

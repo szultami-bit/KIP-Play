@@ -1,0 +1,66 @@
+{
+  "applicationVersion": "0.17.0",
+  "applicationCommit": "c520bf99909569a560b9ca9b8af36b147ca3fb01",
+  "bootstrapCommit": "5791f898b75aeab676cb5131339015bd68d81e6c",
+  "project": "kip-agent-office-016-candidate",
+  "productionPromoted": false,
+  "developmentTests": {
+    "passed": 97,
+    "failed": 0
+  },
+  "vpsReleaseTests": {
+    "passed": 16,
+    "failed": 0
+  },
+  "events": [
+    {
+      "service": "[build]",
+      "timestamp": "",
+      "line": "2026-11-01T10:56:58.467313  Container kip-agent-office-016-candidate-office-1 Healthy"
+    },
+    {
+      "service": "[build]",
+      "timestamp": "",
+      "line": "2026-11-01T10:56:58.666448 Project deployed successfully"
+    },
+    {
+      "service": "prepare-1",
+      "timestamp": "2026-11-01T10:56:42.131833315Z",
+      "line": "{\"type\":\"RUNTIME_PREPARED\",\"version\":\"0.17.0\",\"commit\":\"c520bf99909569a560b9ca9b8af36b147ca3fb01\",\"reused\":false}"
+    },
+    {
+      "service": "probe-1",
+      "timestamp": "2026-11-01T10:56:58.968826926Z",
+      "line": "{\"type\":\"REGISTRY_PERSISTENCE_PROBE\",\"version\":\"0.17.0\",\"phase\":\"INITIAL_WRITE\",\"revision\":8,\"activeVersion\":1,\"auditEvents\":8,\"testRuns\":2,\"status\":\"PASS\"}"
+    }
+  ],
+  "restart": {
+    "status": "PASS",
+    "actionId": 123081700,
+    "events": [
+      {
+        "service": "prepare-1",
+        "timestamp": "2026-11-01T10:58:20.193499491Z",
+        "line": "{\"type\":\"RUNTIME_PREPARED\",\"version\":\"0.17.0\",\"commit\":\"c520bf99909569a560b9ca9b8af36b147ca3fb01\",\"reused\":true}"
+      },
+      {
+        "service": "probe-1",
+        "timestamp": "2026-11-01T10:58:20.074223121Z",
+        "line": "{\"type\":\"REGISTRY_PERSISTENCE_PROBE\",\"version\":\"0.17.0\",\"phase\":\"READ_AFTER_RESTART\",\"revision\":8,\"activeVersion\":1,\"auditEvents\":8,\"testRuns\":2,\"status\":\"PASS\"}"
+      }
+    ]
+  },
+  "runtime": {
+    "containerId": "73a3390f96a9",
+    "health": "healthy",
+    "baseImage": "kip-agent-office:0.16.0-candidate-ceab366",
+    "codeVolume": "kip-agent-office-017-runtime-c520bf9",
+    "stateVolume": "kip-agent-office-017-candidate-20261101_state"
+  },
+  "ownerBrowserAcceptance": {
+    "status": "BLOCKED",
+    "reason": "The working browser denied page observation; authenticated owner UI acceptance has not been completed."
+  },
+  "recordScope": "original 0.17.0 deployment",
+  "latestPatchEvidence": "authority-dropdown-verification.json"
+}
