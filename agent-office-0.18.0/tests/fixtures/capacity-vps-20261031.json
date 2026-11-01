@@ -1,0 +1,95 @@
+{
+  "provenance": "Actual VPS collector samples captured by daemon-verification.json on 2026-10-31; historical test evidence only.",
+  "samples": [
+    {
+      "schemaVersion": 1,
+      "id": "capacity",
+      "source": "VPS_PROCFS",
+      "status": "OK",
+      "lastAt": "2026-10-31T18:49:34.441Z",
+      "intervalSeconds": 1.002,
+      "uptimeSeconds": 630012.84,
+      "expectedCapacity": {
+        "cpuCount": 4,
+        "minimumMemoryBytes": 16106127360,
+        "maximumMemoryBytes": 17179869184
+      },
+      "cpu": {
+        "usagePct": 4,
+        "count": 4,
+        "warningAtPct": 80,
+        "criticalAtPct": 95,
+        "status": "OK"
+      },
+      "ram": {
+        "totalBytes": 16769032192,
+        "availableBytes": 14288252928,
+        "usedBytes": 2480779264,
+        "usedPct": 14.79,
+        "warningAtPct": 85,
+        "criticalAtPct": 95,
+        "status": "OK"
+      },
+      "disk": {
+        "totalBytes": 206900281344,
+        "freeBytes": 182377586688,
+        "availableBytes": 182360809472,
+        "reservedBytes": 16777216,
+        "usedBytes": 24522694656,
+        "usedPct": 11.85,
+        "availablePct": 88.14,
+        "mount": "/",
+        "filesystemLabel": "container root overlay backing filesystem; not provider quota",
+        "warningAtPct": 80,
+        "criticalAtPct": 90,
+        "status": "OK"
+      },
+      "errors": []
+    },
+    {
+      "schemaVersion": 1,
+      "id": "capacity",
+      "source": "VPS_PROCFS",
+      "status": "OK",
+      "lastAt": "2026-10-31T18:54:34.513Z",
+      "intervalSeconds": 300.072,
+      "uptimeSeconds": 630312.91,
+      "expectedCapacity": {
+        "cpuCount": 4,
+        "minimumMemoryBytes": 16106127360,
+        "maximumMemoryBytes": 17179869184
+      },
+      "cpu": {
+        "usagePct": 7.57,
+        "count": 4,
+        "warningAtPct": 80,
+        "criticalAtPct": 95,
+        "status": "OK"
+      },
+      "ram": {
+        "totalBytes": 16769032192,
+        "availableBytes": 14290423808,
+        "usedBytes": 2478608384,
+        "usedPct": 14.78,
+        "warningAtPct": 85,
+        "criticalAtPct": 95,
+        "status": "OK"
+      },
+      "disk": {
+        "totalBytes": 206900281344,
+        "freeBytes": 182377480192,
+        "availableBytes": 182360702976,
+        "reservedBytes": 16777216,
+        "usedBytes": 24522801152,
+        "usedPct": 11.85,
+        "availablePct": 88.14,
+        "mount": "/",
+        "filesystemLabel": "container root overlay backing filesystem; not provider quota",
+        "warningAtPct": 80,
+        "criticalAtPct": 90,
+        "status": "OK"
+      },
+      "errors": []
+    }
+  ]
+}

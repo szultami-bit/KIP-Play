@@ -1,0 +1,20 @@
+KIP Agent Office, adapted 31 October 2026.
+
+Original pixel office drawing and source basis: AgentOffice by Harish Kotra.
+https://github.com/harishkotra/agent-office
+Pinned upstream commit: 58f11f9b31770c10bcf3d7a0618325d22bd0ee9e
+License: MIT. See AGENT-OFFICE-LICENSE.txt.
+
+Character sprites included by AgentOffice originate from Pixel Agents by Pablo De Lucca.
+https://github.com/pablodelucca/pixel-agents
+License: MIT. See PIXEL-AGENTS-LICENSE.txt.
+Characters based on JIK-A-4's MetroCity pack (CC0).
+https://jik-a-4.itch.io/metrocity-free-topdown-character-pack
+
+KIP v0.1 reused the pixel office drawing and character sprites. KIP v0.2 renders a new code-native isometric SVG office and new vector characters; the original files and notices are retained as source history and licensed assets. Original autonomous agent loops, Ollama, arbitrary code tools, hiring, and messaging are not part of this runtime.
+
+Studio 05 camera: @panzoom/panzoom 4.6.2 by Timmy Willison and contributors.
+https://github.com/timmywil/panzoom
+License: MIT. See PANZOOM-LICENSE.txt. Runs locally in the browser; no AI service or subscription.
+
+Three.js 0.185.1 / OrbitControls / SVGRenderer: MIT, three.js authors. License: THREE-LICENSE.txt. Coastal Campus geometry and KIP furnishings are authored in code.
