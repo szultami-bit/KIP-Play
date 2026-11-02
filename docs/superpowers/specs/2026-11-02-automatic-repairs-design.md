@@ -11,3 +11,5 @@ Completion requires documented root cause, exact patch and deployed identity, pa
 Current observed issue: observer expects ed042a6, production is a2421ac with fingerprint 2236d74a. Validate the exact release audit and deployment evidence before changing observer expectations; do not auto-accept arbitrary live fingerprints. GitHub PR merge-tree failure must be distinguished from the exact deployed source.
 
 Deploy on a new immutable runtime volume, preserve the current state volume, and verify startup, persistence, owner authentication enforcement, queue behavior and UI. Production routing must be established from current provider state. Do not claim authenticated owner browser acceptance if login is unavailable.
+
+Final verified runtime moved during implementation to 3d940fab463ba96d48daf4414fb99bdf702b563f, fingerprint e7fe22233694dafcfc53d44849347a1c1e247d174571ca19f57fa69f204166b8. The final observer baseline follows that approved deployed source. See docs/automatic-repairs-operations.md for runtime pins, evidence, schedule, backup and limits.
