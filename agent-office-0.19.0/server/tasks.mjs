@@ -26,6 +26,12 @@ export function makeTasks({path,clock=Date.now,limit=1000}={}){
   if(db.prepare('SELECT COUNT(*) AS n FROM jobs').get().n>=limit)throw new TaskError('TASK_LIMIT',503);
   const id=randomUUID(),at=clock();db.prepare('INSERT INTO jobs(id,request_id,request_hash,payload,status,created_at,updated_at) VALUES(?,?,?,?,?,?,?)').run(id,request.requestId,hash,JSON.stringify(request),'queued',at,at);event(id,'queued');return decode(db.prepare('SELECT * FROM jobs WHERE id=?').get(id));
  }
+ function enqueueManual(intent,pinFactory){return transaction(()=>{
+  if(!intent||!REQUEST_ID.test(intent.requestId)||typeof intent.taskId!=='string')throw new TaskError('BAD_TASK_REQUEST');
+  const old=db.prepare('SELECT * FROM jobs WHERE request_id=?').get(intent.requestId);
+  if(old){const job=decode(old);if(job.source!=='manual'||job.taskId!==intent.taskId)throw new TaskError('REQUEST_ID_CONFLICT',409);return job;}
+  return insert(pinFactory());
+ });}
  function recoverInside(){
   for(const row of db.prepare("SELECT * FROM jobs WHERE status='running' AND lease_until<=?").all(clock())){
    const status=row.attempts>=3?'failed':'queued',result=status==='failed'?JSON.stringify({status,summary:'Pemeriksaan terputus tiga kali. Jalankan tugas baru setelah layanan diperiksa.',evidence:[],nextSteps:[],externalActions:false}):null;
@@ -56,12 +62,12 @@ export function makeTasks({path,clock=Date.now,limit=1000}={}){
   return {id:issue.id,duplicate:false};
  });}
  function assignPending(route){return transaction(()=>{
-  let assigned=0;for(const row of db.prepare('SELECT * FROM incidents WHERE job_id IS NULL ORDER BY first_at LIMIT 10').all()){
+  let assigned=0;for(const row of db.prepare('SELECT * FROM incidents WHERE job_id IS NULL ORDER BY first_at LIMIT 500').all()){
    let request;try{request=route({id:row.id,...JSON.parse(row.payload),observedAt:row.first_at});}catch(e){if(e instanceof TaskError&&e.code==='TASK_SKILL_UNAVAILABLE')continue;throw e;}
-   if(request){let job;try{job=insert(request);}catch(e){if(e instanceof TaskError&&e.code==='TASK_LIMIT')break;throw e;}db.prepare('UPDATE incidents SET job_id=? WHERE id=?').run(job.id,row.id);event(job.id,'coordinator.assigned');assigned++;}
+   if(request){let job;try{job=insert(request);}catch(e){if(e instanceof TaskError&&e.code==='TASK_LIMIT')break;throw e;}db.prepare('UPDATE incidents SET job_id=? WHERE id=?').run(job.id,row.id);event(job.id,'coordinator.assigned');assigned++;if(assigned>=10)break;}
   }return assigned;
  });}
  function incidents(){return {schemaVersion:1,issues:db.prepare('SELECT * FROM incidents ORDER BY last_at DESC LIMIT 100').all().map(r=>({id:r.id,...JSON.parse(r.payload),firstAt:r.first_at,lastAt:r.last_at,occurrences:r.occurrences,jobId:r.job_id,verification:'UNVERIFIED'}))};}
  function heartbeat(){db.prepare("INSERT INTO task_meta(key,value) VALUES('worker',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value").run(clock());}
- return {incident,incidents,assignPending,enqueue:request=>transaction(()=>insert(request)),claim,finish,list,recover:()=>transaction(recoverInside),heartbeat,close:()=>db.close()};
+ return {incident,incidents,assignPending,enqueueManual,enqueue:request=>transaction(()=>insert(request)),claim,finish,list,recover:()=>transaction(recoverInside),heartbeat,close:()=>db.close()};
 }

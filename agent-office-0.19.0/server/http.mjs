@@ -90,7 +90,7 @@ export function makeServer({directory,readReport,readRoles,readGrowth,auth,board
     if(!auth.sameOrigin(req))return send(403,'{"error":"ORIGIN_DENIED"}');
     const body=await jsonBody(req,1024);
     if(Object.keys(body).length!==2||!Object.hasOwn(body,'taskId')||!Object.hasOwn(body,'requestId'))throw new TaskError('BAD_TASK_REQUEST');
-    const job=tasks.enqueue(createTaskRequest(skills.read(),body));
+    const job=tasks.enqueueManual(body,()=>createTaskRequest(skills.read(),body));
     return send(202,JSON.stringify({id:job.id,status:job.status}));
    }
    return send(200,JSON.stringify({...tasks.list(),incidents:tasks.incidents().issues,catalog:TASK_CATALOG.filter(t=>t.manual).map(({id,title,agentId})=>({id,title,agentId}))}));
