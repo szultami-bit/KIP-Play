@@ -90,6 +90,7 @@ export function makeServer({directory,readReport,readRoles,readGrowth,auth,board
     if(!auth.sameOrigin(req))return send(403,'{"error":"ORIGIN_DENIED"}');
     const body=await jsonBody(req,1024);
     if(Object.keys(body).length!==2||!Object.hasOwn(body,'taskId')||!Object.hasOwn(body,'requestId'))throw new TaskError('BAD_TASK_REQUEST');
+    if(body.taskId==='active-accounts-check'&&readGrowth)try{await readGrowth(req);}catch{/* The worker records missing evidence as blocked. */}
     const job=tasks.enqueueManual(body,()=>createTaskRequest(skills.read(),body));
     return send(202,JSON.stringify({id:job.id,status:job.status}));
    }
@@ -135,3 +136,4 @@ export function makeServer({directory,readReport,readRoles,readGrowth,auth,board
   }
  });
 }
+

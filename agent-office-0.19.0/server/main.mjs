@@ -14,9 +14,10 @@ const readRoles=makeRolesReader({registryPath:process.env.OFFICE_ROLES_PATH||'/r
 const readGrowth=makeGrowthReader({load:req=>auth.growthSummary(req)});
 const skills=makeSkills({path:process.env.OFFICE_SKILLS_PATH||'/office-state/skills.json'});
 const tasks=makeTasks({path:process.env.OFFICE_TASKS_PATH||'/office-state/tasks.sqlite'});
-const worker=makeTaskWorker({tasks,skills,readRoles,onError:code=>console.error(JSON.stringify({type:code}))});
+const worker=makeTaskWorker({tasks,skills,readRoles,readGrowthSnapshot:()=>readGrowth.snapshot(),onError:code=>console.error(JSON.stringify({type:code}))});
 worker.start();
 const server=makeServer({directory:process.env.OFFICE_DIST||fileURLToPath(new URL('../dist',import.meta.url)),readReport,readRoles,readGrowth,auth,board:makeBoard({path:process.env.OFFICE_BOARD_PATH}),skills,tasks});
 server.maxConnections=60;
 server.listen(Number(process.env.PORT||3180),process.env.HOST||'0.0.0.0',()=>console.log(JSON.stringify({type:'OFFICE_READY',mode:'read-only-task-worker',modelApi:'NOT_USED'})));
 for(const signal of ['SIGINT','SIGTERM'])process.once(signal,()=>{worker.stop();server.close(()=>{tasks.close();process.exit(0);});});
+
