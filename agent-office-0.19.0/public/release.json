@@ -1,9 +1,9 @@
 {
   "service": "kip-agent-office",
-  "version": "0.19.0",
-  "patch": "active-accounts-task",
+  "version": "0.20.0",
+  "patch": "automatic-repair-queue",
   "messaging": "NOT_CONNECTED",
   "autoReply": false,
-  "build": "ops-019-active-accounts",
+  "build": "ops-020-automatic-repairs",
   "playingCoverage": "UNKNOWN"
 }

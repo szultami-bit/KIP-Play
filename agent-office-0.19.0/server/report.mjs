@@ -10,7 +10,7 @@ export function sanitize(raw,source='observer',now=Date.now()){
  const checks=['health','release'].map(id=>{
   const matches=raw.checks.filter(c=>c?.id===id);if(matches.length!==1)throw Error('Missing or duplicate check');const check=matches[0];
   const known=STATES.has(check.status)&&CODES.has(check.lastCode);
-  return {id,status:known&&fresh(check.lastAt,now)?check.status:'UNKNOWN',lastAt:timestamp(check.lastAt),latencyMs:Number.isFinite(check.latencyMs)&&check.latencyMs>=0&&check.latencyMs<=60000?check.latencyMs:null,lastCode:CODES.has(check.lastCode)?check.lastCode:null,observed:{...(/^[0-9a-f]{40}$/.test(check.observed?.release)?{release:check.observed.release}:{})}};
+  return {id,status:known&&fresh(check.lastAt,now)?check.status:'UNKNOWN',lastAt:timestamp(check.lastAt),latencyMs:Number.isFinite(check.latencyMs)&&check.latencyMs>=0&&check.latencyMs<=60000?check.latencyMs:null,lastCode:CODES.has(check.lastCode)?check.lastCode:null,observed:{...(/^[0-9a-f]{40}$/.test(check.observed?.release)?{release:check.observed.release}:{}),...(/^[0-9a-f]{64}$/.test(check.observed?.fingerprint)?{fingerprint:check.observed.fingerprint}:{})}};
  });
  const incidents=Array.isArray(raw.incidents)?raw.incidents:[];
  const count=Number.isSafeInteger(raw.openIncidents)&&raw.openIncidents>=0?raw.openIncidents:incidents.filter(i=>i.resolvedAt===null).length;

@@ -1,0 +1,422 @@
+[
+  {
+    "path": "campus/src/agent-motion.js",
+    "sha": "f01b73f5ff354dc04a82a523ff2055cef055ee4b99ea8d3dda306530c5074d08"
+  },
+  {
+    "path": "campus/src/agent-skills-entry.js",
+    "sha": "f5a02c45cd6025403dfccc5a736fc8e935675e755941167c77fb4eb49442fab0"
+  },
+  {
+    "path": "campus/src/agent-skills.css",
+    "sha": "1979c3216f8daa515f1e1397554eb21dc90fadfd6110ef82af33f210988f8e3c"
+  },
+  {
+    "path": "campus/src/agent-skills.js",
+    "sha": "c935811b3e629c340e3f63191129bf5ab59af2bf835e4859fdc582f3476bcc0b"
+  },
+  {
+    "path": "campus/src/agents.css",
+    "sha": "f7c91def214df4604542ea43073d9567688412c64987cbc4547804eac8065bfd"
+  },
+  {
+    "path": "campus/src/amenities.js",
+    "sha": "44b511143fc0911e4bf67e3127d85051c28011914263cf0b152f07c8f2e2e4f9"
+  },
+  {
+    "path": "campus/src/data.js",
+    "sha": "8b493293f9211a2939b74ef7a64135a68d7fd2fb82ca099c6b0ee5edd6112dd0"
+  },
+  {
+    "path": "campus/src/landscape.js",
+    "sha": "5a523066d4af6f29bd34fc1f3f5b28672b17023860c1c7d585fd90efb3f021b6"
+  },
+  {
+    "path": "campus/src/live-agents.js",
+    "sha": "0b70deb023eec9b1cd2c429b6421287edc5f6cd19bd1e4f3a4ce0b6d058fdc8c"
+  },
+  {
+    "path": "campus/src/main.js",
+    "sha": "074423931b610443ff512ecfa4934b6ade7ab86b6cde05e8839f7ab1df96352b"
+  },
+  {
+    "path": "campus/src/observer-model.js",
+    "sha": "429ef6388cacd8382f11924c222b6a54acbf2b6c8d396c7e8e338bd619657d6c"
+  },
+  {
+    "path": "campus/src/robot-roster.js",
+    "sha": "9cc57863a90d487dfe0e0147873f345a71d42a1f0531bccea9e7ad2e8cf30205"
+  },
+  {
+    "path": "campus/src/role-evidence.js",
+    "sha": "88a6271ae5144aef8751948c84221f02e6886b2d87959324a509716a74f4f8f1"
+  },
+  {
+    "path": "campus/src/scene.js",
+    "sha": "f7001943022a0d0bea4975f26754d8557f40490d8500418b2c83c99c6e39a43c"
+  },
+  {
+    "path": "campus/src/session.js",
+    "sha": "a7fc3461feb659c638caa1c421a8302b65ac0c00259ba71ebe3389b976f1e176"
+  },
+  {
+    "path": "campus/src/skill-model.js",
+    "sha": "cee7a9a89b05d053156f051c26e6bb7d5438e907c98a4a4480644aa2abde6f7a"
+  },
+  {
+    "path": "campus/src/staircase.js",
+    "sha": "7d067a4069d9a37a022a1e243350d0876c6cd0d3a30f952d28ef030fd22c7ec5"
+  },
+  {
+    "path": "campus/src/style.css",
+    "sha": "0b4af714224e0b2ad64061a507b4043f729eaef3bfbffbcf3806f546db3b88d5"
+  },
+  {
+    "path": "campus/src/task-board.js",
+    "sha": "d98bafc7c63ae536c6567d854f5ef3e73d25cfd1f01853faeceb9d57434c595e"
+  },
+  {
+    "path": "campus/src/tokens.css",
+    "sha": "636f021d7576b20b2f892c837cc96fc6ef0642c26e3e28cc67aa1a3d7acd61e5"
+  },
+  {
+    "path": "campus/src/view-controls.js",
+    "sha": "d6ba4b833ee470868d3bf459c1d2121e48f99201852fecd74fde8d87a78f69ba"
+  },
+  {
+    "path": "campus/src/workboard.css",
+    "sha": "d70594b5ba046343a2ddf9f13b2ba975f2f3af6c219c043ab5fadaf768ac8e73"
+  },
+  {
+    "path": "campus/src/workboard.js",
+    "sha": "24582d7cff2543f0e3401336d06f68e3451bd1de15311a001881897e62d31bf9"
+  },
+  {
+    "path": "dist/AGENT-OFFICE-LICENSE.txt",
+    "sha": "c612c5ca96e98375a35fd938f691e8a528e1252c048e4dc7afb4be519d8e5d17"
+  },
+  {
+    "path": "dist/ATTRIBUTION.txt",
+    "sha": "b8bd79d1f21b77cb70fee6f2dde447f049a8c28093f09ee7073d011245419dc9"
+  },
+  {
+    "path": "dist/PANZOOM-LICENSE.txt",
+    "sha": "db74524b3ab3853bcfc7300dade1f5e0176e59ed3c0cff43848a2c300091a22c"
+  },
+  {
+    "path": "dist/PIXEL-AGENTS-LICENSE.txt",
+    "sha": "20729e3cb9d06d64cdf78d43070ead3eae96e67a5b35b1aa35b5520906cb8ab5"
+  },
+  {
+    "path": "dist/THREE-LICENSE.txt",
+    "sha": "8b378ebe60e2fe500158cb0ac71cb5e8b7d92953c2abcc63a0eb90499653b5bc"
+  },
+  {
+    "path": "dist/assets/characters/char_0.png",
+    "sha": "9ece93c20765abb876e3dacfe01e0cd1801323eff41c1779be0c47369886c09a"
+  },
+  {
+    "path": "dist/assets/characters/char_1.png",
+    "sha": "f935f033726b06f73dbbe590db5a23cfb20d2d02c1329fd5d67d57a262e9b05e"
+  },
+  {
+    "path": "dist/assets/characters/char_2.png",
+    "sha": "9f63ee7be4577e1d60de3b64d198d387d1c09794bed3a608958e77c7b955575d"
+  },
+  {
+    "path": "dist/assets/index-BzfnhG1J.css",
+    "sha": "9fa9aeb081203c4eb3f6d30cb5f96dc704f742aa70905466e15e72d9f9c3d867"
+  },
+  {
+    "path": "dist/assets/index-CBfc4Riu.js",
+    "sha": "2d5c8d72003a3692be8dc6e72df3ea17f23395ddbd2adb3edbc9f24006a6632f"
+  },
+  {
+    "path": "dist/campus/assets/agent-skills-entry-MNKMis_e.js",
+    "sha": "315eb779dbc20715088111b7e9c21759b4a01f574e8989e74c8a05b02c9f1109"
+  },
+  {
+    "path": "dist/campus/assets/index-Dx2GYYNV.css",
+    "sha": "1b0fd8ca12536170411ff9ab8198824eae8a0685645b3f77a19d6be32fcf970b"
+  },
+  {
+    "path": "dist/campus/assets/index-_-Bbyc01.js",
+    "sha": "ea9b365f639c1ff9347714818809984d3b43304458541ec29fb4f13155428c2b"
+  },
+  {
+    "path": "dist/campus/index.html",
+    "sha": "061ce99eb57c655a59065451011706aa538a1332a021c8a9a2b65f9584e59b70"
+  },
+  {
+    "path": "dist/incident-client.js",
+    "sha": "6526dad8a3901e46b1dd5d74bda5b9d5d1ade72238dc6df4e50328cf447ce10e"
+  },
+  {
+    "path": "dist/index.html",
+    "sha": "061ce99eb57c655a59065451011706aa538a1332a021c8a9a2b65f9584e59b70"
+  },
+  {
+    "path": "dist/login.css",
+    "sha": "22069b9da19320c3e0f09cf0cdf64e9ad705de411fe4f70a209ee535bc3807b2"
+  },
+  {
+    "path": "dist/login.html",
+    "sha": "a6e56301281e45c61fed9550cecac47f61b708fff0cc475409097c25230b31f8"
+  },
+  {
+    "path": "dist/login.js",
+    "sha": "fa3477c1788e92e7090c18662c9e6bf979856e471982a4352d485cf09b6cfe2e"
+  },
+  {
+    "path": "dist/operations.html",
+    "sha": "44b1762bd1a70f1bb370623f0521ff438058ea2cd662f5a61672c71cb2052d35"
+  },
+  {
+    "path": "dist/release.json",
+    "sha": "28d98f8fe1fd0baf4a15d439dd990202e31f3e70f27511883052d26b41bd6557"
+  },
+  {
+    "path": "package.json",
+    "sha": "fed2162478128504a20de79f97dc0aab3690987d3dac4f2a7eda6d7450026748"
+  },
+  {
+    "path": "public/incident-client.js",
+    "sha": "6526dad8a3901e46b1dd5d74bda5b9d5d1ade72238dc6df4e50328cf447ce10e"
+  },
+  {
+    "path": "scripts/ops-probe.mjs",
+    "sha": "dc15da790dd6bc3cd5cb7222b25a839cf23844af554a2fc8b50b9c7a6ff48e52"
+  },
+  {
+    "path": "scripts/repair-cli.mjs",
+    "sha": "bf0c056d4981598dfd5539d24f894d414340e6461670ff48a7783fc67de5443a"
+  },
+  {
+    "path": "server/auth.mjs",
+    "sha": "f978cdf3d1db0ff6825585e16f446cf6cd932d00ef60587e2212b3ada064617b"
+  },
+  {
+    "path": "server/board.mjs",
+    "sha": "c857beeabd1e2a6d9c37364be4c1d40b7916c7675dd64a8c5daca1f216700448"
+  },
+  {
+    "path": "server/growth.mjs",
+    "sha": "036137021be4325bcbc9ed9d1f92f20f36ca42b746ee62ed38abbfd016a841da"
+  },
+  {
+    "path": "server/http.mjs",
+    "sha": "17f5012a9a2bbdc35a11e856de50e0f7eb5099a1a6a4ff90c36a2d86bdcff7da"
+  },
+  {
+    "path": "server/incidents.mjs",
+    "sha": "b2780d0e99781bc1418a4c1a59e51ad39bcf7f0cd1f2e416ded8d681714c422a"
+  },
+  {
+    "path": "server/main.mjs",
+    "sha": "ff059da0966b554360ff6d8de9f8703d19367d265a1d5917f9c77a40e20ff82c"
+  },
+  {
+    "path": "server/registry-backup.mjs",
+    "sha": "50e040d2e241452d3e7b7fa9fbeb9f9ea21e523c187fc9d42dd15ff7b80aea5f"
+  },
+  {
+    "path": "server/repair-collector.mjs",
+    "sha": "65a500d7986a7d0e587a43878d692a9f9ed8b5cb1ac2d8b36f930425a402a5da"
+  },
+  {
+    "path": "server/repairs.mjs",
+    "sha": "9d6402e2fd87f6fa61aba05ca3b9954d3c3ac2e5b024add1bf4920c1bddfdc8f"
+  },
+  {
+    "path": "server/report.mjs",
+    "sha": "37004877eda3990d1fd7b2c1e8be0c713e1d078a861d3ea582990bbb0f637f6b"
+  },
+  {
+    "path": "server/roles.mjs",
+    "sha": "bc093f49c8758ebc3b19e252cee176b03b977bc7817529a1601797fab0c73a26"
+  },
+  {
+    "path": "server/skills.mjs",
+    "sha": "db601dced5c83ac73cb360ac045b08d2720bceeb895c1fbb0d8e6f3908defb27"
+  },
+  {
+    "path": "server/task-runners.mjs",
+    "sha": "870be054ea0f7f0beebfa548ed07e36f9348321e941b079becf8e5af123de447"
+  },
+  {
+    "path": "server/task-worker.mjs",
+    "sha": "b3fedd6bcbf61bebc01f2e2ed1fa51c819593ca940cdff8c2922c5ed2606d4d0"
+  },
+  {
+    "path": "server/tasks.mjs",
+    "sha": "a6bdbddaa3b5eb7f01b9f507b2091bc5cd2ce61703a61c9b75d838a2883ab9d0"
+  },
+  {
+    "path": "src/Avatar.tsx",
+    "sha": "933342fae338c4e09f936780a6cd64aae9ab4c8c5b6e18c90493ebacfd06e705"
+  },
+  {
+    "path": "src/Icons.tsx",
+    "sha": "851a5a3d428fd2280e20ce0863d85ae38b314df2ff532710afc33276962e23a2"
+  },
+  {
+    "path": "src/Office.tsx",
+    "sha": "d7eecc8057ffde28fc58303794a2f7b9cad85b56b3a71d8ca0bcb0ce54efb0c7"
+  },
+  {
+    "path": "src/OfficeMotion.tsx",
+    "sha": "29c2e9c5aa9b2e4bde14f8cc9e507609aafc6e01aa0a7cf7435e1ee325b9960c"
+  },
+  {
+    "path": "src/RoomSummary.tsx",
+    "sha": "93fbd6dc48cc32ca6b9fc68e7b334cde62cb717a9a7daf206a80c2b1d9e112b3"
+  },
+  {
+    "path": "src/drawOffice.ts",
+    "sha": "a86522dfca5777fc754157243e87f42254cc17704c9a9134b8d6ee4af9e3984a"
+  },
+  {
+    "path": "src/main.tsx",
+    "sha": "f226d67d540c6edeed99bbeae9b67e7e79a04441f92489839e2b1743f62773c0"
+  },
+  {
+    "path": "src/model.ts",
+    "sha": "47fe6c29a9c1bc32e197415417b36c375800a316fb77f99b0d21e2f1e8602383"
+  },
+  {
+    "path": "src/role-evidence.js",
+    "sha": "d2c4852f640cd0727103d459c695843ff3f96d3fb8d341a104ac2f96e9a81db2"
+  },
+  {
+    "path": "src/roles.ts",
+    "sha": "f2e5073cdd364f15413e90b0b653b4348c4962d31957bf900c5eca30051dbe5a"
+  },
+  {
+    "path": "src/rooms.ts",
+    "sha": "006d88c7250fb7c88a857d285c0454f16c691212c708542fc29c67cca798a33a"
+  },
+  {
+    "path": "src/style.css",
+    "sha": "b70ea92bf63f8c8b2609bf85b62fa172ed7277fb702d307eaaaf19cccbec6b30"
+  },
+  {
+    "path": "tests/active-accounts-task.test.mjs",
+    "sha": "89ac7583c062ebbb21b21d97defe5064c9f86e7f0c3ce6a09fecfa8dac87511f"
+  },
+  {
+    "path": "tests/auth.test.mjs",
+    "sha": "46df46a2c8ad0476cf76bfb7200ad54828f779499b2d927ffa66706bae733935"
+  },
+  {
+    "path": "tests/board.test.mjs",
+    "sha": "cacdf2af1c9e73e5ff3d28e8c0e60e4bd577bc93f6e69f5c64117376c6e06d22"
+  },
+  {
+    "path": "tests/campus.test.mjs",
+    "sha": "a47a894e52ecc3b1340101580c913b1b3cb1f8b942ce2adb68adcd3779a964dc"
+  },
+  {
+    "path": "tests/fixtures/capacity-vps-20261031.json",
+    "sha": "4ce27b06f258aa63a57eb63a6631a62808a3038de5b494bef9247a4bc43d49a0"
+  },
+  {
+    "path": "tests/fixtures/skills-017.json",
+    "sha": "8e1765ce3b8ebfe327cec47c2b3c4797bbc605e481acc202ec0f29dcb0ff791b"
+  },
+  {
+    "path": "tests/growth-dom.test.mjs",
+    "sha": "b206d219088b8aa3e02334bd6df44f1b75beadeb77785725640ca35fa9524f30"
+  },
+  {
+    "path": "tests/growth-view.test.mjs",
+    "sha": "d59aaf69676f11352a8163935ca2c97d04593011c7ae4e063e38011008c4f600"
+  },
+  {
+    "path": "tests/growth.test.mjs",
+    "sha": "f082385ffb842bc618a96690a7d6145fd08b35b6e02d85c1c80005b902706a4c"
+  },
+  {
+    "path": "tests/http.test.mjs",
+    "sha": "d633d96d88a7c3335789162985ea612dcbe72de15100ed0f8f8a6e3177fecd59"
+  },
+  {
+    "path": "tests/incident-client.test.mjs",
+    "sha": "a1ae20f0aa38fb275b9a16782fb076e2f907da79d3811f68776f09a2edb2efd8"
+  },
+  {
+    "path": "tests/incidents-http.test.mjs",
+    "sha": "cea71bcfbecbc37ecfe46118f21d5b66be328d81be5ad0146f5ce4349323b384"
+  },
+  {
+    "path": "tests/incidents.test.mjs",
+    "sha": "bc4a915e97ad2bd6e1662a9bbbcc0accea968af7548fb3717e3056f33c63e5ba"
+  },
+  {
+    "path": "tests/instagram-admin.test.mjs",
+    "sha": "64ef9b8a7636b9884ec2ed4876c9138a0fdafbb4251bf73e89e03790dfc12e04"
+  },
+  {
+    "path": "tests/live-agents.test.mjs",
+    "sha": "ee2ce3abc93746c15d17d28a0ef4908a48fad08203ec2e14a71a51556819430c"
+  },
+  {
+    "path": "tests/ops-flow.test.mjs",
+    "sha": "3261022aacfaff5c8fd50094d1d6dafa97b1534ec751cac3a970b6596f6fcd32"
+  },
+  {
+    "path": "tests/registry-backup.test.mjs",
+    "sha": "1d11603306e5975c8523eecd3a76a0a198076d82c66d00a67a5d0661cabd2d3a"
+  },
+  {
+    "path": "tests/repairs-http.test.mjs",
+    "sha": "acd4174aa8ea2bda770b5b40ae665c09859e2bc43eb0c1a78e7f28f037694136"
+  },
+  {
+    "path": "tests/repairs.test.mjs",
+    "sha": "01a049026a512bf2b2852625bc497fc4f088bf58acf584ff67d7c0b2118b3a9d"
+  },
+  {
+    "path": "tests/report.test.mjs",
+    "sha": "c438c3773af9967148ea3917c010ee1dd8bad65c4d893b90a7d0dea86bef3fc6"
+  },
+  {
+    "path": "tests/robots.test.mjs",
+    "sha": "d6cd6777d582d31bb2e24b56457c0bef1f01abb834c2065608a502ae4708329c"
+  },
+  {
+    "path": "tests/role-view.test.mjs",
+    "sha": "4e7a081ed4fde10e17c691dc4d2434e0f44c098c0a9b2c66b4d444489bccfa98"
+  },
+  {
+    "path": "tests/roles.test.mjs",
+    "sha": "8c4dc46b6699c6fffa107e22444a63c821bbc07ff84c5dcffc3740cf27d36f3d"
+  },
+  {
+    "path": "tests/skill-model.test.mjs",
+    "sha": "736bb7fcc696381d6c527df452d406c55f03b52adf94f1abb0aa5446ed00f917"
+  },
+  {
+    "path": "tests/skills-dom.test.mjs",
+    "sha": "c2c7245c54bf6be78481b24b5c5cd28cb4b37252ed4c8109ba9382c342fa468d"
+  },
+  {
+    "path": "tests/skills-http.test.mjs",
+    "sha": "bf28f496558b63b3b319f87a0e08789922d5102405aa560a79e092b284270957"
+  },
+  {
+    "path": "tests/skills.test.mjs",
+    "sha": "02e7527407e2cbb7b0d41150f36eec4c29c65d050798c8068e49c1b24069daf4"
+  },
+  {
+    "path": "tests/task-board.test.mjs",
+    "sha": "69e825d27fce8cc3da293b4c273f93da311f0bf1bfc48fad25240dff964f3064"
+  },
+  {
+    "path": "tests/tasks-http.test.mjs",
+    "sha": "85137b3b7432dbd89f7eb053698b2ddef940eb507e07915d65d9cd52c1e1e325"
+  },
+  {
+    "path": "tests/tasks.test.mjs",
+    "sha": "ca54d75473af2cf9012a53f29a884bbcff6c91cf78d4aa924653a6c51db192a2"
+  }
+]

@@ -67,7 +67,7 @@ export function makeTasks({path,clock=Date.now,limit=1000}={}){
    if(request){let job;try{job=insert(request);}catch(e){if(e instanceof TaskError&&e.code==='TASK_LIMIT')break;throw e;}db.prepare('UPDATE incidents SET job_id=? WHERE id=?').run(job.id,row.id);event(job.id,'coordinator.assigned');assigned++;if(assigned>=10)break;}
   }return assigned;
  });}
- function incidents(){return {schemaVersion:1,issues:db.prepare('SELECT * FROM incidents ORDER BY last_at DESC LIMIT 100').all().map(r=>({id:r.id,...JSON.parse(r.payload),firstAt:r.first_at,lastAt:r.last_at,occurrences:r.occurrences,jobId:r.job_id,verification:'UNVERIFIED'}))};}
+ function incidents({forRepair=false}={}){return {schemaVersion:1,issues:db.prepare('SELECT * FROM incidents ORDER BY last_at DESC LIMIT ?').all(forRepair===true?500:100).map(r=>({id:r.id,...JSON.parse(r.payload),firstAt:r.first_at,lastAt:r.last_at,occurrences:r.occurrences,jobId:r.job_id,verification:'UNVERIFIED'}))};}
  function heartbeat(){db.prepare("INSERT INTO task_meta(key,value) VALUES('worker',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value").run(clock());}
  return {incident,incidents,assignPending,enqueueManual,enqueue:request=>transaction(()=>insert(request)),claim,finish,list,recover:()=>transaction(recoverInside),heartbeat,close:()=>db.close()};
 }

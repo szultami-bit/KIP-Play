@@ -1,9 +1,9 @@
 import {AGENTS,timeLabel,ageLabel} from './observer-model.js';
 export function refreshBoardCounts(){for(const col of ['todo','doing','done']){const count=document.querySelector('#jobs-'+col).children.length;document.querySelector('#count-'+col).textContent=count;document.querySelector('#empty-'+col).hidden=count>0;}}
-export function boardColumn(view,review){return review?.reviewing?'doing':view.canRest?'done':'todo';}
+export function boardColumn(view,review){return view.canRest?'done':'todo';}
 export function bindWorkboard({openReport,refreshReport,announce}){
  const $=s=>document.querySelector(s),cards=new Map();let state=null,list=[],busy=false,disposed=false,session=false,controller=null;
- const labels={health:'Periksa layanan',release:'Periksa versi rilis'};
+ const labels={health:'Status layanan',release:'Status versi rilis'};
  for(const a of AGENTS){
   const el=document.createElement('article');el.className='job-card';el.tabIndex=-1;el.dataset.job=a.id;
   el.innerHTML=`<div class="job-owner"><span class="agent-monogram">${a.short}</span><span>${a.name}</span></div><h3>${labels[a.id]}</h3><p class="job-result"></p><p class="job-time"></p><p class="job-review" hidden>Tinjauan Anda</p><div class="job-actions"><button data-action="report">Lihat hasil</button><button data-action="start" class="primary-action">Mulai tinjau</button><button data-action="complete" class="primary-action" hidden>Selesaikan</button><button data-action="cancel" class="quiet-action" hidden>Hentikan tinjauan</button></div>`;
@@ -18,7 +18,7 @@ export function bindWorkboard({openReport,refreshReport,announce}){
    if(el.parentElement.id!=='jobs-'+column)$('#jobs-'+column).append(el);
    el.dataset.tone=v.tone;el.querySelector('.job-result').textContent=v.label+' · '+v.freshness;
    el.querySelector('.job-time').textContent=v.lastAt?'Diperiksa '+ageLabel(v.lastAt)+'\n'+timeLabel(v.lastAt):'Belum ada hasil pemeriksaan';
-   const tag=el.querySelector('.job-review');tag.hidden=!review?.reviewing;tag.textContent='Tinjauan Anda · sejak '+timeLabel(review?.startedAt);
+   const tag=el.querySelector('.job-review');tag.hidden=!review?.reviewing;tag.textContent='Tinjauan manual Anda · sejak '+timeLabel(review?.startedAt);
    for(const b of el.querySelectorAll('[data-action]')){
     const action=b.dataset.action;b.hidden=action==='start'?!!review?.reviewing:['complete','cancel'].includes(action)?!review?.reviewing:false;
     b.disabled=action==='report'?false:!state||busy||session||(action==='complete'&&!v.canRest);
