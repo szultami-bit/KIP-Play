@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "origin": "https://games.kampunginggrispontianak.com",
+  "intervalMs": 300000,
+  "timeoutMs": 5000,
+  "maxBytes": 65536,
+  "expected": {
+    "release": "6b98e43e4c04fec7ab9cac87b9b9c27f86cbb4a2",
+    "fingerprint": "c42c1a4fc4ee42346e1f42104b4f92d503ab02bf89baa156ba7663986e2c81ee",
+    "configurationFingerprint": "1d466e8d20bc2297a87d1b325d0897eb483ec89a4b4e4a48222a76a1c777039f",
+    "projectRef": "lqoaqkhaxprwbwjfbjjt"
+  },
+  "checks": [
+    {
+      "id": "health",
+      "path": "/healthz"
+    },
+    {
+      "id": "release",
+      "path": "/api/release-safety"
+    }
+  ]
+}
