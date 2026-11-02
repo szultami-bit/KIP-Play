@@ -1,0 +1,2 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {taskColumn,pollDelay} from '../campus/src/task-board.js';
+test('blocked/failed tasks never appear completed and polling stops hidden/offline/session',()=>{for(const s of ['blocked','failed','queued'])assert.equal(taskColumn(s),'todo');assert.equal(taskColumn('running'),'doing');assert.equal(taskColumn('completed'),'done');assert.equal(pollDelay({pending:true}),5000);assert.equal(pollDelay({failures:8}),120000);for(const k of ['hidden','offline','session'])assert.equal(pollDelay({[k]:true}),null);});

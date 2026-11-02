@@ -1,0 +1,28 @@
+{
+  "name": "kip-agent-office",
+  "version": "0.19.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "tsc --noEmit && vite build && vite build --config campus/vite.config.js && node scripts/assemble-campus.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "start": "node server/main.mjs"
+  },
+  "dependencies": {
+    "@panzoom/panzoom": "4.6.2",
+    "phaser": "3.80.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "three": "0.185.1"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.28",
+    "@types/react-dom": "18.3.7",
+    "typescript": "5.9.3",
+    "vite": "7.3.7"
+  },
+  "overrides": {
+    "esbuild": "0.28.1"
+  }
+}
