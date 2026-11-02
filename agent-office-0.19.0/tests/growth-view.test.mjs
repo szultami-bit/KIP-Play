@@ -6,7 +6,7 @@ const metrics={kind:'growth',registeredToday:0,totalRegistered:107,activeToday:1
 function report(at=dayStart+1000,value=metrics){return {schemaVersion:1,generatedAt:at,roles:[{id:'growth-stats',status:'ACTIVE',recordedStatus:'ACTIVE',freshness:'current',lastAt:at,maxAgeMs:120000,source:'aggregate',scope:'Public account activity',blocker:'Observed devices only',evidence:['Aggregate snapshot'],capabilities:['Read counts'],metrics:value}]};}
 test('growth UI preserves measured zero and labels observed activity instead of asserting online users',()=>{
  assert.equal(isGrowthMetrics(metrics),true);
- assert.deepEqual(growthMetricRows(metrics),[['Pendaftar hari ini','0'],['Total pendaftar publik','107'],['Akun aktif tercatat hari ini','1'],['Akun beraktivitas ≤5 menit','0']]);
+ assert.deepEqual(growthMetricRows(metrics),[['Pendaftar hari ini','0'],['Total pendaftar publik','107'],['Akun aktif tercatat hari ini','1'],['Akun beraktivitas ≤5 menit','0'],['Pemain aktif sekarang','UNKNOWN']]);
  assert.match(metricSummary(metrics),/0 pendaftar hari ini/);
  const notes=growthMetricNotes(metrics).join(' ');
  assert.match(notes,/pengunjung anonim tidak termasuk/);assert.match(notes,/bukan kepastian sedang online/);assert.match(notes,/belum bertanda masih mungkin terhitung/);
@@ -43,4 +43,11 @@ test('statistic metrics bind only to the dedicated robot while the growth pilot 
  const wrong={...r,roles:[{...pilot,metrics,maxAgeMs:120000}]};
  assert.equal(roleEvidenceAt(wrong,'growth',at).status,'UNKNOWN');
  assert.equal(roleEvidenceAt(wrong,'growth-stats',at).status,'UNKNOWN');
+});
+
+
+test('playing is UNKNOWN even when device activity or an unverified playing field is positive',()=>{
+ const rows=growthMetricRows({...metrics,recent5m:1,confirmedPlaying:99});
+ assert.deepEqual(rows.at(-1),['Pemain aktif sekarang','UNKNOWN']);
+ assert.match(growthMetricNotes(metrics).join(' '),/status permainan/);
 });

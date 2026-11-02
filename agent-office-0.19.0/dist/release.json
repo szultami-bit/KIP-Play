@@ -1,8 +1,9 @@
 {
   "service": "kip-agent-office",
   "version": "0.19.0",
-  "patch": "instagram-admin-robot",
+  "patch": "active-accounts-task",
   "messaging": "NOT_CONNECTED",
   "autoReply": false,
-  "build": "ops-019-candidate"
+  "build": "ops-019-active-accounts",
+  "playingCoverage": "UNKNOWN"
 }

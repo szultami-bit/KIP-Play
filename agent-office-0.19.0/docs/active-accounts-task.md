@@ -25,3 +25,9 @@ Fresh VPS read: legacy project kip-agent-office-20261031 and candidate kip-agent
 
 The existing prepare-runtime-019.mjs remains pinned to the prior manifest. Running that bootstrap will NOT install this task. Release ownership, new immutable runtime manifest and owner acceptance must be resolved before promotion. Do not overwrite either team's runtime/state volume, reset skills.json, bypass login, or treat this PR/local tests as live activation. The existing hourly ChatGPT monitor remains separate.
 
+
+## Player column — 2 November 2026
+
+Statistik Game now includes a fifth card, Pemain aktif sekarang. It explicitly shows UNKNOWN because the current aggregate source has no authoritative play-state/presence. Device activity, active leases and unverified fields cannot supply this count. The existing four public-account cards and their scope remain intact. The existing active-accounts-check task reports PARTIAL with confirmedPlaying=null.
+
+Build passed; full npm test: 120 passed, zero failed/skipped/cancelled. UI/model regression verifies UNKNOWN even with positive device activity or an injected unverified player count. No production or database player-state collector is installed by this patch. Deployment and owner task acceptance still require separate verification.
