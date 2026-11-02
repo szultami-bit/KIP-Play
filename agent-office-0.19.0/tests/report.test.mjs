@@ -1,0 +1,10 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {sanitize,unavailable,STALE} from '../server/report.mjs';
+const now=1793422094656;
+const fixture=()=>({observer:{lastCycleAt:now,nextDueAt:now+300000},checks:['health','release'].map(id=>({id,status:'HEALTHY',lastAt:now,lastCode:'OK',latencyMs:22,observed:{release:'a'.repeat(40),secret:'must-not-leak'},secret:'must-not-leak'})),sampleCount:30,incidents:[],events:[],token:'must-not-leak'});
+for(const age of [STALE+1,-1000])test(`old or future evidence becomes UNKNOWN: ${age}`,()=>{const r=fixture();r.checks.forEach(c=>c.lastAt=now-age);r.observer.lastCycleAt=now-age;const out=sanitize(r,'observer',now);assert(out.checks.every(c=>c.status==='UNKNOWN'));assert.equal(out.observer.status,'UNKNOWN');});
+test('preserves observed failure and recovery states',()=>{for(const status of ['DEGRADED','INCIDENT','RECOVERING']){const r=fixture();r.checks[0].status=status;r.checks[0].lastCode='TIMEOUT';assert.equal(sanitize(r,'observer',now).checks[0].status,status);}});
+test('only known report fields and enums are exposed',()=>{const r=fixture();r.checks[0].lastCode='<script>';r.events=[{at:now,type:'OPEN',checkId:'health',token:'must-not-leak'}];const out=sanitize(r,'observer',now);assert(!JSON.stringify(out).includes('must-not-leak'));assert.equal(out.checks[0].status,'UNKNOWN');assert.equal(out.events[0].type,'OPEN');});
+test('missing and duplicate checks are refused',()=>{const r=fixture();r.checks.pop();assert.throws(()=>sanitize(r));r.checks.push(r.checks[0]);assert.throws(()=>sanitize(r));});
+test('snapshot identity cannot be mistaken for observer feed',()=>{assert.equal(sanitize(fixture(),'snapshot',now).source,'snapshot');assert.throws(()=>sanitize(fixture(),'live',now));});
+test('missing source never produces healthy success',()=>{const r=unavailable(now);assert.equal(r.source,'unavailable');assert(r.checks.every(c=>c.status==='UNKNOWN'));});

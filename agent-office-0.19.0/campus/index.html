@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="id">
+<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><meta name="theme-color" content="#1c2020"/><meta name="description" content="Kantor virtual dan papan pekerjaan KIP."/><title>KIP · Agent Office</title>
+
+  <link rel="stylesheet" href="/src/agent-skills.css">
+
+</head>
+<body>
+ <a class="skip" href="#office">Langsung ke kantor 3D</a>
+ <header class="topbar">
+  <a class="brand" href="#"><span class="brand-logo">K<span>·</span></span><span>KIP <b>Headquarters</b><small>VIRTUAL AGENT OFFICE</small></span></a>
+
+  <div class="account-actions"><a class="existing" href="/agent-office/operations.html">Panel operasional <span data-icon="external"></span></a><button id="fullscreen" class="logout" aria-pressed="false">Full screen</button><button id="credits-link" class="help-button" aria-label="Bantuan">?</button><button id="logout" class="logout">Keluar akun</button></div>
+ </header>
+ <main>
+  <nav class="view-switch" aria-label="Tampilan kantor"><div><button id="tab-office" aria-pressed="true">Kantor</button><button id="tab-board" aria-pressed="false">Papan pekerjaan</button><button id="tab-skills" aria-pressed="false">Agent &amp; Skill</button></div><span id="report-connection" role="status">Mengambil laporan…</span></nav>
+  <section id="view-board" aria-label="Papan pekerjaan" hidden>
+   <div class="board-heading"><h1>Papan pekerjaan</h1><button id="board-refresh" class="report-button">Perbarui</button></div>
+   <p id="board-notice" role="status"></p>
+   <div class="workboard">
+    <section class="board-column" aria-labelledby="title-todo"><h2 id="title-todo"><span class="column-dot todo"></span>Perlu diperiksa <span id="count-todo">0</span></h2><div id="jobs-todo" class="job-list"></div><p id="empty-todo" class="empty-column">Tidak ada yang menunggu.</p></section>
+    <section class="board-column" aria-labelledby="title-doing"><h2 id="title-doing"><span class="column-dot doing"></span>Dikerjakan <span id="count-doing">0</span></h2><div id="jobs-doing" class="job-list"></div><p id="empty-doing" class="empty-column">Belum ada tinjauan berjalan.</p></section>
+    <section class="board-column" aria-labelledby="title-done"><h2 id="title-done"><span class="column-dot done"></span>Selesai <span id="count-done">0</span></h2><div id="jobs-done" class="job-list"></div><p id="empty-done" class="empty-column">Belum ada hasil sehat terbaru.</p></section>
+   </div>
+  </section>
+  <section id="view-skills" aria-labelledby="skills-title" hidden>
+   <div class="skills-hero">
+    <div><p class="eyebrow">KIP AI WORKFORCE</p><h1 id="skills-title">Pusat Agent &amp; Skill</h1><p>Kelola kemampuan, versi, pemasangan, dan batas kewenangan setiap agent dari satu tempat.</p></div>
+    <div class="skills-hero-actions"><button id="skills-refresh" class="report-button">Perbarui</button><button id="skill-create" class="skill-primary">+ Skill baru</button></div>
+   </div>
+   <div class="execution-boundary"><div><span id="skill-execution-state" data-tone="safe">Konfigurasi saja</span><b>Tidak ada tool atau pekerjaan eksternal yang dijalankan dari halaman ini.</b></div><p id="skill-execution-boundary">Skill dan izin disimpan sebagai konfigurasi; aktivasi eksekusi memerlukan integrasi serta otorisasi terpisah.</p></div>
+   <p id="skills-notice" role="status"></p>
+   <div id="skill-summary" class="skill-summary" aria-label="Ringkasan registry skill">
+    <article><span id="skill-summary-agents">0</span><small>Agent</small></article>
+    <article><span id="skill-summary-skills">0</span><small>Skill</small></article>
+    <article><span id="skill-summary-active">0</span><small>Aktif</small></article>
+    <article><span id="skill-summary-candidates">0</span><small>Kandidat</small><em id="skill-summary-candidate-note"></em></article>
+    <article><span id="skill-summary-installations">0</span><small>Pemasangan</small></article>
+    <article><span id="skill-summary-revision">r0</span><small>Revisi registry</small></article>
+   </div>
+   <div class="skill-control-grid">
+    <section class="skill-panel agent-directory-panel" aria-labelledby="agent-directory-title">
+     <div class="skill-panel-heading"><div><p class="eyebrow">PEKERJA AI</p><h2 id="agent-directory-title">Daftar Agent</h2></div></div>
+     <label class="skill-search"><span class="sr-only">Cari agent</span><input id="agent-search" type="search" placeholder="Cari agent…" autocomplete="off"/></label>
+     <div id="agent-directory" class="agent-directory"></div><p id="agent-empty" class="skill-empty" hidden>Agent tidak ditemukan.</p>
+    </section>
+    <section class="skill-panel agent-detail-panel" aria-labelledby="agent-detail-name">
+     <div class="agent-profile"><span id="agent-detail-monogram" class="agent-profile-monogram">AI</span><div><p class="eyebrow">AGENT TERPILIH</p><h2 id="agent-detail-name">Pilih agent</h2><code id="agent-detail-id">—</code></div></div>
+     <label class="form-field compact"><span>Profil kewenangan</span><select id="agent-authority"><option value="observer">Observer · hanya membaca</option><option value="advisor">Advisor · memberi rekomendasi</option><option value="draft">Draft · membuat draft</option><option value="operator">Operator · tindakan terotorisasi</option></select></label>
+     <p id="authority-description" class="field-help"></p>
+     <div class="agent-skill-block"><h3>Skill terpasang</h3><div id="agent-installed-skills" class="installed-skills"></div></div>
+     <div class="agent-skill-block"><h3>Tool yang dideklarasikan</h3><div id="agent-tool-list" class="skill-chips"></div></div>
+     <p id="agent-permission-note" class="permission-note"></p>
+    </section>
+    <section class="skill-panel skill-library-panel" aria-labelledby="skill-library-title">
+     <div class="skill-panel-heading"><div><p class="eyebrow">KOMPETENSI</p><h2 id="skill-library-title">Skill Library</h2></div></div>
+     <div class="skill-filters"><label class="skill-search"><span class="sr-only">Cari skill</span><input id="skill-search" type="search" placeholder="Cari judul, ID, atau deskripsi…" autocomplete="off"/></label><label><span class="sr-only">Kategori skill</span><select id="skill-filter-category"><option value="all">Semua kategori</option><option value="coordination">Koordinasi</option><option value="operations">Operasional</option><option value="quality">Kualitas</option><option value="security">Keamanan</option><option value="content">Konten</option><option value="support">Dukungan</option><option value="growth">Pertumbuhan</option><option value="research">Riset</option></select></label><label><span class="sr-only">Status skill</span><select id="skill-filter-state"><option value="all">Semua status</option><option value="active">Aktif</option><option value="candidate">Ada kandidat</option><option value="invalid">Perlu diperbaiki</option><option value="inactive">Belum aktif</option></select></label></div>
+     <div id="skill-library" class="skill-library"></div><p id="skill-empty" class="skill-empty" hidden>Skill tidak ditemukan.</p>
+    </section>
+   </div>
+  </section>
+  <div id="view-office">
+  <section class="observer-section" aria-labelledby="observer-title">
+   <div class="observer-heading"><h2 id="observer-title">Tim operasional</h2><button id="refresh-report" class="report-button">Perbarui</button></div>
+   <div id="agent-cards" class="agent-cards"></div>
+
+  </section>
+  <section class="observer-section role-evidence-section" aria-labelledby="roles-title">
+   <div class="observer-heading"><h2 id="roles-title">Koordinasi, kapasitas & statistik</h2><button id="refresh-roles" class="report-button">Perbarui bukti</button></div>
+   <div id="role-primary-cards" class="agent-cards"></div>
+   <p id="role-connection" class="observer-footnote" role="status"></p>
+   <details class="role-audits"><summary>Bukti delapan peran lainnya</summary><p>Setiap hasil dibatasi cakupan dan kendalanya. Bukti audit bukan pekerja yang berjalan terus-menerus, dan tidak membuktikan seluruh tugas peran.</p><div id="role-audit-cards" class="agent-cards"></div></details>
+  </section>
+  <p class="robot-guide">13 robot mewakili 13 peran. Klik penanda robot untuk membaca bukti. Robot dengan bukti terkini dapat berada di lantai 3; bukti lama atau kendala mengembalikannya ke meja. Gunakan “Lihat robot di kantor” pada laporan untuk menemukannya.</p>
+  <div class="workspace">
+   <section class="scene-card" aria-label="Kantor virtual tiga dimensi">
+    <div class="scene-top"><div class="floor-tabs" role="group" aria-label="Pilih lantai"><button data-floor="loft" aria-pressed="true"><span>01</span> Loft</button><button data-floor="sky" aria-pressed="false"><span>02</span> Sky Club</button><button data-floor="entertain" aria-pressed="false"><span>03</span> Entertain</button><button data-floor="building" aria-label="Bangunan tiga lantai" aria-pressed="false" class="building-tab"><span data-icon="layers"></span> Bangunan</button></div><div class="lighting" role="group" aria-label="Pencahayaan"><button id="day" aria-label="Suasana siang" aria-pressed="true"><span data-icon="sun"></span></button><button id="night" aria-label="Suasana malam" aria-pressed="false"><span data-icon="moon"></span></button></div></div>
+    <div class="scene-label"><span class="eyebrow" id="floor-caption">LANTAI 01 / WORKSPACE</span><h2 id="scene-title">The Loft<span>.</span></h2></div>
+    <div id="office" tabindex="0" role="region" aria-label="Model 3D kantor. Gunakan tombol kontrol kamera atau tombol panah untuk memutar, plus minus untuk zoom, Home untuk reset."><div id="loading"><span class="loading-ring"></span><b>Menata ruang Anda…</b></div></div>
+    <div class="compass" aria-hidden="true"><span>N</span><i></i><small>KIP CAMPUS</small></div>
+    <div class="scene-bottom"><div class="camera-tools" role="group" aria-label="Kontrol kamera"><button id="rotate-left" aria-label="Putar kamera ke kiri"><span data-icon="left"></span></button><button id="rotate-right" aria-label="Putar kamera ke kanan"><span data-icon="right"></span></button><span class="divider"></span><button id="zoom-out" aria-label="Perkecil tampilan"><span data-icon="minus"></span></button><button id="zoom-in" aria-label="Perbesar tampilan"><span data-icon="plus"></span></button><button id="reset" aria-label="Kembalikan tampilan awal"><span data-icon="frame"></span></button></div></div>
+   </section>
+   <aside class="inspector">
+    <div class="inspector-top"><p class="eyebrow">JELAJAHI KANTOR</p><span class="small-outline" id="floor-number">01 / 03</span></div>
+    <div class="room-list-heading"><span id="room-list-label">RUANGAN DI LANTAI INI</span><button id="overview">Lihat semua</button></div>
+    <nav id="rooms" aria-label="Pilih ruangan"></nav>
+    <section class="room-detail" aria-live="polite"><div class="detail-marker"></div><div><h3 id="detail-title">Dirancang untuk tim KIP</h3><div id="detail-roles"></div></div></section>
+    <button id="campus-view" class="stairs-button campus-button" aria-pressed="false"><span data-icon="landscape"></span><span><b>Lihat kawasan</b></span><span aria-hidden="true">↗</span></button>
+    <button id="stairs-view" class="stairs-button" aria-pressed="false"><span data-icon="stairs"></span><span><b>Lihat tangga kaca</b></span><span aria-hidden="true">↗</span></button>
+    <button id="walk" class="walk-button" aria-pressed="false"><span data-icon="pause"></span><span>Jeda gerak karakter</span></button>
+
+   </aside>
+  </div>
+  </div>
+ </main>
+ <p id="session-notice" role="status" hidden></p>
+ <div id="announcement" class="sr-only" aria-live="polite"></div>
+ <dialog id="skill-editor" aria-labelledby="skill-editor-title">
+  <button id="skill-editor-close" class="dialog-close" aria-label="Tutup editor skill">×</button>
+  <form id="skill-form">
+   <p id="skill-editor-eyebrow" class="eyebrow">SKILL</p><h2 id="skill-editor-title">Kelola skill</h2><p id="skill-version-meta" class="skill-version-meta"></p>
+   <div class="skill-editor-grid">
+    <label class="form-field"><span>ID permanen</span><input id="skill-id" data-editor-field type="text" required pattern="[a-z][a-z0-9-]{2,63}" maxlength="64" placeholder="contoh: competitor-research"/></label>
+    <label class="form-field"><span>Nama skill</span><input id="skill-title" data-editor-field type="text" required minlength="3" maxlength="80"/></label>
+    <label class="form-field"><span>Kategori</span><select id="skill-category" data-editor-field><option value="coordination">Koordinasi</option><option value="operations">Operasional</option><option value="quality">Kualitas</option><option value="security">Keamanan</option><option value="content">Konten</option><option value="support">Dukungan</option><option value="growth">Pertumbuhan</option><option value="research">Riset</option></select></label>
+    <label class="form-field"><span>Risiko</span><select id="skill-risk" data-editor-field><option value="low">Rendah</option><option value="medium">Sedang</option><option value="high">Tinggi</option></select></label>
+    <label class="form-field wide"><span>Deskripsi</span><textarea id="skill-description" data-editor-field required minlength="10" maxlength="320" rows="3"></textarea></label>
+    <label class="form-field wide"><span>Tool yang dideklarasikan</span><input id="skill-tools" data-editor-field type="text" placeholder="web_search, read_analytics, write_draft"/><small>Pisahkan dengan koma. Nama tool tidak otomatis memberi akses.</small></label>
+    <label class="form-field wide"><span>Instruksi skill</span><textarea id="skill-instructions" data-editor-field required minlength="80" maxlength="12000" rows="12"></textarea><small>Wajib memiliki bagian # Tujuan, ## Langkah, dan ## Output.</small></label>
+    <label class="form-field wide"><span>Catatan perubahan</span><input id="skill-changelog" data-editor-field type="text" required minlength="3" maxlength="320"/></label>
+   </div>
+   <div class="scenario-heading"><div><p class="eyebrow">QUALITY GATE</p><h3>Skenario uji</h3></div><button id="skill-add-scenario" type="button">+ Tambah skenario</button></div>
+   <div id="skill-scenarios"></div><p id="skill-validation" class="skill-validation"></p>
+   <p id="skill-test-result" class="skill-version-meta" aria-live="polite"></p><details class="skill-history"><summary>Riwayat perubahan</summary><ol id="skill-history"></ol></details><div class="skill-editor-actions"><button id="skill-editor-cancel" type="button" class="skill-quiet">Tutup</button><button id="skill-candidate-create" type="button">Buat kandidat versi baru</button><span class="rollback-control"><select id="skill-rollback-version" aria-label="Pilih versi rollback"></select><button id="skill-rollback" type="button">Rollback</button></span><button id="skill-install-toggle" type="button">Pasang ke agent</button><button id="skill-test" type="button" class="skill-secondary">Test</button><button id="skill-activate" type="button" class="skill-secondary">Aktifkan kandidat</button><button id="skill-save" type="submit" class="skill-primary">Simpan kandidat</button></div>
+  </form>
+ </dialog>
+ <dialog id="credits"><form method="dialog"><button aria-label="Tutup kredit" class="dialog-close">×</button></form><h2>Bantuan</h2><p>Mulai tinjau mencatat tinjauan Anda di papan. Hasil berasal dari dua pemantau otomatis. Selesaikan tersedia setelah hasil terbaru sehat. Data lama kembali memerlukan pemeriksaan.</p><p id="motion-note" class="motion-note"></p><p>Model ruang dan perabot dibangun dari geometri dalam kode. Three.js 0.185.1 dan OrbitControls berlisensi MIT © three.js authors.</p><p>Kawasan 3D memakai login khusus pemilik. Dua belas robot mewakili peran kantor. Pemantau layanan dan Penjaga rilis membaca laporan yang sudah ada; sepuluh peran lainnya membaca panel bukti. Gerakan meninjau, berjalan, dan rehat adalah ilustrasi dari hasil terakhir, bukan bukti tugas sedang berjalan. Pemantauan terjadwal tetap berjalan saat karakter rehat; status peran lain tercantum pada panel bukti sesuai cakupan yang diverifikasi.</p><p>Kontrol: seret untuk memutar; scroll atau +/− untuk zoom; Home untuk reset. Tombol kamera tersedia sebagai alternatif.</p></dialog>
+ <dialog id="agent-report" aria-labelledby="report-name">
+  <button id="report-close" class="dialog-close" aria-label="Tutup laporan">×</button>
+  <p class="eyebrow">LAPORAN PEMANTAU YANG SUDAH ADA</p><h2 id="report-name">Pemantau layanan</h2>
+  <p id="report-result" class="report-status"></p><p id="report-reason"></p>
+  <div class="report-location"><span data-icon="game"></span><span id="report-activity"></span></div>
+  <dl class="report-fields">
+   <div><dt>Pemeriksaan terakhir</dt><dd id="report-time"></dd></div><div><dt>Usia hasil</dt><dd id="report-age"></dd></div>
+   <div><dt>Hasil yang tersimpan</dt><dd id="report-recorded"></dd></div><div><dt>Sumber laporan</dt><dd id="report-source"></dd></div>
+   <div><dt>Kode hasil</dt><dd id="report-code"></dd></div><div><dt>Waktu respons</dt><dd id="report-latency"></dd></div>
+   <div class="wide"><dt>Versi rilis yang teramati</dt><dd id="report-release" class="release-hash"></dd></div>
+   <div><dt>Siklus pemantau terakhir</dt><dd id="report-cycle"></dd></div><div><dt>Jadwal berikutnya (perkiraan)</dt><dd id="report-next"></dd></div>
+   <div class="wide"><dt>Laporan diterima di browser</dt><dd id="report-received"></dd></div>
+  </dl>
+  <p class="report-disclaimer">Lokasi dan gerakan karakter adalah ilustrasi. Laporan mencatat pemeriksaan yang selesai; belum menyediakan status pekerjaan yang sedang berjalan. Data lebih dari 10 menit 5 detik ditandai lama.</p>
+  <div class="report-actions"><button id="report-focus" class="report-button">Lihat karakter</button><a href="/agent-office/operations.html">Buka Panel operasional ↗</a></div>
+ </dialog>
+ <dialog id="role-evidence-dialog" aria-labelledby="role-evidence-name">
+  <button id="role-evidence-close" class="dialog-close" aria-label="Tutup bukti peran">×</button>
+  <p class="eyebrow">BUKTI PERAN · HANYA BACA</p><h2 id="role-evidence-name"></h2><p id="role-evidence-status" class="report-status"></p>
+  <button id="role-evidence-focus" class="report-button">Lihat robot di kantor</button><p class="report-disclaimer">Robot dan gerakannya adalah visualisasi. Status, waktu bukti, serta batas kemampuan tercantum di bawah.</p><h3>Cakupan yang dinilai</h3><p id="role-evidence-scope"></p><div id="role-evidence-metrics"></div>
+  <dl class="report-fields"><div><dt>Waktu bukti</dt><dd id="role-evidence-time"></dd></div><div><dt>Sumber</dt><dd id="role-evidence-source"></dd></div><div><dt>Masa berlaku bukti</dt><dd id="role-evidence-expiry"></dd></div><div><dt>Hasil yang tercatat</dt><dd id="role-evidence-recorded"></dd></div></dl>
+  <h3>Kemampuan yang dibuktikan</h3><ul id="role-evidence-capabilities"></ul><h3>Bukti yang tersedia</h3><ul id="role-evidence-evidence"></ul><h3>Batas & kendala</h3><p id="role-evidence-blocker"></p>
+  <p class="report-disclaimer">Bukti historis bukan kondisi saat ini. Animasi karakter tidak menjalankan tugas, memberi akses, atau membuktikan aktivitas langsung.</p>
+ </dialog>
+ 
+<script type="module" src="/src/main.js"></script></body></html>

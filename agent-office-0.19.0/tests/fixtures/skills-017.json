@@ -1,0 +1,564 @@
+{
+  "schemaVersion": 2,
+  "revision": 1,
+  "updatedAt": 1700000000000,
+  "executionEnabled": false,
+  "executionBoundary": "Konfigurasi skill dan izin tersimpan di dashboard; belum memberi akses eksekusi eksternal.",
+  "agents": [
+    {
+      "id": "coordinator",
+      "authority": "advisor",
+      "installedSkills": [
+        "team-coordination"
+      ]
+    },
+    {
+      "id": "health",
+      "authority": "observer",
+      "installedSkills": [
+        "service-monitoring"
+      ]
+    },
+    {
+      "id": "release",
+      "authority": "observer",
+      "installedSkills": [
+        "release-verification"
+      ]
+    },
+    {
+      "id": "capacity",
+      "authority": "observer",
+      "installedSkills": [
+        "capacity-monitoring"
+      ]
+    },
+    {
+      "id": "qa",
+      "authority": "draft",
+      "installedSkills": [
+        "game-qa"
+      ]
+    },
+    {
+      "id": "accounts",
+      "authority": "draft",
+      "installedSkills": [
+        "account-access-review"
+      ]
+    },
+    {
+      "id": "security",
+      "authority": "draft",
+      "installedSkills": [
+        "security-review"
+      ]
+    },
+    {
+      "id": "backup",
+      "authority": "draft",
+      "installedSkills": [
+        "backup-restore"
+      ]
+    },
+    {
+      "id": "content",
+      "authority": "draft",
+      "installedSkills": [
+        "content-curation"
+      ]
+    },
+    {
+      "id": "payments",
+      "authority": "draft",
+      "installedSkills": [
+        "payment-sandbox"
+      ]
+    },
+    {
+      "id": "support",
+      "authority": "advisor",
+      "installedSkills": [
+        "customer-support-drafting"
+      ]
+    },
+    {
+      "id": "growth",
+      "authority": "advisor",
+      "installedSkills": [
+        "growth-analysis"
+      ]
+    },
+    {
+      "id": "growth-stats",
+      "authority": "observer",
+      "installedSkills": [
+        "game-statistics"
+      ]
+    }
+  ],
+  "skills": [
+    {
+      "id": "team-coordination",
+      "activeVersion": 1,
+      "candidateVersion": null,
+      "versions": [
+        {
+          "version": 1,
+          "title": "Koordinasi Tim",
+          "category": "coordination",
+          "description": "Menyusun prioritas berbasis bukti dan batas kewenangan.",
+          "risk": "low",
+          "tools": [
+            "read_reports",
+            "write_plan"
+          ],
+          "instructions": "# Tujuan\nMenyusun prioritas tim KIP berdasarkan bukti yang tersedia.\n\n## Langkah\n1. Baca status dan sumber setiap peran.\n2. Pisahkan fakta, kendala, dan asumsi.\n3. Urutkan tindakan berdasarkan dampak dan prasyarat.\n\n## Output\nRencana prioritas dengan pemilik, bukti, kendala, dan langkah berikutnya.",
+          "changelog": "Versi awal kemampuan untuk KIP Agent Office.",
+          "scenarios": [
+            {
+              "name": "Pemeriksaan dasar",
+              "input": "Jalankan koordinasi tim sesuai cakupan yang diizinkan.",
+              "expected": "Hasil menyebut bukti, cakupan, kendala, dan tidak melampaui izin."
+            }
+          ],
+          "createdAt": 1700000000000,
+          "validation": {
+            "valid": true,
+            "issues": []
+          }
+        }
+      ],
+      "activatedVersions": [
+        1
+      ]
+    },
+    {
+      "id": "service-monitoring",
+      "activeVersion": 1,
+      "candidateVersion": null,
+      "versions": [
+        {
+          "version": 1,
+          "title": "Pemantauan Layanan",
+          "category": "operations",
+          "description": "Membaca kesehatan website tanpa melakukan perubahan.",
+          "risk": "low",
+          "tools": [
+            "read_health"
+          ],
+          "instructions": "# Tujuan\nMenilai kesehatan layanan KIP dari laporan pemantau terverifikasi.\n\n## Langkah\n1. Baca sampel terbaru.\n2. Periksa usia dan sumber bukti.\n3. Tandai kondisi lama atau tidak valid sebagai belum diketahui.\n\n## Output\nRingkasan kesehatan, waktu sampel, dan batas bukti.",
+          "changelog": "Versi awal kemampuan untuk KIP Agent Office.",
+          "scenarios": [
+            {
+              "name": "Pemeriksaan dasar",
+              "input": "Jalankan pemantauan layanan sesuai cakupan yang diizinkan.",
+              "expected": "Hasil menyebut bukti, cakupan, kendala, dan tidak melampaui izin."
+            }
+          ],
+          "createdAt": 1700000000000,
+          "validation": {
+            "valid": true,
+            "issues": []
+          }
+        }
+      ],
+      "activatedVersions": [
+        1
+      ]
+    },
+    {
+      "id": "release-verification",
+      "activeVersion": 1,
+      "candidateVersion": null,
+      "versions": [
+        {
+          "version": 1,
+          "title": "Verifikasi Rilis",
+          "category": "operations",
+          "description": "Memeriksa identitas versi produksi tanpa deployment.",
+          "risk": "low",
+          "tools": [
+            "read_release"
+          ],
+          "instructions": "# Tujuan\nMemastikan identitas rilis yang teramati cocok dengan kandidat yang disetujui.\n\n## Langkah\n1. Baca identitas rilis produksi.\n2. Bandingkan dengan fingerprint yang disetujui.\n3. Laporkan perbedaan tanpa melakukan deployment.\n\n## Output\nHasil cocok atau tidak cocok beserta bukti identitas.",
+          "changelog": "Versi awal kemampuan untuk KIP Agent Office.",
+          "scenarios": [
+            {
+              "name": "Pemeriksaan dasar",
+              "input": "Jalankan verifikasi rilis sesuai cakupan yang diizinkan.",
+              "expected": "Hasil menyebut bukti, cakupan, kendala, dan tidak melampaui izin."
+            }
+          ],
+          "createdAt": 1700000000000,
+          "validation": {
+            "valid": true,
+            "issues": []
+          }
+        }
+      ],
+      "activatedVersions": [
+        1
+      ]
+    },
+    {
+      "id": "capacity-monitoring",
+      "activeVersion": 1,
+      "candidateVersion": null,
+      "versions": [
+        {
+          "version": 1,
+          "title": "Pemantauan Kapasitas",
+          "category": "operations",
+          "description": "Meringkas CPU, RAM, disk, dan uptime VPS.",
+          "risk": "low",
+          "tools": [
+            "read_vps_metrics"
+          ],
+          "instructions": "# Tujuan\nMembaca kapasitas VPS secara aman dan tidak menyimpulkan kemampuan kelas tanpa uji beban.\n\n## Langkah\n1. Baca CPU, RAM, disk, dan uptime.\n2. Periksa freshness serta unit.\n3. Bedakan pemakaian saat ini dari kapasitas teruji.\n\n## Output\nRingkasan metrik, peringatan, dan batas interpretasi.",
+          "changelog": "Versi awal kemampuan untuk KIP Agent Office.",
+          "scenarios": [
+            {
+              "name": "Pemeriksaan dasar",
+              "input": "Jalankan pemantauan kapasitas sesuai cakupan yang diizinkan.",
+              "expected": "Hasil menyebut bukti, cakupan, kendala, dan tidak melampaui izin."
+            }
+          ],
+          "createdAt": 1700000000000,
+          "validation": {
+            "valid": true,
+            "issues": []
+          }
+        }
+      ],
+      "activatedVersions": [
+        1
+      ]
+    },
+    {
+      "id": "game-qa",
+      "activeVersion": 1,
+      "candidateVersion": null,
+      "versions": [
+        {
+          "version": 1,
+          "title": "QA Permainan",
+          "category": "quality",
+          "description": "Menguji alur One Screen dan Live pada lingkungan terisolasi.",
+          "risk": "medium",
+          "tools": [
+            "read_staging",
+            "write_qa_report"
+          ],
+          "instructions": "# Tujuan\nMenguji pengalaman permainan KIP secara berulang dan dapat dibuktikan.\n\n## Langkah\n1. Tentukan game, mode, versi, dan akun uji.\n2. Jalankan start, play, score, result, replay, refresh, serta reconnect.\n3. Catat PASS, FAIL, BLOCKED, atau NOT RUN.\n\n## Output\nMatriks pengujian dengan bukti dan langkah reproduksi.",
+          "changelog": "Versi awal kemampuan untuk KIP Agent Office.",
+          "scenarios": [
+            {
+              "name": "Pemeriksaan dasar",
+              "input": "Jalankan qa permainan sesuai cakupan yang diizinkan.",
+              "expected": "Hasil menyebut bukti, cakupan, kendala, dan tidak melampaui izin."
+            }
+          ],
+          "createdAt": 1700000000000,
+          "validation": {
+            "valid": true,
+            "issues": []
+          }
+        }
+      ],
+      "activatedVersions": [
+        1
+      ]
+    },
+    {
+      "id": "account-access-review",
+      "activeVersion": 1,
+      "candidateVersion": null,
+      "versions": [
+        {
+          "version": 1,
+          "title": "Audit Akun dan Akses",
+          "category": "quality",
+          "description": "Menilai login, sesi, logout, dan batas peran di staging.",
+          "risk": "medium",
+          "tools": [
+            "read_auth_staging",
+            "write_qa_report"
+          ],
+          "instructions": "# Tujuan\nMemeriksa alur akun tanpa mengambil atau membagikan kredensial pengguna.\n\n## Langkah\n1. Gunakan akun uji terisolasi.\n2. Uji login, refresh, logout, pemulihan sesi, dan batas peran.\n3. Catat bukti tanpa token atau kata sandi.\n\n## Output\nLaporan akses dengan cakupan, hasil, dan kendala.",
+          "changelog": "Versi awal kemampuan untuk KIP Agent Office.",
+          "scenarios": [
+            {
+              "name": "Pemeriksaan dasar",
+              "input": "Jalankan audit akun dan akses sesuai cakupan yang diizinkan.",
+              "expected": "Hasil menyebut bukti, cakupan, kendala, dan tidak melampaui izin."
+            }
+          ],
+          "createdAt": 1700000000000,
+          "validation": {
+            "valid": true,
+            "issues": []
+          }
+        }
+      ],
+      "activatedVersions": [
+        1
+      ]
+    },
+    {
+      "id": "security-review",
+      "activeVersion": 1,
+      "candidateVersion": null,
+      "versions": [
+        {
+          "version": 1,
+          "title": "Audit Keamanan",
+          "category": "security",
+          "description": "Meninjau konfigurasi, dependensi, dan pola risiko.",
+          "risk": "high",
+          "tools": [
+            "read_source",
+            "read_security_reports"
+          ],
+          "instructions": "# Tujuan\nMengidentifikasi risiko keamanan tanpa mengeksekusi serangan destruktif.\n\n## Langkah\n1. Tentukan ruang lingkup dan aset yang boleh dibaca.\n2. Periksa konfigurasi, dependensi, autentikasi, dan input.\n3. Bedakan temuan terverifikasi dari rekomendasi.\n\n## Output\nDaftar temuan dengan tingkat risiko, bukti, dan mitigasi.",
+          "changelog": "Versi awal kemampuan untuk KIP Agent Office.",
+          "scenarios": [
+            {
+              "name": "Pemeriksaan dasar",
+              "input": "Jalankan audit keamanan sesuai cakupan yang diizinkan.",
+              "expected": "Hasil menyebut bukti, cakupan, kendala, dan tidak melampaui izin."
+            }
+          ],
+          "createdAt": 1700000000000,
+          "validation": {
+            "valid": true,
+            "issues": []
+          }
+        }
+      ],
+      "activatedVersions": [
+        1
+      ]
+    },
+    {
+      "id": "backup-restore",
+      "activeVersion": 1,
+      "candidateVersion": null,
+      "versions": [
+        {
+          "version": 1,
+          "title": "Backup dan Restore",
+          "category": "security",
+          "description": "Memeriksa cadangan dan membuktikan restore terisolasi.",
+          "risk": "high",
+          "tools": [
+            "read_backup_inventory",
+            "write_restore_report"
+          ],
+          "instructions": "# Tujuan\nMembuktikan kemampuan pemulihan tanpa menimpa produksi.\n\n## Langkah\n1. Inventaris cadangan dan retention.\n2. Validasi checksum dan usia.\n3. Restore hanya ke target terisolasi dan ukur hasil.\n\n## Output\nBukti RPO, RTO, checksum, dan hasil restore.",
+          "changelog": "Versi awal kemampuan untuk KIP Agent Office.",
+          "scenarios": [
+            {
+              "name": "Pemeriksaan dasar",
+              "input": "Jalankan backup dan restore sesuai cakupan yang diizinkan.",
+              "expected": "Hasil menyebut bukti, cakupan, kendala, dan tidak melampaui izin."
+            }
+          ],
+          "createdAt": 1700000000000,
+          "validation": {
+            "valid": true,
+            "issues": []
+          }
+        }
+      ],
+      "activatedVersions": [
+        1
+      ]
+    },
+    {
+      "id": "content-curation",
+      "activeVersion": 1,
+      "candidateVersion": null,
+      "versions": [
+        {
+          "version": 1,
+          "title": "Kurasi Bank Materi",
+          "category": "content",
+          "description": "Meninjau topik, level, usia, dan duplikasi materi ESL.",
+          "risk": "low",
+          "tools": [
+            "read_content_bank",
+            "write_content_draft"
+          ],
+          "instructions": "# Tujuan\nMenjaga kualitas bank materi KIP berdasarkan level dan kebutuhan siswa.\n\n## Langkah\n1. Baca topik serta metadata.\n2. Periksa level, usia, duplikasi, dan kejelasan bahasa.\n3. Buat draft revisi tanpa menerbitkan.\n\n## Output\nDaftar temuan dan draft revisi untuk pemeriksaan guru.",
+          "changelog": "Versi awal kemampuan untuk KIP Agent Office.",
+          "scenarios": [
+            {
+              "name": "Pemeriksaan dasar",
+              "input": "Jalankan kurasi bank materi sesuai cakupan yang diizinkan.",
+              "expected": "Hasil menyebut bukti, cakupan, kendala, dan tidak melampaui izin."
+            }
+          ],
+          "createdAt": 1700000000000,
+          "validation": {
+            "valid": true,
+            "issues": []
+          }
+        }
+      ],
+      "activatedVersions": [
+        1
+      ]
+    },
+    {
+      "id": "payment-sandbox",
+      "activeVersion": 1,
+      "candidateVersion": null,
+      "versions": [
+        {
+          "version": 1,
+          "title": "QA Pembayaran Sandbox",
+          "category": "quality",
+          "description": "Menguji status transaksi hanya di sandbox.",
+          "risk": "high",
+          "tools": [
+            "read_payment_sandbox",
+            "write_qa_report"
+          ],
+          "instructions": "# Tujuan\nMenguji alur pembayaran tanpa memindahkan dana atau mengubah akses produksi.\n\n## Langkah\n1. Gunakan sandbox resmi.\n2. Uji sukses, gagal, kedaluwarsa, duplikat, dan webhook.\n3. Rekonsiliasi status transaksi dengan langganan uji.\n\n## Output\nMatriks transaksi uji dengan bukti dan kendala.",
+          "changelog": "Versi awal kemampuan untuk KIP Agent Office.",
+          "scenarios": [
+            {
+              "name": "Pemeriksaan dasar",
+              "input": "Jalankan qa pembayaran sandbox sesuai cakupan yang diizinkan.",
+              "expected": "Hasil menyebut bukti, cakupan, kendala, dan tidak melampaui izin."
+            }
+          ],
+          "createdAt": 1700000000000,
+          "validation": {
+            "valid": true,
+            "issues": []
+          }
+        }
+      ],
+      "activatedVersions": [
+        1
+      ]
+    },
+    {
+      "id": "customer-support-drafting",
+      "activeVersion": 1,
+      "candidateVersion": null,
+      "versions": [
+        {
+          "version": 1,
+          "title": "Draft Dukungan Pelanggan",
+          "category": "support",
+          "description": "Menyusun panduan dan balasan tanpa mengirim.",
+          "risk": "low",
+          "tools": [
+            "read_help_docs",
+            "write_draft"
+          ],
+          "instructions": "# Tujuan\nMembantu guru memahami produk dengan jawaban yang terverifikasi dan ramah.\n\n## Langkah\n1. Klasifikasikan pertanyaan.\n2. Cari sumber produk yang relevan.\n3. Tulis langkah jelas dan tandai hal yang belum pasti.\n\n## Output\nDraft jawaban dan panduan; tidak ada pesan yang dikirim.",
+          "changelog": "Versi awal kemampuan untuk KIP Agent Office.",
+          "scenarios": [
+            {
+              "name": "Pemeriksaan dasar",
+              "input": "Jalankan draft dukungan pelanggan sesuai cakupan yang diizinkan.",
+              "expected": "Hasil menyebut bukti, cakupan, kendala, dan tidak melampaui izin."
+            }
+          ],
+          "createdAt": 1700000000000,
+          "validation": {
+            "valid": true,
+            "issues": []
+          }
+        }
+      ],
+      "activatedVersions": [
+        1
+      ]
+    },
+    {
+      "id": "growth-analysis",
+      "activeVersion": 1,
+      "candidateVersion": null,
+      "versions": [
+        {
+          "version": 1,
+          "title": "Analisis Pertumbuhan",
+          "category": "growth",
+          "description": "Menganalisis funnel, retensi, dan eksperimen pilot.",
+          "risk": "medium",
+          "tools": [
+            "read_aggregate_analytics",
+            "write_growth_plan"
+          ],
+          "instructions": "# Tujuan\nMenyusun eksperimen pertumbuhan yang dapat diukur tanpa menghubungi pengguna otomatis.\n\n## Langkah\n1. Tentukan masalah funnel dan denominator.\n2. Pilih hipotesis, metrik, serta batas keputusan.\n3. Susun eksperimen kecil dan aman.\n\n## Output\nRencana eksperimen, metrik, asumsi, dan keputusan berikutnya.",
+          "changelog": "Versi awal kemampuan untuk KIP Agent Office.",
+          "scenarios": [
+            {
+              "name": "Pemeriksaan dasar",
+              "input": "Jalankan analisis pertumbuhan sesuai cakupan yang diizinkan.",
+              "expected": "Hasil menyebut bukti, cakupan, kendala, dan tidak melampaui izin."
+            }
+          ],
+          "createdAt": 1700000000000,
+          "validation": {
+            "valid": true,
+            "issues": []
+          }
+        }
+      ],
+      "activatedVersions": [
+        1
+      ]
+    },
+    {
+      "id": "game-statistics",
+      "activeVersion": 1,
+      "candidateVersion": null,
+      "versions": [
+        {
+          "version": 1,
+          "title": "Statistik Game",
+          "category": "growth",
+          "description": "Membaca agregat pendaftaran dan aktivitas akun.",
+          "risk": "low",
+          "tools": [
+            "read_aggregate_analytics"
+          ],
+          "instructions": "# Tujuan\nMeringkas statistik agregat tanpa mengekspos identitas pengguna.\n\n## Langkah\n1. Baca pendaftar, aktivitas teramati, dan waktu sampel.\n2. Periksa freshness serta cakupan.\n3. Hindari menyebut aktivitas sebagai kepastian online.\n\n## Output\nRingkasan agregat dengan waktu, cakupan, dan batas interpretasi.",
+          "changelog": "Versi awal kemampuan untuk KIP Agent Office.",
+          "scenarios": [
+            {
+              "name": "Pemeriksaan dasar",
+              "input": "Jalankan statistik game sesuai cakupan yang diizinkan.",
+              "expected": "Hasil menyebut bukti, cakupan, kendala, dan tidak melampaui izin."
+            }
+          ],
+          "createdAt": 1700000000000,
+          "validation": {
+            "valid": true,
+            "issues": []
+          }
+        }
+      ],
+      "activatedVersions": [
+        1
+      ]
+    }
+  ],
+  "audit": [
+    {
+      "revision": 1,
+      "at": 1700000000000,
+      "action": "agent.authority",
+      "skillId": null,
+      "version": null,
+      "previousActiveVersion": null
+    }
+  ],
+  "testRuns": []
+}

@@ -1,0 +1,12 @@
+# Agent Office 0.19.0 — ordered operational execution
+
+User authorized completing the previously proposed four steps in order. Base is deployed Office 0.18.0 (application d2f20b6), preserving the Instagram DM profile and 14 robots. The old 0.17-only plan cannot overwrite this newer runtime.
+
+1. Back up the latest staging skills registry to a separate persistent volume and prove restoration without writing to owner state. Preserve production acceptance gate: an earlier browser policy denied page observation; do not circumvent it or claim owner acceptance. Continue independent implementation while this gate remains blocked.
+2. Add owner-authenticated manual execution of three built-in read-only tasks (health, release, capacity), a durable SQLite queue, bounded retries after worker interruption, and visible task state/results in the existing board. Pin active installed skill version and digest. Custom instruction text remains configuration; no arbitrary code, shell, URL, credential access, messaging, model API, or deployment executor.
+3. Add a constrained incident receiver and a Lucky Wheel client pilot. Collect only enumerated error category, game, mode, release, allowlisted asset path and line/column, never freeform error messages, stack, identity, tokens or gameplay content. Reports are untrusted observations, not verified defects. Deduplicate and rate-limit. Client is event-driven, max 3 sends per page, no retry/polling or sending hidden/offline.
+4. Atomically assign incident diagnosis to QA, accounts, or service agent using fixed rules; execute read-only diagnosis and persist evidence, uncertainty and next steps. Completed means diagnosis completed, not bug repaired. No automatic patch or production deployment in this scope.
+
+Approach: extend existing Node 24 office and use built-in SQLite for task transactions; preserve authoritative skills JSON. A separate orchestration SaaS would add subscriptions and access; a general shell/LLM runner would exceed this pilot's read-only scope. Builder decision: choose the existing stack and one Lucky Wheel pilot. Office version 0.19.0 avoids collision with DM release 0.18.0.
+
+Private game source stays in private szultami-bit/kip-english-universe. Office source stays in its existing szultami-bit/KIP-Play repository; do not publish private game source or registry snapshots there. Game release AGENTS.md checks remain mandatory. Use isolated candidate deployment; production promotion requires owner acceptance.
