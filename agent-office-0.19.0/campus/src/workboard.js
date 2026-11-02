@@ -1,4 +1,5 @@
 import {AGENTS,timeLabel,ageLabel} from './observer-model.js';
+export function refreshBoardCounts(){for(const col of ['todo','doing','done']){const count=document.querySelector('#jobs-'+col).children.length;document.querySelector('#count-'+col).textContent=count;document.querySelector('#empty-'+col).hidden=count>0;}}
 export function boardColumn(view,review){return review?.reviewing?'doing':view.canRest?'done':'todo';}
 export function bindWorkboard({openReport,refreshReport,announce}){
  const $=s=>document.querySelector(s),cards=new Map();let state=null,list=[],busy=false,disposed=false,session=false,controller=null;
@@ -25,7 +26,7 @@ export function bindWorkboard({openReport,refreshReport,announce}){
     if(action==='complete')b.title=v.canRest?'Tandai tinjauan selesai':'Menunggu hasil terbaru yang sehat';
    }
   }
-  for(const col of Object.keys(counts)){$('#count-'+col).textContent=counts[col];$('#empty-'+col).hidden=counts[col]>0;}
+  refreshBoardCounts();
   $('#board-refresh').disabled=busy||session;
  }
  async function request(body){

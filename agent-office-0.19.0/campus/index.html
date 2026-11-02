@@ -16,7 +16,9 @@
   <nav class="view-switch" aria-label="Tampilan kantor"><div><button id="tab-office" aria-pressed="true">Kantor</button><button id="tab-board" aria-pressed="false">Papan pekerjaan</button><button id="tab-skills" aria-pressed="false">Agent &amp; Skill</button></div><span id="report-connection" role="status">Mengambil laporan…</span></nav>
   <section id="view-board" aria-label="Papan pekerjaan" hidden>
    <div class="board-heading"><h1>Papan pekerjaan</h1><button id="board-refresh" class="report-button">Perbarui</button></div>
+   <div class="task-controls"><label for="task-select">Pemeriksaan baru</label><select id="task-select" disabled><option>Memuat tugas…</option></select><button id="task-run" class="report-button" disabled>Jalankan</button><span id="task-worker" role="status">Worker belum terverifikasi</span></div><p id="task-notice" role="status"></p>
    <p id="board-notice" role="status"></p>
+   <details class="incident-list"><summary>Laporan game terbaru · belum terverifikasi</summary><ul id="incident-list"></ul><p>Laporan yang sama digabungkan. Diagnosis selesai tidak menandakan game sudah diperbaiki.</p></details>
    <div class="workboard">
     <section class="board-column" aria-labelledby="title-todo"><h2 id="title-todo"><span class="column-dot todo"></span>Perlu diperiksa <span id="count-todo">0</span></h2><div id="jobs-todo" class="job-list"></div><p id="empty-todo" class="empty-column">Tidak ada yang menunggu.</p></section>
     <section class="board-column" aria-labelledby="title-doing"><h2 id="title-doing"><span class="column-dot doing"></span>Dikerjakan <span id="count-doing">0</span></h2><div id="jobs-doing" class="job-list"></div><p id="empty-doing" class="empty-column">Belum ada tinjauan berjalan.</p></section>
@@ -71,7 +73,7 @@
    <p id="role-connection" class="observer-footnote" role="status"></p>
    <details class="role-audits"><summary>Bukti delapan peran lainnya</summary><p>Setiap hasil dibatasi cakupan dan kendalanya. Bukti audit bukan pekerja yang berjalan terus-menerus, dan tidak membuktikan seluruh tugas peran.</p><div id="role-audit-cards" class="agent-cards"></div></details>
   </section>
-  <p class="robot-guide">13 robot mewakili 13 peran. Klik penanda robot untuk membaca bukti. Robot dengan bukti terkini dapat berada di lantai 3; bukti lama atau kendala mengembalikannya ke meja. Gunakan “Lihat robot di kantor” pada laporan untuk menemukannya.</p>
+  <p class="robot-guide">14 robot mewakili 14 peran. Klik penanda robot untuk membaca bukti. Robot dengan bukti terkini dapat berada di lantai 3; bukti lama atau kendala mengembalikannya ke meja. Gunakan “Lihat robot di kantor” pada laporan untuk menemukannya.</p>
   <div class="workspace">
    <section class="scene-card" aria-label="Kantor virtual tiga dimensi">
     <div class="scene-top"><div class="floor-tabs" role="group" aria-label="Pilih lantai"><button data-floor="loft" aria-pressed="true"><span>01</span> Loft</button><button data-floor="sky" aria-pressed="false"><span>02</span> Sky Club</button><button data-floor="entertain" aria-pressed="false"><span>03</span> Entertain</button><button data-floor="building" aria-label="Bangunan tiga lantai" aria-pressed="false" class="building-tab"><span data-icon="layers"></span> Bangunan</button></div><div class="lighting" role="group" aria-label="Pencahayaan"><button id="day" aria-label="Suasana siang" aria-pressed="true"><span data-icon="sun"></span></button><button id="night" aria-label="Suasana malam" aria-pressed="false"><span data-icon="moon"></span></button></div></div>
@@ -140,4 +142,5 @@
   <p class="report-disclaimer">Bukti historis bukan kondisi saat ini. Animasi karakter tidak menjalankan tugas, memberi akses, atau membuktikan aktivitas langsung.</p>
  </dialog>
  
+<dialog id="task-result" aria-labelledby="task-result-title"><button id="task-result-close" class="dialog-close" aria-label="Tutup hasil tugas">×</button><p class="eyebrow">HASIL PEMERIKSAAN</p><h2 id="task-result-title"></h2><p id="task-result-summary"></p><p id="task-result-meta"></p><p id="task-result-boundary"></p><h3>Bukti</h3><ul id="task-result-evidence"></ul><h3>Langkah berikutnya</h3><ul id="task-result-next"></ul><p id="task-result-limit"></p><details><summary>Riwayat tugas</summary><ul id="task-result-history"></ul></details></dialog>
 <script type="module" src="/src/main.js"></script></body></html>
