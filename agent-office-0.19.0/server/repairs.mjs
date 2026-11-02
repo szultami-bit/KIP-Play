@@ -2,6 +2,9 @@ import {DatabaseSync} from 'node:sqlite';
 import {openSync,closeSync,constants} from 'node:fs';
 import {createHash,randomUUID} from 'node:crypto';
 
+import {repairTeam} from '../src/game-team.js';
+import {GAME_TARGETS} from './game-monitor.mjs';
+const GAMES=new Set(GAME_TARGETS.map(t=>t.game));
 const UUID=/^[a-f0-9]{8}-[a-f0-9]{4}-[1-5][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i;
 const SHA=/^[a-f0-9]{40}$/,HASH=/^[a-f0-9]{64}$/;
 const AGE=605000,LEASE=1800000;
@@ -71,13 +74,13 @@ export function makeRepairs({path,clock=Date.now,limit=2000,automationId}={}){
   db.prepare("INSERT INTO repair_meta(key,at) VALUES('collector',?) ON CONFLICT(key) DO UPDATE SET at=excluded.at").run(now);
  });}
  function observeIncidents(issues){return tx(()=>{for(const i of (Array.isArray(issues)?issues:[]).slice(0,500)){
-  if(!UUID.test(i.id)||i.game!=='lucky-wheel'||!['screen','live'].includes(i.mode)||!['runtime','resource','unhandled'].includes(i.kind)||!Number.isSafeInteger(i.lastAt)||i.lastAt<=0||i.lastAt>clock())continue;
+  if(!UUID.test(i.id)||!GAMES.has(i.game)||!['screen','live'].includes(i.mode)||!['runtime','resource','unhandled'].includes(i.kind)||!Number.isSafeInteger(i.lastAt)||i.lastAt<=0||i.lastAt>clock())continue;
   // Only the receiver's bounded diagnostic fields enter the repair queue.
   if(!/^[\w.-]{1,80}$/.test(i.asset)||!/^\w{1,50}$/.test(i.errorClass)||!Number.isSafeInteger(i.line)||!Number.isSafeInteger(i.column))continue;
   const key='game:'+i.id;
   // A repaired game observation is not re-opened by re-reading the same incident record.
   const previous=db.prepare('SELECT observed_at,status FROM repairs WHERE source_key=? ORDER BY created_at DESC,rowid DESC LIMIT 1').get(key);if(previous&&['completed','recovered'].includes(previous.status)&&i.lastAt<=previous.observed_at)continue;
-  enqueue(key,{kind:'game',incidentId:i.id,title:'Perbaiki laporan Lucky Wheel',agentId:['game-session.js','account-bridge.js'].includes(i.asset)?'accounts':'qa',game:i.game,mode:i.mode,errorClass:i.errorClass,asset:i.asset,line:i.line,column:i.column},i.lastAt);
+  enqueue(key,{kind:'game',incidentId:i.id,title:'Perbaiki laporan '+i.game,agentId:'support',...repairTeam(i),game:i.game,mode:i.mode,errorClass:i.errorClass,asset:i.asset,line:i.line,column:i.column},i.lastAt);
  }});}
  function claim({worker}={}){if(!/^[a-z0-9_.-]{1,80}$/i.test(worker||''))throw new RepairError('BAD_REPAIR_WORKER',400);return tx(()=>{
   recover();if(db.prepare("SELECT id FROM repairs WHERE status IN ('running','verifying') LIMIT 1").get())return null;

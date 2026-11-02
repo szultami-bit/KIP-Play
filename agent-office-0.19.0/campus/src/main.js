@@ -17,7 +17,7 @@ function announce(text){$('#announcement').textContent=text}
 const floorData={
  campus:{rooms:outdoorPlaces,number:'COASTAL CAMPUS',caption:'KIP HEADQUARTERS / COASTAL CAMPUS',title:'Between peaks & sea',description:'Kantor, taman, dan garis pantai.',panel:'Bekerja dekat alam,<br/> menikmati ruang.',intro:'Jalan masuk, taman pinus dan mawar, pantai pasir putih, serta gunung di belakang kantor.',first:'4',firstLabel:'zona luar',second:'360°',secondLabel:'sudut pandang',detail:'Kawasan pesisir KIP',detailText:'Pilih area untuk menjelajah. Gunakan tab lantai untuk kembali melihat interior kantor.'},
  loft:{rooms,number:'01 / 03',caption:'LANTAI 01 / WORKSPACE',title:'The Loft',description:'Enam divisi. Ruang untuk bertumbuh.',panel:'Ruang kerja,<br/> dipikirkan ulang.',intro:'Material hangat. Ruang terbuka. Setiap peran punya tempatnya.',first:'6',firstLabel:'divisi',second:String(robotRoster.length),secondLabel:'meja khusus',detail:'Dirancang untuk tim KIP',detailText:'Pilih ruangan untuk melihat tata letak dan rencana penghuninya.'},
- sky:{rooms:skyRooms,number:'02 / 03',caption:'LANTAI 02 / SOCIAL SPACE',title:'The Sky Club',description:'Bertemu. Berbagi. Melihat lebih jauh.',panel:'Good ideas<br/> need good company.',intro:'Tempat tim berkumpul, merencanakan, dan mengambil jeda.',first:'4',firstLabel:'area bersama',second:'22',secondLabel:'tempat duduk',detail:'Ruang untuk bertemu',detailText:'Ruang strategi, lounge, coffee bar, dan teras hijau untuk bertukar ide.'},
+ sky:{rooms:skyRooms,number:'02 / 03',caption:'LANTAI 02 / TIM GAME & IT',title:'Game & IT Team',description:'Bertemu. Berbagi. Melihat lebih jauh.',panel:'Good ideas<br/> need good company.',intro:'Tempat tim berkumpul, merencanakan, dan mengambil jeda.',first:'4',firstLabel:'area bersama',second:'22',secondLabel:'tempat duduk',detail:'Ruang untuk bertemu',detailText:'Ruang strategi, lounge, coffee bar, dan teras hijau untuk bertukar ide.'},
  entertain:{rooms:entertainRooms,number:'03 / 03',caption:'LANTAI 03 / ENTERTAIN & WELLNESS',title:'The Play Club',description:'Recharge. Play. Repeat.',panel:'Ruang untuk rehat,<br/> energi untuk berkarya.',intro:'Karaoke, gym, kolam renang, dan mini game dalam satu lantai rekreasi.',first:'4',firstLabel:'zona hiburan',second:'2',secondLabel:'sisi kaca tangga',detail:'Rehat di atas kota',detailText:'Pilih zona untuk melihat fasilitasnya. Semua tetap berupa pratinjau visual.'},
  building:{rooms,number:'01 + 02 + 03',caption:'KIP HEADQUARTERS / TIGA LANTAI',title:'One headquarters',description:'Tiga lantai, satu tangga yang terhubung.',panel:'Satu gedung,<br/> tiga suasana.',intro:'Loft, Sky Club, dan Play Club disatukan tangga dua arah dengan pagar kaca.',first:'14',firstLabel:'ruang & zona',second:String(robotRoster.length),secondLabel:'meja kerja',detail:'Sambungan yang utuh',detailText:'Bordes menghubungkan tangga ke koridor tiap lantai. Pilih Lihat tangga kaca untuk melihatnya dari dekat.'}
 };
@@ -39,7 +39,7 @@ $('#credits-link').onclick=e=>{e.preventDefault();$('#credits').showModal()};
 
 addEventListener('pagehide',()=>office?.dispose(),{once:true});
 
-switchFloor('loft');
+switchFloor('sky');
 addEventListener('pageshow',event=>{if(event.persisted)location.reload()});
 
 const board=bindWorkboard({openReport:id=>liveAgents?.open(id),refreshReport:()=>liveAgents?.refresh(),announce});

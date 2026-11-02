@@ -1,3 +1,4 @@
+import {GAME_TEAM} from '../../src/game-team.js';
 import {agentTools,filterSkills,getActiveVersion,getCandidateVersion,preferredVersion,registrySummary,versionState} from './skill-model.js';
 
 const CATEGORY_LABELS={coordination:'Koordinasi',operations:'Operasional',quality:'Kualitas',security:'Keamanan',content:'Konten',support:'Dukungan',growth:'Pertumbuhan',research:'Riset'};
@@ -7,6 +8,7 @@ const ISSUE_LABELS={TITLE_INVALID:'Judul belum valid',CATEGORY_INVALID:'Kategori
 const agentNames=new Map([
  ['coordinator','Koordinator tim','KT'],['health','Pemantau layanan','PL'],['release','Penjaga rilis','PR'],['capacity','Penjaga kapasitas','KP'],['qa','Penguji permainan','QA'],['accounts','Penjaga akun','AK'],['security','Penjaga keamanan','KM'],['backup','Penjaga backup','BK'],['content','Kurator bank materi','MT'],['payments','Penjaga pembayaran','PB'],['support','Pendamping pelanggan','BP'],['growth','Pengembang pertumbuhan','PT'],['growth-stats','Statistik Game','SG'],['instagram-admin','AI Admin KIP','DM']
 ].map(([id,name,short])=>[id,{id,name,short}]));
+for(const member of GAME_TEAM)agentNames.set(member.id,member);
 const clone=value=>structuredClone(value);
 const text=(value,fallback='—')=>typeof value==='string'&&value.trim()?value:fallback;
 const byId=(list,id)=>list?.find(item=>item.id===id)||null;

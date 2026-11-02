@@ -3,10 +3,10 @@ import {robotRoster} from './robot-roster.js';
 const H=4.6;
 export function agentRoute(id){
  const robot=robotRoster.find(r=>r.id===id);if(!robot)throw Error('Unknown robot');
- const [x,,z]=robot.desk;
+ const [x,startY,z]=robot.desk;
  const aisle=['security','backup'].includes(id)?[[-4.8,0,z],[-4.8,0,0]]:['growth','growth-stats','instagram-admin'].includes(id)?[[x,0,8.8],[4.8,0,8.8],[4.8,0,2],[8.4,0,2],[8.4,0,0]]:['payments','support'].includes(id)?[[4.8,0,z],[4.8,0,2],[8.4,0,2],[8.4,0,0]]:id==='qa'?[[8.4,0,z],[8.4,0,0]]:z>0?[[x+1.2,0,z],[x+1.2,0,0]]:[[x,0,0]];
- const points=[[x,0,z],...aisle,[-13.6,0,0],[-16.5,0,.7],[-16.5,0,0]];
- for(let level=0;level<2;level++){
+ const points=startY===H?[[x,H,z],[x,H,z< -3?-6.5:0],[-12,H,z< -3?-6.5:.6],[-12,H,0],[-13.6,H,0],[-16.5,H,.7],[-16.5,H,0]]:[[x,0,z],...aisle,[-13.6,0,0],[-16.5,0,.7],[-16.5,0,0]];
+ for(let level=startY===H?1:0;level<2;level++){
   const y=level*H;
   points.push([-16.5,y+H/2,-4.2],[-16.5,y+H/2,-4.85],[-14.4,y+H/2,-4.85],[-14.4,y+H/2,-4.2],[-14.4,y+H,0],[-14.4,y+H,.7]);
   if(level===0)points.push([-16.5,H,.7],[-16.5,H,0]);

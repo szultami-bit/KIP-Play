@@ -1,3 +1,4 @@
+import {GAME_TEAM} from '../../src/game-team.js';
 import {roleEvidenceAt,roleLabels,freshnessLabels} from '../../src/role-evidence.js';
 // Desk positions match fourteen desks; identity is independent of activity.
 export const robotRoster=[
@@ -16,11 +17,12 @@ export const robotRoster=[
  {id:'growth-stats',name:'Statistik Game',short:'SG',color:'#65b9d2',desk:[6.2,0,8.2]},
  {id:'instagram-admin',name:'AI Admin KIP',short:'DM',color:'#a575db',desk:[11,0,8.2]}
 ];
+for(const member of GAME_TEAM){Object.assign(robotRoster.find(r=>r.id===member.id),member,{floor:2});}
 export const roleRobots=robotRoster.filter(r=>!['health','release'].includes(r.id));
 export const isObserver=id=>id==='health'||id==='release';
 export function roleRobotViews(report,now=Date.now(),connected=true){return roleRobots.map(robot=>{
  const r=roleEvidenceAt(report,robot.id,now,connected);
  return {...r,name:robot.name,label:roleLabels[r.status]+' · '+freshnessLabels[r.freshness],
  tone:['ACTIVE','HEALTHY'].includes(r.status)&&r.freshness==='current'?'good':['PARTIAL','BLOCKED','DEGRADED','INCIDENT'].includes(r.status)?'attention':'unknown',
- canRest:['ACTIVE','HEALTHY'].includes(r.status)&&r.freshness==='current'};
+ canRest:!GAME_TEAM.some(t=>t.id===robot.id)&&['ACTIVE','HEALTHY'].includes(r.status)&&r.freshness==='current'};
 });}

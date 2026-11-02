@@ -92,7 +92,8 @@ export function createOffice(container,{onPick,onAgentPick,onAgentMove,onError})
  for(const z of[-5.2,-1.9])for(const x of[-8.6,-7,-5.4])chair(sky,x,z,z<-3?0:Math.PI);
  chair(sky,-10.4,-3.6,-Math.PI/2);chair(sky,-3.4,-3.6,Math.PI/2);
  for(const x of[-8.5,-6.9,-5.3]){box(sky,x,1.01,-3.6,.6,.028,.38,m.paper);cyl(sky,x+.4,1.08,-3.5,.06,.13,m.cream)}
- box(sky,-7,1.85,-8.7,5,1.7,.15,m.frame);box(sky,-7,1.85,-8.61,4.8,1.5,.02,m.screen);label(sky,'MAKE ROOM FOR BIG IDEAS.',-7,1.9,-8.57,4.1,.42,'#e0ce9f');
+ box(sky,-7,1.85,-8.7,5,1.7,.15,m.frame);box(sky,-7,1.85,-8.61,4.8,1.5,.02,m.screen);label(sky,'PANTAU · PERBAIKI · UJI',-7,1.9,-8.57,4.1,.42,'#e0ce9f');
+ for(const x of[-8.6,-7,-5.4])monitor(sky,x,-3.5);
  partition(sky,-1.8,-4.5,6.3,Math.PI/2);
  box(sky,6.8,.66,-5,8.3,1.3,1.05,m.darkWood);box(sky,6.8,1.36,-5,8.65,.13,1.4,m.wood);box(sky,6.8,.1,-4.46,8,.04,.04,m.warm);for(let i=0;i<30;i++)box(sky,2.85+i*.27,.7,-4.45,.05,1.1,.04,m.brass);
  for(const x of[3.6,5.6,7.6,9.6])chair(sky,x,-3.8,Math.PI,true);shelf(sky,7.3,-8.6,0,6.5);box(sky,10.3,1.7,-5.1,.7,.62,.52,m.frame);box(sky,10.3,1.7,-4.82,.55,.29,.02,m.brass);for(let i=0;i<3;i++)cyl(sky,4+i*.4,1.5,-5,.08,.18,m.cream);
@@ -100,7 +101,7 @@ export function createOffice(container,{onPick,onAgentPick,onAgentMove,onError})
  box(sky,-7,.07,4.7,9,.06,6.8,m.floor);for(let i=0;i<9;i++)box(sky,-11+i,.11,4.7,.03,.012,6.8,m.brass);sofa(sky,-9.7,4.6,Math.PI/2,2.4);sofa(sky,-4.5,4.6,-Math.PI/2,2.4);cyl(sky,-7.1,.5,4.6,.8,.12,m.wood);cyl(sky,-7.1,.24,4.6,.09,.48,m.frame);
  for(const x of[-11,-8.7,-6.4,-4.1])plant(sky,x,7.5,1.2);for(const z of[2,4,6])plant(sky,-11.8,z,1.1);
  windowWall(sky,0,9,25.5,0,1.0);windowWall(sky,12.94,4.5,8.6,Math.PI/2,1.0);
- label(sky,'STRATEGY ROOM',-7,.15,-.15,4,.3,'#e4d7bc',null,true);label(sky,'SKY LOUNGE',6,.12,7.3,4,.3,'#e5dcc6',null,true);label(sky,'02   /   SKY CLUB',0,-.22,9.63,5.8,.29,'#e2cfaa');
+ label(sky,'TIM GAME & IT',-7,.15,-.15,4,.3,'#e4d7bc',null,true);label(sky,'SKY LOUNGE',6,.12,7.3,4,.3,'#e5dcc6',null,true);label(sky,'02   /   SKY CLUB',0,-.22,9.63,5.8,.29,'#e2cfaa');
  for(const x of[4,7,10]){cyl(sky,x,2.75,-5,.28,.25,m.charcoal);cyl(sky,x,2.61,-5,.23,.025,m.warm);cyl(sky,x,3.18,-5,.018,.7,m.frame)}
  buildAmenities(entertain,{T,m,box,cyl,orb,group,sofa,plant,partition,windowWall,label,software});
  [loft,sky,entertain].forEach((root,level)=>buildStairCore(root,{T,m,box,cyl,software},level));

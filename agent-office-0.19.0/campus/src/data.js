@@ -7,7 +7,7 @@ export const rooms=[
  {id:'customers',title:'Pelanggan & pertumbuhan',subtitle:'Bantuan, pilot & statistik game',icon:'growth',seats:5,x:8.6,z:4.7,description:'Lima meja untuk bantuan guru, transaksi uji, pilot komunitas, statistik game, dan AI Admin KIP khusus DM Instagram.',roles:['Penjaga pembayaran','Pendamping pelanggan','Pengembang pertumbuhan','Statistik Game','AI Admin KIP']}
 ];
 export const skyRooms=[
- {id:'boardroom',title:'Ruang strategi',subtitle:'Pertemuan & keputusan',icon:'compass',seats:8,x:-7,z:-3,description:'Meja rapat walnut delapan kursi dan layar presentasi. Tempat meninjau hasil serta rencana tim.',roles:['Rapat tim','Review hasil']},
+ {id:'boardroom',title:'Tim Game & IT',subtitle:'Pemantau, teknisi & penguji',icon:'compass',seats:8,x:-7,z:-3,description:'Meja rapat walnut delapan kursi dan layar presentasi. Tempat meninjau hasil serta rencana tim.',roles:['Pemantau Game','Teknisi IT','Teknisi Tampilan','Teknisi Server','Penguji Game']},
  {id:'lounge',title:'Sky lounge',subtitle:'Percakapan & ide baru',icon:'coffee',seats:6,x:5,z:3,description:'Sofa modular, meja kopi rendah, dan karpet hangat. Ruang informal untuk bertukar ide.',roles:['Diskusi','Refleksi']},
  {id:'bar',title:'Coffee bar',subtitle:'Rehat sejenak',icon:'cup',seats:4,x:6,z:-5,description:'Bar walnut, empat kursi tinggi, serta rak terbuka dengan pencahayaan lembut.',roles:['Rehat','Kolaborasi informal']},
  {id:'terrace',title:'Teras hijau',subtitle:'Cahaya & ruang bernapas',icon:'leaf',seats:4,x:-7,z:5,description:'Area duduk terbuka di antara tanaman, dengan railing kaca menghadap lanskap kota.',roles:['Taman','Ruang terbuka']}
