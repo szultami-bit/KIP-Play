@@ -23,7 +23,7 @@ export function growthEnvelope(raw,now=Date.now()){
 export function makeGrowthReader({load,clock=Date.now}={}){
  if(typeof load!=='function')throw Error('GROWTH_LOADER_REQUIRED');
  let cached=null,nextReadAt=0,lastClock=0,lastAttemptAt=0,pending=null,lastError=null;
- return async req=>{
+ const reader=async req=>{
   const now=clock();if(now<lastClock){cached=null;nextReadAt=0;lastAttemptAt=0;lastError=null;}lastClock=now;
   const mustRead=now>=nextReadAt||(cached&&now>=cached.period.endAt&&lastAttemptAt<cached.period.endAt);
   if(mustRead&&!pending){
@@ -35,6 +35,12 @@ export function makeGrowthReader({load,clock=Date.now}={}){
   if(!cached)return unavailableGrowth(clock(),lastError||'GROWTH_UNAVAILABLE');
   try{return growthEnvelope(cached,clock());}catch{return unavailableGrowth(clock(),'SOURCE_INVALID');}
  };
+ // Only the sanitized aggregate is available to the worker; no request or Auth token.
+ reader.snapshot=()=>{
+  if(!cached)return unavailableGrowth(clock(),lastError||'GROWTH_UNAVAILABLE');
+  try{return growthEnvelope(cached,clock());}catch{return unavailableGrowth(clock(),'SOURCE_INVALID');}
+ };
+ return reader;
 }
 export function growthRole(envelope,now=Date.now()){
  const base={id:'growth-stats',recordedStatus:null,lastAt:null,maxAgeMs:GROWTH_MAX_AGE_MS,source:'unavailable',status:'UNKNOWN',freshness:'unknown',scope:'Rekap pendaftar publik dan aktivitas perangkat yang tercatat; hanya angka agregat.',blocker:'Statistik game belum dapat dibaca. Tidak dianggap nol.',capabilities:['Membaca pendaftar hari ini dan total akun publik.','Membaca akun unik dengan aktivitas perangkat tercatat.'],evidence:[],metrics:null};
@@ -43,3 +49,4 @@ export function growthRole(envelope,now=Date.now()){
  const r=valid.report;
  return {...base,recordedStatus:'ACTIVE',lastAt:r.observedAt,source:r.source,status:valid.status,freshness:valid.freshness,blocker:'Aktivitas berasal dari last_seen perangkat (pembaruan paling cepat 5 menit), bukan bukti online pasti. Akun uji tanpa penanda mungkin masih terhitung; pengunjung anonim tidak tercakup.',evidence:['Agregasi database pada waktu sampel; tanpa nama, email, ID pengguna, token, atau daftar akun.'],metrics:{kind:'growth',...r.counts,timezone:r.period.timezone,localDate:r.period.localDate,dayStart:r.period.startAt,dayEnd:r.period.endAt,activityWindowMinutes:5,testExclusion:'MARKED_ONLY',scope:'PUBLIC_ACCOUNTS',activityCoverage:'OBSERVED_DEVICE_ACTIVITY'}};
 }
+

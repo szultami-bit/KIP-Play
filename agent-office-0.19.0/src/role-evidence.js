@@ -15,11 +15,13 @@ export function growthMetricRows(metrics){return isGrowthMetrics(metrics)?[
  ['Pendaftar hari ini',countText(metrics.registeredToday)],
  ['Total pendaftar publik',countText(metrics.totalRegistered)],
  ['Akun aktif tercatat hari ini',countText(metrics.activeToday)],
- ['Akun beraktivitas ≤5 menit',countText(metrics.recent5m)]
+ ['Akun beraktivitas ≤5 menit',countText(metrics.recent5m)],
+ ['Pemain aktif sekarang','UNKNOWN']
 ]:[];}
 export function growthMetricNotes(metrics){return isGrowthMetrics(metrics)?[
  `Tanggal laporan: ${new Intl.DateTimeFormat('id-ID',{timeZone:'Asia/Pontianak',day:'2-digit',month:'long',year:'numeric'}).format(metrics.dayStart)} · WIB. “Hari ini” mengikuti tanggal laporan.`,
  'Aktivitas menghitung akun publik unik dari waktu aktivitas perangkat. Satu akun dengan beberapa perangkat tetap dihitung sekali. Akun internal dan pengunjung anonim tidak termasuk.',
+ 'Pemain aktif sekarang: UNKNOWN. Sumber status permainan dan kehadiran peserta belum terhubung; aktivitas perangkat tidak membuktikan sedang bermain.',
  'Catatan perangkat diperbarui paling cepat tiap 5 menit. Jendela ≤5 menit dihitung mundur dari waktu bukti; ini indikasi aktivitas terbaru, bukan kepastian sedang online.',
  `${countText(metrics.excludedTestAccounts)} akun uji bertanda dikecualikan. Akun uji yang belum bertanda masih mungkin terhitung.`
 ]:[];}
@@ -42,3 +44,4 @@ export function metricSummary(metrics){
  if(metrics.kind==='growth')return isGrowthMetrics(metrics)?`${countText(metrics.registeredToday)} pendaftar hari ini · ${countText(metrics.totalRegistered)} total publik · ${countText(metrics.activeToday)} akun beraktivitas tercatat hari ini · ${countText(metrics.recent5m)} dalam ≤5 menit`:'Metrik pertumbuhan belum tersedia.';
  return `CPU ${metrics.cpu.usagePct.toFixed(2)}% · RAM ${metrics.ram.usedPct.toFixed(2)}% · Disk ${metrics.disk.usedPct.toFixed(2)}%`;
 }
+

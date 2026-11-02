@@ -15,5 +15,6 @@ test('owner-only HTTP enqueues once, runs with evidence and returns stored resul
  assert.equal((await fetch(url+'/api/jobs',{method:'POST',headers,body:JSON.stringify({...JSON.parse(body),taskId:'release-check'})})).status,409);
  config=skills.read();skills.update({action:'agent.install',agentId:'health',skillId:'service-monitoring',revision:config.revision});
  config=skills.read();skills.update({action:'agent.authority',agentId:'health',level:'observer',revision:config.revision});
- const worker=makeTaskWorker({tasks,skills,readRoles});await worker.runOnce();const result=await(await fetch(url+'/api/jobs',{headers})).json();assert.equal(result.jobs.length,1);assert.equal(result.jobs[0].status,'completed');assert.equal(result.jobs[0].result.externalActions,false);assert.equal('leaseToken'in result.jobs[0],false);assert.equal(result.worker.status,'running');assert.equal(result.catalog.length,3);
+ const worker=makeTaskWorker({tasks,skills,readRoles});await worker.runOnce();const result=await(await fetch(url+'/api/jobs',{headers})).json();assert.equal(result.jobs.length,1);assert.equal(result.jobs[0].status,'completed');assert.equal(result.jobs[0].result.externalActions,false);assert.equal('leaseToken'in result.jobs[0],false);assert.equal(result.worker.status,'running');assert.equal(result.catalog.length,4);
 });
+
