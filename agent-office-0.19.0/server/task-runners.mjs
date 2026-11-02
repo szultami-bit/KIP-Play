@@ -1,7 +1,9 @@
 import {skillDigest} from './skills.mjs';
 import {growthRole} from './growth.mjs';
+import {readRoomExpiryResult} from './room-expiry-report.mjs';
 import {TaskError,REQUEST_ID} from './tasks.mjs';
 export const TASK_CATALOG=Object.freeze([
+ {id:'room-expiry-check',title:'Periksa penutupan room',agentId:'health',skillId:'service-monitoring',tools:['read_health'],manual:true},
  {id:'active-accounts-check',title:'Pantau akun aktif',agentId:'growth-stats',skillId:'game-statistics',tools:['read_aggregate_analytics'],manual:true},
  {id:'health-check',title:'Periksa layanan',agentId:'health',skillId:'service-monitoring',tools:['read_health'],manual:true},
  {id:'release-check',title:'Periksa versi rilis',agentId:'release',skillId:'release-verification',tools:['read_release'],manual:true},
@@ -26,9 +28,10 @@ export function createTaskRequest(registry,{taskId,requestId},options={}){
  const task=TASK_CATALOG.find(t=>t.id===taskId);if(!task||!REQUEST_ID.test(requestId)||!task.manual&&!options.incident)throw new TaskError('BAD_TASK_REQUEST');
  return {requestId,taskId:task.id,title:task.title,agentId:task.agentId,source:options.incident?'incident':'manual',skill:pin(registry,task),...(options.incident?{incident:options.incident}:{})};
 }
-export async function executeTask(job,{registry,readRoles,readGrowthSnapshot,clock=Date.now}){
+export async function executeTask(job,{registry,readRoles,readGrowthSnapshot,readRoomExpirySnapshot,readRoomExpiryRelease,clock=Date.now}){
  const task=TASK_CATALOG.find(t=>t.id===job.taskId),base={checkedAt:clock(),externalActions:false,scope:'Pemeriksaan baca saja; tidak memperbaiki atau menerbitkan game.',evidence:[],nextSteps:[]};
  try{if(!task||JSON.stringify(pin(registry,task))!==JSON.stringify(job.skill))throw Error();}catch{return {...base,status:'blocked',summary:'Skill aktif atau kewenangan berubah. Jalankan tugas baru menggunakan konfigurasi terbaru.'};}
+ if(task.id==='room-expiry-check')return readRoomExpiryResult({readRoomExpirySnapshot,readRoomExpiryRelease,clock});
  if(task.id==='active-accounts-check'){
   let role;try{role=growthRole(readGrowthSnapshot?.(),clock());}catch{}
   if(!role||role.status!=='ACTIVE'||role.freshness!=='current')return {...base,status:'blocked',summary:'Statistik akun terbaru belum tersedia. Jumlah tidak dianggap nol.',nextSteps:['Buka Statistik Game dengan akun pemilik, lalu jalankan tugas kembali.']};
