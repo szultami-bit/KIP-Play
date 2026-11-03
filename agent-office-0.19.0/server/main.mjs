@@ -12,7 +12,7 @@ import {makeRepairs} from './repairs.mjs';
 import {makeRepairCollector} from './repair-collector.mjs';
 import {installGameTeam,teamReport} from './game-team.mjs';
 import {makeGameMonitor} from './game-monitor.mjs';
-import {makeGameplayReader,collectGameplayFailures} from './gameplay.mjs';
+import {makeGameplayReader,collectGameplayFailures,gameplayIdentity} from './gameplay.mjs';
 const auth=makeAuth({origin:process.env.OFFICE_ORIGIN,supabaseUrl:process.env.OFFICE_SUPABASE_URL,publishableKey:process.env.OFFICE_PUBLISHABLE_KEY,allowedEmail:process.env.OFFICE_ALLOWED_EMAIL,allowedUserId:process.env.OFFICE_ALLOWED_USER_ID});
 let readReport;try{readReport=await makeReader({modulePath:process.env.OBSERVER_MODULE,statePath:process.env.OBSERVER_STATE,snapshotPath:process.env.OFFICE_SNAPSHOT});}catch{readReport=()=>unavailable();}
 const readBaseRoles=makeRolesReader({registryPath:process.env.OFFICE_ROLES_PATH||'/role-data/roles.json',capacityPath:process.env.OFFICE_CAPACITY_PATH||'/capacity/latest.json',readReport});
@@ -22,7 +22,7 @@ installGameTeam(skills);
 const tasks=makeTasks({path:process.env.OFFICE_TASKS_PATH||'/office-state/tasks.sqlite'});
 const repairs=makeRepairs({path:process.env.OFFICE_REPAIRS_PATH||'/office-state/repairs.sqlite',automationId:process.env.OFFICE_REPAIR_AUTOMATION_ID});
 const monitor=makeGameMonitor({tasks});
-const readGameplay=makeGameplayReader({directory:process.env.OFFICE_GAMEPLAY_PATH||'/gameplay',readIdentity:()=>{try{const release=readReport().checks?.find(c=>c.id==='release');return release?.status==='HEALTHY'?release.observed:{};}catch{return {};}},readOperations:()=>({jobs:repairs.metricsRecords(),issues:tasks.incidents({forRepair:true}).issues})});
+const readGameplay=makeGameplayReader({directory:process.env.OFFICE_GAMEPLAY_PATH||'/gameplay',readIdentity:()=>{try{return gameplayIdentity(readReport());}catch{return {};}},readOperations:()=>({jobs:repairs.metricsRecords(),issues:tasks.incidents({forRepair:true}).issues})});
 const readTeam=()=>teamReport({tasks,repairs,monitor,readGameplay});
 const readRoles=()=>{const base=readBaseRoles(),team=readTeam();return {...base,generatedAt:team.generatedAt,roles:base.roles.map(r=>team.roles.find(t=>t.id===r.id)||r)};};
 monitor.start();

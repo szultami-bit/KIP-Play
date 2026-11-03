@@ -37,19 +37,19 @@
   },
   {
     "path": "dist/release.json",
-    "sha": "01854f9cf5444b9ceac402916bf8f7c72134ef1b3506a1c0ca9ab8a0a99d688a"
+    "sha": "d6e0627a5d6a6eb962d7db39a80ac5c5692ba3dc6df547c389c8720f7011909e"
   },
   {
     "path": "package-lock.json",
-    "sha": "d10d8e64527942532a2c7d733c2afbac70fd0dfc71593cdd95db02c37294be0a"
+    "sha": "7dea65d1b5e5c5f63aa25dc9ac49109a19bebbff3803e60654eca285540d4d1a"
   },
   {
     "path": "package.json",
-    "sha": "a63d3fd4adc89fcc13838360632ec7d0e920509c1e01c85acf40b094871ffa65"
+    "sha": "6c6b1129cf3c011e3152ca1b0ca4d9d997aa52abcc67eff330e198e1dabed578"
   },
   {
     "path": "public/release.json",
-    "sha": "01854f9cf5444b9ceac402916bf8f7c72134ef1b3506a1c0ca9ab8a0a99d688a"
+    "sha": "d6e0627a5d6a6eb962d7db39a80ac5c5692ba3dc6df547c389c8720f7011909e"
   },
   {
     "path": "scripts/gameplay/README.md",
@@ -81,7 +81,7 @@
   },
   {
     "path": "scripts/prepare-gameplay-runtime.mjs",
-    "sha": "41861f099a16654595b357f973cb8b6f10a6126cffa10ad6576b8fb6c7caef24"
+    "sha": "033a08d09f032f453560641a39aad0359882603f567a8526f6ea8ca10ae6c828"
   },
   {
     "path": "server/game-team.mjs",
@@ -89,7 +89,7 @@
   },
   {
     "path": "server/gameplay.mjs",
-    "sha": "5025bece0e0d4200e72fb5c30e9dabbeea824e9612f204d7c44c2439f3cee253"
+    "sha": "5e993e4939cf9b8043e7ab0bc4b254c35864c1498d75c068be03704b60a6ca20"
   },
   {
     "path": "server/http.mjs",
@@ -97,7 +97,7 @@
   },
   {
     "path": "server/main.mjs",
-    "sha": "6f64ef1034ca885231b6772157ee055302df6a0cdf61d7d55b10faf8e11a1e22"
+    "sha": "9b0dcb894e7e73ae714bc204b8ace58fc692284410f456103b618d27f82f3b6e"
   },
   {
     "path": "server/repairs.mjs",
@@ -110,6 +110,10 @@
   {
     "path": "tests/gameplay-http.test.mjs",
     "sha": "f33741d51ecacb6cef6d5aaad6f113b699366dd72f3a449655cb27c402062fb4"
+  },
+  {
+    "path": "tests/gameplay-identity.test.mjs",
+    "sha": "db90ff79187d23d36c5ff7c744b779144003ce83a56ef4692f3bfa7c3747ef57"
   },
   {
     "path": "tests/gameplay-monitor.test.mjs",

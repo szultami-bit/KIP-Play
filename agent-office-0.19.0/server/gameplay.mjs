@@ -2,11 +2,22 @@ import {openSync,readFileSync,closeSync,fstatSync,constants} from 'node:fs';
 import {join} from 'node:path';
 import {createHash} from 'node:crypto';
 import {GAME_TARGETS} from './game-monitor.mjs';
+import {STALE} from './report.mjs';
 const integer=n=>Number.isSafeInteger(n)&&n>=0;
 const id=s=>typeof s==='string'&&/^[a-z0-9][a-z0-9-]{0,79}$/.test(s);
 const hash=(s,n)=>typeof s==='string'&&new RegExp('^[a-f0-9]{'+n+'}$').test(s);
 const current=(at,now)=>integer(at)&&at>0&&at<=now;
 const unavailable={status:'UNAVAILABLE',observedAt:null};
+export function gameplayIdentity(report,now=Date.now()){
+ const fresh=at=>current(at,now)&&now-at<=STALE;
+ if(report?.source!=='observer'||report.observer?.status!=='HEALTHY'||!fresh(report.observer.lastCycleAt)||!Array.isArray(report.checks))return {};
+ const checks=['health','release'].map(id=>report.checks.filter(c=>c?.id===id));
+ if(checks.some(matches=>matches.length!==1))return {};
+ const [health,releaseCheck]=checks.map(matches=>matches[0]);
+ if([health,releaseCheck].some(c=>c.status!=='HEALTHY'||c.lastCode!=='OK'||!fresh(c.lastAt)))return {};
+ const release=health.observed?.release,fingerprint=releaseCheck.observed?.fingerprint;
+ return hash(release,40)&&hash(fingerprint,64)?{release,fingerprint}:{};
+}
 // Called only on locally validated, release-matched evidence; never public input.
 export function collectGameplayFailures(report){
  const v=report?.synthetic;if(v?.status!=='FAIL')return [];
