@@ -1,9 +1,9 @@
 {
   "service": "kip-agent-office",
-  "version": "0.21.1",
-  "patch": "automatic-repair-queue",
+  "version": "0.21.2",
+  "patch": "repair-evidence-and-audited-baseline",
   "messaging": "NOT_CONNECTED",
   "autoReply": false,
-  "build": "ops-020-automatic-repairs",
+  "build": "ops-0212-evidence",
   "playingCoverage": "UNKNOWN"
 }
