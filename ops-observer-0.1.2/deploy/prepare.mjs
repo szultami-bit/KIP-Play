@@ -8,7 +8,7 @@ const sha=b=>createHash('sha256').update(b).digest('hex');
 async function get(path,hash){const r=await fetch(`https://raw.githubusercontent.com/szultami-bit/KIP-Play/${commit}/ops-observer-0.1.2/${path}`,{redirect:'error',signal:AbortSignal.timeout(20000)});if(!r.ok)throw Error('SOURCE_HTTP');const b=Buffer.from(await r.arrayBuffer());if(sha(b)!==hash)throw Error('SOURCE_HASH');return b;}
 if(existsSync(root+'/.ready')){if(readFileSync(root+'/.ready','utf8')===commit)process.exit(0);throw Error('OUTPUT_ALREADY_USED');}
 const raw=await get('deploy/source-manifest.json',digest),manifest=JSON.parse(raw);
-for(const [p,hash] of Object.entries(manifest)){if(!/^(?:package\.json|config\.json|deploy\/pack\.mjs|(?:src|tests)\/[\w-]+\.mjs)$/.test(p)||p.includes('..'))throw Error('BAD_SOURCE_PATH');const out=join(root,p);mkdirSync(dirname(out),{recursive:true});writeFileSync(out,await get(p,hash));}
+for(const [p,hash] of Object.entries(manifest)){if(!/^(?:package\.json|config\.json|deploy\/pack\.mjs|(?:src|tests)\/[\w.-]+\.mjs)$/.test(p)||p.includes('..'))throw Error('BAD_SOURCE_PATH');const out=join(root,p);mkdirSync(dirname(out),{recursive:true});writeFileSync(out,await get(p,hash));}
 writeFileSync(root+'/manifest.json',raw);
 execFileSync(process.execPath,['--test','--test-concurrency=1',...readdirSync(root+'/tests').filter(n=>n.endsWith('.test.mjs')).map(n=>'tests/'+n)],{cwd:root,stdio:'inherit'});
 writeFileSync(root+'/.ready',commit);
