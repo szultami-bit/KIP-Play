@@ -12,6 +12,7 @@ import {makeRepairs} from './repairs.mjs';
 import {makeRepairCollector} from './repair-collector.mjs';
 import {installGameTeam,teamReport} from './game-team.mjs';
 import {makeGameMonitor} from './game-monitor.mjs';
+import {makeGameplayReader,collectGameplayFailures} from './gameplay.mjs';
 const auth=makeAuth({origin:process.env.OFFICE_ORIGIN,supabaseUrl:process.env.OFFICE_SUPABASE_URL,publishableKey:process.env.OFFICE_PUBLISHABLE_KEY,allowedEmail:process.env.OFFICE_ALLOWED_EMAIL,allowedUserId:process.env.OFFICE_ALLOWED_USER_ID});
 let readReport;try{readReport=await makeReader({modulePath:process.env.OBSERVER_MODULE,statePath:process.env.OBSERVER_STATE,snapshotPath:process.env.OFFICE_SNAPSHOT});}catch{readReport=()=>unavailable();}
 const readBaseRoles=makeRolesReader({registryPath:process.env.OFFICE_ROLES_PATH||'/role-data/roles.json',capacityPath:process.env.OFFICE_CAPACITY_PATH||'/capacity/latest.json',readReport});
@@ -21,15 +22,21 @@ installGameTeam(skills);
 const tasks=makeTasks({path:process.env.OFFICE_TASKS_PATH||'/office-state/tasks.sqlite'});
 const repairs=makeRepairs({path:process.env.OFFICE_REPAIRS_PATH||'/office-state/repairs.sqlite',automationId:process.env.OFFICE_REPAIR_AUTOMATION_ID});
 const monitor=makeGameMonitor({tasks});
-const readTeam=()=>teamReport({tasks,repairs,monitor});
+const readGameplay=makeGameplayReader({directory:process.env.OFFICE_GAMEPLAY_PATH||'/gameplay',readIdentity:()=>{try{const release=readReport().checks?.find(c=>c.id==='release');return release?.status==='HEALTHY'?release.observed:{};}catch{return {};}},readOperations:()=>({jobs:repairs.metricsRecords(),issues:tasks.incidents({forRepair:true}).issues})});
+const readTeam=()=>teamReport({tasks,repairs,monitor,readGameplay});
 const readRoles=()=>{const base=readBaseRoles(),team=readTeam();return {...base,generatedAt:team.generatedAt,roles:base.roles.map(r=>team.roles.find(t=>t.id===r.id)||r)};};
 monitor.start();
-const repairCollector=makeRepairCollector({repairs,readReport,readIncidents:()=>tasks.incidents({forRepair:true}).issues,readAvailability:()=>monitor.snapshot(),onError:code=>console.error(JSON.stringify({type:code}))});
+const readRepairIncidents=()=>{
+ try{for(const incident of collectGameplayFailures(readGameplay()))tasks.incident(incident);}catch{console.error(JSON.stringify({type:'GAMEPLAY_INTAKE_UNAVAILABLE'}));}
+ return tasks.incidents({forRepair:true}).issues;
+};
+const repairCollector=makeRepairCollector({repairs,readReport,readIncidents:readRepairIncidents,readAvailability:()=>monitor.snapshot(),onError:code=>console.error(JSON.stringify({type:code}))});
 repairCollector.start();
 const worker=makeTaskWorker({tasks,skills,readRoles,readGrowthSnapshot:()=>readGrowth.snapshot(),onError:code=>console.error(JSON.stringify({type:code}))});
 worker.start();
-const server=makeServer({directory:process.env.OFFICE_DIST||fileURLToPath(new URL('../dist',import.meta.url)),readReport,readRoles,readTeam,readGrowth,auth,board:makeBoard({path:process.env.OFFICE_BOARD_PATH}),skills,tasks,repairs});
+const server=makeServer({directory:process.env.OFFICE_DIST||fileURLToPath(new URL('../dist',import.meta.url)),readReport,readRoles,readTeam,readGrowth,readGameplay,auth,board:makeBoard({path:process.env.OFFICE_BOARD_PATH}),skills,tasks,repairs});
 server.maxConnections=60;
 server.listen(Number(process.env.PORT||3180),process.env.HOST||'0.0.0.0',()=>console.log(JSON.stringify({type:'OFFICE_READY',mode:'automatic-repair-queue',executor:process.env.OFFICE_REPAIR_AUTOMATION_ID?'CHATGPT_SCHEDULED':'NOT_CONNECTED',modelApi:'NOT_USED'})));
 for(const signal of ['SIGINT','SIGTERM'])process.once(signal,()=>{worker.stop();repairCollector.stop();monitor.stop();server.close(()=>{tasks.close();repairs.close();process.exit(0);});});
+
 

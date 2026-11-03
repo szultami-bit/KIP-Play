@@ -8,13 +8,15 @@ export function installGameTeam(skills){
   if(!skills.read().agents.find(a=>a.id===member.id).installedSkills.includes(member.skillId))update({action:'agent.install',agentId:member.id,skillId:member.skillId});
  }
 }
-export function teamReport({tasks,repairs,monitor,clock=Date.now}){
+export function teamReport({tasks,repairs,monitor,readGameplay,clock=Date.now}){
  const now=clock(),jobs=repairs.list(),work=tasks.list(),running=work.worker.status==='running',coverage=monitor.snapshot();
+ let gameplay;try{gameplay=readGameplay?.();}catch{}
  const roles=GAME_TEAM.map(member=>{
   const assigned=jobs.jobs.filter(j=>j.teamId==='shared-game-team'&&(j.agentId===member.id||j.specialistId===member.id||j.testerId===member.id||member.id==='content'));
   const pending=assigned.filter(j=>!['completed','recovered'].includes(j.status));
   const busy=pending.some(j=>j.status==='running'),blocked=pending.some(j=>['blocked','failed'].includes(j.status));
   const status=!running?'UNKNOWN':blocked?'BLOCKED':'ACTIVE';
-  return {id:member.id,status,recordedStatus:status,freshness:running?'current':'unknown',lastAt:work.worker.lastAt,maxAgeMs:20000,source:'shared-game-team-runtime',scope:'Lantai 2 · '+(busy?'Dikerjakan':pending.length?'Menunggu executor':'Siaga')+' · '+member.scope,blocker:member.id==='content'?'Pemeriksaan HTTP bukan bukti gameplay; error browser hanya terlihat dari game yang mengirim laporan.':'Eksekusi perbaikan oleh pekerja terjadwal. Pengujian gameplay dan pemasangan dibuktikan per tugas.',evidence:['Antrean terkait: '+pending.length+'; seluruh antrean: '+jobs.jobs.length+'.','Halaman diperiksa: '+coverage.checked+'/'+coverage.total+'.','Executor: '+(jobs.executor.configured?'terhubung; interval '+jobs.executor.cadenceMinutes+' menit':'belum terhubung')+'.'],capabilities:[member.scope,'Koordinator → Teknisi IT → spesialis → Penguji.'],metrics:null};
+  const playEvidence=gameplay&&['content','qa'].includes(member.id)?['Sesi materi selesai tercatat: '+(gameplay.sessions.completed??'belum tersedia')+'; bukti '+gameplay.sessions.status+'.','Uji browser terisolasi: '+gameplay.synthetic.status+'; '+(gameplay.synthetic.scenarios?.length||0)+' skenario. Mode tanpa skenario belum diuji.']:[];
+  return {id:member.id,status,recordedStatus:status,freshness:running?'current':'unknown',lastAt:work.worker.lastAt,maxAgeMs:20000,source:'shared-game-team-runtime',scope:'Lantai 2 · '+(busy?'Dikerjakan':pending.length?'Menunggu executor':'Siaga')+' · '+member.scope,blocker:member.id==='content'?'Pemeriksaan HTTP bukan bukti gameplay; sesi tercatat dan uji browser terisolasi memiliki cakupan terpisah. Error browser hanya terlihat dari game yang mengirim laporan.':'Eksekusi perbaikan oleh pekerja terjadwal. Pengujian gameplay dan pemasangan dibuktikan per tugas.',evidence:['Antrean terkait: '+pending.length+'; seluruh antrean: '+jobs.jobs.length+'.','Halaman diperiksa: '+coverage.checked+'/'+coverage.total+'.',...playEvidence,'Executor: '+(jobs.executor.configured?'terhubung; interval '+jobs.executor.cadenceMinutes+' menit':'belum terhubung')+'.'],capabilities:[member.scope,'Koordinator → Teknisi IT → spesialis → Penguji.'],metrics:null};
  });return {schemaVersion:1,generatedAt:now,teamId:'shared-game-team',floor:2,roles,coverage,executor:jobs.executor};
 }

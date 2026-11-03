@@ -18,6 +18,19 @@
    <div class="board-heading"><h1>Papan pekerjaan</h1><button id="board-refresh" class="report-button">Perbarui</button></div>
    <div class="task-controls"><label for="task-select">Pemeriksaan baru</label><select id="task-select" disabled><option>Memuat tugas…</option></select><button id="task-run" class="report-button" disabled>Jalankan</button><span id="task-worker" role="status">Worker belum terverifikasi</span></div><p id="task-notice" role="status"></p>
    <p id="board-notice" role="status"></p>
+   <section class="gameplay-panel" aria-labelledby="gameplay-title">
+    <h2 id="gameplay-title">Permainan sampai selesai</h2>
+    <p id="gameplay-notice" role="status"></p>
+    <div class="gameplay-metrics">
+     <article><h3>Sesi materi selesai</h3><strong id="gameplay-sessions">—</strong><p id="gameplay-session-status">Bukti belum tersedia</p></article>
+     <article><h3>Sesi uji browser selesai</h3><strong id="gameplay-synthetic">—</strong><p id="gameplay-synthetic-status">Belum diuji</p></article>
+     <article><h3>Error berulang tercatat</h3><strong id="gameplay-errors">—</strong><p id="gameplay-error-status">Bukti belum tersedia</p></article>
+     <article><h3>Rata-rata penyelesaian bug</h3><strong id="gameplay-duration" class="gameplay-duration">—</strong><p id="gameplay-duration-status">Bukti belum tersedia</p></article>
+    </div>
+    <details><summary id="gameplay-session-count">Sesi materi per game</summary><p id="gameplay-session-time"></p><table><caption>Urutan berdasarkan sesi dimulai yang tercatat</caption><thead><tr><th scope="col">Game</th><th scope="col">Dimulai</th><th scope="col">Selesai</th></tr></thead><tbody id="gameplay-game-rows"></tbody></table><p>Hanya materi yang mengirim bukti playthrough; dapat mencakup pengujian/internal. Sesi tidak selesai bukan otomatis bug. Bukan seluruh sesi platform.</p></details>
+    <details><summary id="gameplay-scenario-count">Skenario browser terisolasi</summary><p id="gameplay-synthetic-time"></p><table><caption>Hasil per game dan mode</caption><thead><tr><th scope="col">Game</th><th scope="col">Mode</th><th scope="col">Hasil</th><th scope="col">Selesai</th></tr></thead><tbody id="gameplay-scenario-rows"></tbody></table><p id="gameplay-untested"></p><p>Uji menjalankan kode game dengan akun dan materi sintetis. Tidak membuktikan integrasi akun/AI produksi atau seluruh perangkat. Sesi uji tidak ditambahkan ke jumlah sesi materi.</p></details>
+    <p class="gameplay-limit">Durasi bug dihitung dari tugas masuk sampai perbaikan terverifikasi, termasuk waktu menunggu. Error hanya dari game yang mengirim laporan. Halaman bisa dibuka belum membuktikan permainan bisa diselesaikan.</p>
+   </section>
    <details class="incident-list"><summary>Laporan game terbaru · belum terverifikasi</summary><ul id="incident-list"></ul><p>Laporan yang sama digabungkan. Diagnosis selesai tidak menandakan game sudah diperbaiki.</p></details>
    <div class="workboard">
     <section class="board-column" aria-labelledby="title-todo"><h2 id="title-todo"><span class="column-dot todo"></span>Perlu diperiksa <span id="count-todo">0</span></h2><div id="jobs-todo" class="job-list"></div><p id="empty-todo" class="empty-column">Tidak ada yang menunggu.</p></section>

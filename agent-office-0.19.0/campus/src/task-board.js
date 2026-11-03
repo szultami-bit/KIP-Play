@@ -6,9 +6,10 @@ export function incidentView(incident){
  return `${name} · ${incident.mode} · ${incident.errorClass} · ${incident.occurrences} laporan · ${incident.jobId?'sudah ditugaskan':'menunggu skill koordinator dan agent'} · belum terverifikasi`;
 }
 export function repairView(job){
- const receipt=job.receipt||{},verification=receipt.verification||{},availability=job.kind==='availability';
+ const receipt=job.receipt||{},verification=receipt.verification||{},availability=job.kind==='availability',synthetic=job.source==='gameplay-monitor'&&job.backend==='isolated-synthetic';
  const labels={queued:'Menunggu agen perbaikan',running:'Agen sedang memperbaiki',verifying:'Menunggu verifikasi setelah perbaikan',blocked:'Terhalang · '+(receipt.summary||'alasan belum tersedia'),failed:'Perbaikan belum berhasil · '+(receipt.summary||'lihat bukti'),completed:availability?'Akses HTTP terverifikasi':'Perbaikan terverifikasi',recovered:'Pulih terverifikasi · tanpa klaim perbaikan'};
  const evidence=[
+  ...(synthetic?['Sumber: uji browser terisolasi dengan akun/materi sintetis.','Skenario: '+job.scenarioId+'; checkpoint terakhir: '+job.checkpoint+'.']:[]),
   'Penyebab: '+(receipt.rootCause||'belum ditemukan'),
   'Commit: '+(receipt.patchSha||'belum tersedia'),
   receipt.tests&&Number.isSafeInteger(receipt.tests.passed)&&Number.isSafeInteger(receipt.tests.failed)?`Pengujian: ${receipt.tests.passed} lulus · ${receipt.tests.failed} gagal`:'Pengujian: belum tersedia',
@@ -19,9 +20,9 @@ export function repairView(job){
  }
  if(['blocked','failed'].includes(job.status))evidence.push('Penghalang: '+(receipt.summary||'alasan belum tersedia'));
  evidence.push(...(receipt.evidence||[job.code||job.errorClass||'Laporan diterima']));
- const limitations=availability?'Verifikasi HTTP belum membuktikan gameplay, login, room, atau skor.':job.kind==='monitor'?'Verifikasi identitas rilis belum membuktikan gameplay.':'Cakupan pengujian mengikuti bukti dan skenario yang tercatat.';
+ const limitations=availability?'Verifikasi HTTP belum membuktikan gameplay, login, room, atau skor.':job.kind==='monitor'?'Verifikasi identitas rilis belum membuktikan gameplay.':synthetic?'Uji terisolasi tidak membuktikan integrasi akun/AI produksi atau seluruh perangkat. Cakupan mengikuti skenario yang tercatat.':'Cakupan pengujian mengikuti bukti dan skenario yang tercatat.';
  const nextSteps=['blocked','failed'].includes(job.status)?['Selesaikan penghalang yang tercatat sebelum mencoba perbaikan kembali.']:job.status==='queued'?['Menunggu agen terjadwal mengambil tugas.']:job.status==='verifying'?['Menunggu pengamatan baru yang cocok dengan bukti deploy.']:[];
- return {...job,source:'repair',skill:{id:'bug-repair',version:1},result:{summary:labels[job.status]||'Status belum diketahui',scope:availability?'Pemeriksaan akses HTTP pada jalur yang dilaporkan.':'Perbaikan bug oleh agen ChatGPT. Selesai memerlukan bukti dan pemeriksaan produksi.',evidence,nextSteps,limitations}};
+ return {...job,source:'repair',skill:{id:'bug-repair',version:1},result:{summary:labels[job.status]||'Status belum diketahui',scope:availability?'Pemeriksaan akses HTTP pada jalur yang dilaporkan.':synthetic?'Perbaikan kegagalan skenario browser terisolasi. Selesai memerlukan bukti pengujian sesuai cakupan dan versi.':'Perbaikan bug oleh agen ChatGPT. Selesai memerlukan bukti dan pemeriksaan produksi.',evidence,nextSteps,limitations}};
 }
 
 export function pollDelay({pending=false,failures=0,hidden=false,offline=false,session=false}={}){return hidden||offline||session?null:Math.min(120000,(pending?5000:30000)*2**Math.min(failures,3));}
@@ -58,3 +59,4 @@ export function bindTaskBoard({announce}){
  const wake=()=>{if(!document.hidden&&!$('#view-board').hidden)load();else schedule();};document.addEventListener('visibilitychange',wake);addEventListener('online',wake);addEventListener('offline',schedule);$('#tab-board').addEventListener('click',()=>queueMicrotask(wake));$('#board-refresh').addEventListener('click',load);
  addEventListener('pagehide',()=>{disposed=true;controller?.abort();clearTimeout(timer);document.removeEventListener('visibilitychange',wake);removeEventListener('online',wake);removeEventListener('offline',schedule);},{once:true});load();
 }
+

@@ -18,7 +18,7 @@ async function jsonBody(req,maxBytes=4096){
  for await(const chunk of req){size+=chunk.length;if(size>maxBytes)throw new AuthError('BODY_TOO_LARGE',413);chunks.push(chunk);}
  try{const data=JSON.parse(Buffer.concat(chunks).toString('utf8'));if(!data||typeof data!=='object'||Array.isArray(data))throw Error();return data;}catch{throw new AuthError('BAD_REQUEST',400);}
 }
-export function makeServer({directory,readReport,readRoles,readTeam,readGrowth,auth,board,skills,tasks,repairs,clock=Date.now}){
+export function makeServer({directory,readReport,readRoles,readTeam,readGrowth,readGameplay,auth,board,skills,tasks,repairs,clock=Date.now}){
  if(!auth?.host||!auth?.origin||typeof auth.session!=='function')throw Error('AUTH_CONFIGURATION_REQUIRED');
  const root=realpathSync(directory);let cached=null,cachedAt=0;
  return createServer({requestTimeout:10000,headersTimeout:10000,maxHeaderSize:8192},async(req,res)=>{
@@ -34,7 +34,7 @@ export function makeServer({directory,readReport,readRoles,readTeam,readGrowth,a
   };
   try{
   let path,url;try{url=new URL(req.url,'http://localhost');path=decodeURIComponent(url.pathname);}catch{return send(400,'{"error":"BAD_PATH"}');}
-  if(['/skills','/jobs','/board','/repairs'].some(p=>path==='/agent-office/api'+p))path=path.replace('/agent-office','');
+  if(['/skills','/jobs','/board','/repairs','/gameplay'].some(p=>path==='/agent-office/api'+p))path=path.replace('/agent-office','');
   if(path==='/api/incidents'&&['POST','OPTIONS'].includes(req.method)){
    if(req.headers.host!==auth.host)return send(401,'{"error":"AUTH_REQUIRED"}');
    const origin='https://games.kampunginggrispontianak.com';
@@ -84,6 +84,10 @@ export function makeServer({directory,readReport,readRoles,readTeam,readGrowth,a
   if(path==='/auth/session')return send(200,JSON.stringify(session));
   if(path.startsWith('/auth/'))return send(404,'{"error":"NOT_FOUND"}');
   if(path==='/api/game-team')return readTeam?send(200,JSON.stringify(readTeam())):send(503,'{}');
+  if(path==='/api/gameplay'){
+   try{if(readGameplay)return send(200,JSON.stringify(readGameplay()));}catch{}
+   return send(503,'{"error":"GAMEPLAY_UNAVAILABLE"}');
+  }
   if(path==='/api/incidents')return tasks?send(200,JSON.stringify(tasks.incidents())):send(503,'{"error":"INCIDENTS_UNAVAILABLE"}');
   if(path==='/api/repairs')return repairs?send(200,JSON.stringify(repairs.list())):send(503,'{"error":"REPAIRS_UNAVAILABLE"}');
   if(path==='/api/jobs'){

@@ -1,0 +1,126 @@
+[
+  {
+    "path": "campus/index.html",
+    "sha": "50cd73f8f9ca96ddf0dc1f5c61d53f5efb46036cbab34a3144b651a380566556"
+  },
+  {
+    "path": "campus/src/gameplay-panel.js",
+    "sha": "b73ce7b2e9e42902bc664fc8f2d1b13ba5640f7a1be4e391cd85b2cef27699ae"
+  },
+  {
+    "path": "campus/src/main.js",
+    "sha": "ef585a6d29842a8f564421e714b4ffa4e1dae880d01fed1f0fded2c32821fbd4"
+  },
+  {
+    "path": "campus/src/task-board.js",
+    "sha": "c96292c967fece82813e12fde6127118ff4c70d4f66ecb99db1e149b175e0a2e"
+  },
+  {
+    "path": "campus/src/workboard.css",
+    "sha": "2d433086cac3ec18865bd487d885ae82e476f1dc185b4a8c9342c4b7f6aea1be"
+  },
+  {
+    "path": "dist/campus/assets/index-Bg5afX-a.js",
+    "sha": "7727c1e35dc087c2c169276737c612072cc492345a43721b055b47eefe50b93b"
+  },
+  {
+    "path": "dist/campus/assets/index-DvfVCgxx.css",
+    "sha": "78f517d16fa3b2a17db80142054477367f6f2c6920ce04619692be674694b6b2"
+  },
+  {
+    "path": "dist/campus/index.html",
+    "sha": "35c7c94e5b4aaf771eef4f637e1b28b150510b4779ad78d5d4e3813b564bd50d"
+  },
+  {
+    "path": "dist/index.html",
+    "sha": "35c7c94e5b4aaf771eef4f637e1b28b150510b4779ad78d5d4e3813b564bd50d"
+  },
+  {
+    "path": "dist/release.json",
+    "sha": "01854f9cf5444b9ceac402916bf8f7c72134ef1b3506a1c0ca9ab8a0a99d688a"
+  },
+  {
+    "path": "package-lock.json",
+    "sha": "d10d8e64527942532a2c7d733c2afbac70fd0dfc71593cdd95db02c37294be0a"
+  },
+  {
+    "path": "package.json",
+    "sha": "a63d3fd4adc89fcc13838360632ec7d0e920509c1e01c85acf40b094871ffa65"
+  },
+  {
+    "path": "public/release.json",
+    "sha": "01854f9cf5444b9ceac402916bf8f7c72134ef1b3506a1c0ca9ab8a0a99d688a"
+  },
+  {
+    "path": "scripts/gameplay/README.md",
+    "sha": "7bd4446618bb65fe18ca6387a6d2c01c90d63d2627a4fe944901cd5513ae2dab"
+  },
+  {
+    "path": "scripts/gameplay/daemon.mjs",
+    "sha": "7cf2049f5d2f68c3c09f62556f7c1f47055d04b08c39a5b918bb0b92119e0b8e"
+  },
+  {
+    "path": "scripts/gameplay/edurace.mjs",
+    "sha": "1a07929f46ab006a9b56a3baa42686a274f6b6f81954f9bcaa72708c14ce772e"
+  },
+  {
+    "path": "scripts/gameplay/prepare.mjs",
+    "sha": "9bc5b6e560b01d8bd15be7c7402ba405e6399a585e8dc73ff1f9829cb71c8c1f"
+  },
+  {
+    "path": "scripts/gameplay/run.mjs",
+    "sha": "07db1b311964a4a6c5a686583617b89eba3e44c0eed2f5f238d680259b28fd9c"
+  },
+  {
+    "path": "scripts/gameplay/sessions.sql",
+    "sha": "b8c89b2cb249981ba59c03aee056d69ff45ea9e6705dcf102c3fd47a67d81050"
+  },
+  {
+    "path": "scripts/gameplay/wheel-tower.mjs",
+    "sha": "6ad925416a9adfecc6da7d97bb7c78a0aeaafaf0b05537c723f9c178ccf00905"
+  },
+  {
+    "path": "scripts/prepare-gameplay-runtime.mjs",
+    "sha": "41861f099a16654595b357f973cb8b6f10a6126cffa10ad6576b8fb6c7caef24"
+  },
+  {
+    "path": "server/game-team.mjs",
+    "sha": "2bebf2387fd5a74ae53d007a054d67b66d7f9124ee21445062cd5773bf21ef58"
+  },
+  {
+    "path": "server/gameplay.mjs",
+    "sha": "5025bece0e0d4200e72fb5c30e9dabbeea824e9612f204d7c44c2439f3cee253"
+  },
+  {
+    "path": "server/http.mjs",
+    "sha": "db1190ea7f888ac98d39d158c637d3ea6f47a1c78974d3822ffbfb58638fa390"
+  },
+  {
+    "path": "server/main.mjs",
+    "sha": "6f64ef1034ca885231b6772157ee055302df6a0cdf61d7d55b10faf8e11a1e22"
+  },
+  {
+    "path": "server/repairs.mjs",
+    "sha": "3b420696aaec260aba3e6f5f91bcfe9d0392c017e1e34ecbec74c25f8135e58b"
+  },
+  {
+    "path": "tests/gameplay-dom.test.mjs",
+    "sha": "2342b614e892017201c5f0e97bb73016138114fb7df52b6a3512bc4f1f5f766a"
+  },
+  {
+    "path": "tests/gameplay-http.test.mjs",
+    "sha": "f33741d51ecacb6cef6d5aaad6f113b699366dd72f3a449655cb27c402062fb4"
+  },
+  {
+    "path": "tests/gameplay-monitor.test.mjs",
+    "sha": "7d14b55b8b22fd555d6ab429aeef49d93b91f69c73a94601a27205962c034d40"
+  },
+  {
+    "path": "tests/gameplay-operations.test.mjs",
+    "sha": "cde3ee920a73329b7393162f7faa8dc79c217e6c80096615dd19369b2e045ae4"
+  },
+  {
+    "path": "tests/gameplay-view.test.mjs",
+    "sha": "aabe04391a87d215613aa937bb148ea592380c4c2eb6cd78936a1a7979acfbb4"
+  }
+]

@@ -1,9 +1,10 @@
 {
   "service": "kip-agent-office",
-  "version": "0.21.2",
-  "patch": "repair-evidence-and-audited-baseline",
+  "version": "0.21.3",
+  "patch": "gameplay-completion-evidence",
   "messaging": "NOT_CONNECTED",
   "autoReply": false,
-  "build": "ops-0212-evidence",
-  "playingCoverage": "UNKNOWN"
+  "build": "ops-0213-gameplay",
+  "playingCoverage": "UNKNOWN",
+  "completionEvidence": "recorded-sessions-and-scoped-synthetic-scenarios"
 }

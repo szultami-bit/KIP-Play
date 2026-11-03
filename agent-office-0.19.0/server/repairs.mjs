@@ -9,6 +9,7 @@ const targetPath=game=>GAME_TARGETS.find(t=>t.game===game)?.path;
 const httpIncident=i=>i?.release==='021-availability-1'&&i.kind==='resource'&&i.mode==='screen'&&i.errorClass==='ResourceError'&&i.asset==='index.html'&&i.line===0&&i.column===0&&!!targetPath(i.game);
 const UUID=/^[a-f0-9]{8}-[a-f0-9]{4}-[1-5][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i;
 const SHA=/^[a-f0-9]{40}$/,HASH=/^[a-f0-9]{64}$/;
+const gameplaySlug=value=>typeof value==='string'&&/^[a-z0-9-]{1,80}$/.test(value);
 const AGE=605000,LEASE=1800000;
 const fresh=(at,now)=>Number.isSafeInteger(at)&&at>0&&at<=now&&now-at<=AGE;
 const hash=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
@@ -79,11 +80,16 @@ export function makeRepairs({path,clock=Date.now,limit=2000,automationId}={}){
   if(!UUID.test(i.id)||!GAMES.has(i.game)||!['screen','live'].includes(i.mode)||!['runtime','resource','unhandled'].includes(i.kind)||!Number.isSafeInteger(i.lastAt)||i.lastAt<=0||i.lastAt>clock())continue;
   // Only the receiver's bounded diagnostic fields enter the repair queue.
   if(!/^[\w.-]{1,80}$/.test(i.asset)||!/^\w{1,50}$/.test(i.errorClass)||!Number.isSafeInteger(i.line)||!Number.isSafeInteger(i.column))continue;
+  let gameplay={};
+  if(i.source==='gameplay-monitor'){
+   if(i.backend!=='isolated-synthetic'||!gameplaySlug(i.scenarioId)||!gameplaySlug(i.checkpoint))continue;
+   gameplay={source:'gameplay-monitor',backend:'isolated-synthetic',scenarioId:i.scenarioId,checkpoint:i.checkpoint};
+  }
   const key='game:'+i.id;
   // A repaired game observation is not re-opened by re-reading the same incident record.
   const previous=db.prepare('SELECT observed_at,status,payload FROM repairs WHERE source_key=? ORDER BY created_at DESC,rowid DESC LIMIT 1').get(key);if(previous&&['completed','recovered'].includes(previous.status)&&i.lastAt<=previous.observed_at)continue;
   const availability=httpIncident(i)&&(i.source==='http-monitor'||(previous&&JSON.parse(previous.payload).kind==='availability'));
-  enqueue(key,{kind:availability?'availability':'game',...(availability?{path:targetPath(i.game)}:{}),incidentId:i.id,title:'Perbaiki laporan '+i.game,agentId:'support',...repairTeam(i),game:i.game,mode:i.mode,errorClass:i.errorClass,asset:i.asset,line:i.line,column:i.column},i.lastAt);
+  enqueue(key,{kind:availability?'availability':'game',...(availability?{path:targetPath(i.game)}:{}),...gameplay,incidentId:i.id,title:'Perbaiki laporan '+i.game,agentId:'support',...repairTeam(i),game:i.game,mode:i.mode,errorClass:i.errorClass,asset:i.asset,line:i.line,column:i.column},i.lastAt);
  }});}
  function classifyAvailability({id,expectedUpdatedAt,reason,incident}={}){return tx(()=>{
   const row=db.prepare('SELECT * FROM repairs WHERE id=?').get(id),job=decode(row);
@@ -127,5 +133,7 @@ export function makeRepairs({path,clock=Date.now,limit=2000,automationId}={}){
  }
  function retry({id,reason}){if(!text(reason,500))throw new RepairError('RETRY_REASON_REQUIRED',400);return tx(()=>{const row=db.prepare("SELECT * FROM repairs WHERE id=? AND status IN ('blocked','failed')").get(id);if(!row)throw new RepairError('REPAIR_NOT_RETRYABLE');db.prepare("UPDATE repairs SET status='queued',updated_at=?,receipt=NULL WHERE id=?").run(clock(),id);event(id,'retry');return {id,status:'queued'};});}
  function list(){tx(recover);const jobs=db.prepare("SELECT * FROM repairs ORDER BY CASE WHEN status IN ('running','verifying') THEN 0 WHEN status IN ('queued','blocked','failed') THEN 1 ELSE 2 END, created_at DESC,rowid DESC LIMIT 100").all().map(row=>{const j=decode(row);if(j.status==='running'&&j.leaseUntil<=clock()){j.status='queued';j.worker=null;}delete j.leaseUntil;j.history=db.prepare('SELECT at,event FROM repair_events WHERE job_id=? ORDER BY id').all(j.id);return j;});return {schemaVersion:1,jobs,collectorAt:db.prepare("SELECT at FROM repair_meta WHERE key='collector'").get()?.at||null,executor:{type:'chatgpt-scheduled',cadenceMinutes:60,configured:typeof automationId==='string'&&automationId.length>0},counts:Object.fromEntries(db.prepare('SELECT status,COUNT(*) AS n FROM repairs GROUP BY status').all().map(r=>[r.status,r.n]))};}
- return {observeMonitor,observeIncidents,classifyAvailability,observeAvailability,claim,heartbeat,result,retry,list,close:()=>db.close()};
+ function metricsRecords(){return db.prepare('SELECT status,resolution,created_at AS createdAt,updated_at AS updatedAt FROM repairs').all();}
+ return {observeMonitor,observeIncidents,classifyAvailability,observeAvailability,claim,heartbeat,result,retry,list,metricsRecords,close:()=>db.close()};
 }
+

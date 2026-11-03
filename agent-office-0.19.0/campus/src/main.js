@@ -1,4 +1,5 @@
 import {bindTaskBoard} from './task-board.js';
+import {bindGameplayPanel} from './gameplay-panel.js';
 import {isObserver,robotRoster} from './robot-roster.js';
 import {bindRoleEvidence} from './role-evidence.js';
 import {bindWorkboard} from './workboard.js';
@@ -44,6 +45,7 @@ addEventListener('pageshow',event=>{if(event.persisted)location.reload()});
 
 const board=bindWorkboard({openReport:id=>liveAgents?.open(id),refreshReport:()=>liveAgents?.refresh(),announce});
 bindTaskBoard({announce});
+bindGameplayPanel();
 function focusAgent(id){views.show('office');if(!office)return;switchFloor(office.agentFloor(id));office.focusAgent(id);$('#office').focus({preventScroll:true});$('.scene-card').scrollIntoView({behavior:'instant',block:'center'});}
 liveAgents=bindLiveAgents({onViews:list=>board.receive(list),getOffice:()=>office,focusAgent,announce});
 bindSessionControls();
