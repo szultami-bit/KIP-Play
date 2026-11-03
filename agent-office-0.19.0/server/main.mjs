@@ -24,7 +24,7 @@ const monitor=makeGameMonitor({tasks});
 const readTeam=()=>teamReport({tasks,repairs,monitor});
 const readRoles=()=>{const base=readBaseRoles(),team=readTeam();return {...base,generatedAt:team.generatedAt,roles:base.roles.map(r=>team.roles.find(t=>t.id===r.id)||r)};};
 monitor.start();
-const repairCollector=makeRepairCollector({repairs,readReport,readIncidents:()=>tasks.incidents({forRepair:true}).issues,onError:code=>console.error(JSON.stringify({type:code}))});
+const repairCollector=makeRepairCollector({repairs,readReport,readIncidents:()=>tasks.incidents({forRepair:true}).issues,readAvailability:()=>monitor.snapshot(),onError:code=>console.error(JSON.stringify({type:code}))});
 repairCollector.start();
 const worker=makeTaskWorker({tasks,skills,readRoles,readGrowthSnapshot:()=>readGrowth.snapshot(),onError:code=>console.error(JSON.stringify({type:code}))});
 worker.start();

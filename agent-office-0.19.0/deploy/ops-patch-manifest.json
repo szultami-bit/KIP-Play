@@ -1,0 +1,58 @@
+{
+  "baseFiles": {
+    "campus/src/task-board.js": "d98bafc7c63ae536c6567d854f5ef3e73d25cfd1f01853faeceb9d57434c595e",
+    "dist/campus/index.html": "bb926c2670ed04aa399b676aa52edb1283391c632a6e56581de4fbf11a0b5e5e",
+    "dist/index.html": "bb926c2670ed04aa399b676aa52edb1283391c632a6e56581de4fbf11a0b5e5e",
+    "dist/release.json": "0d30e85bcb0ef659ec775f570bd0906631cba1a1739dfddd5c34538041e7a9da",
+    "docs/2026-11-03-ops-progress.md": "5090d5fc983880726513f439cd1115d8db64a1bb3d87e9b302f0f94fd4a5824f",
+    "package-lock.json": "b42d5aea9ee6c2051be63078ec9c34d9bfe03e5b23927524e9a6ef2c53f2faaa",
+    "package.json": "06695ac4380efe9c27b69750e48fd230188124739d91f0b78434b693ca0c3b68",
+    "public/release.json": "0d30e85bcb0ef659ec775f570bd0906631cba1a1739dfddd5c34538041e7a9da"
+  },
+  "files": [
+    {
+      "path": "campus/src/task-board.js",
+      "sha": "d61655e04e5e0f8ea630a73ac6449916f49101852e052c6e0bc1b75984cfa053"
+    },
+    {
+      "path": "dist/campus/assets/index-DHA8ypOf.js",
+      "sha": "d1e4727c417a08245344e944c0deb193bc8f69254707efa2a57092164893099c"
+    },
+    {
+      "path": "dist/campus/index.html",
+      "sha": "fc0a7ac7d4f17f8bb33fac050d1f27fa3ae39fbf72549372a73c590b3fdca649"
+    },
+    {
+      "path": "dist/index.html",
+      "sha": "fc0a7ac7d4f17f8bb33fac050d1f27fa3ae39fbf72549372a73c590b3fdca649"
+    },
+    {
+      "path": "dist/release.json",
+      "sha": "5f84f0bedc694dadbe7125c84563982b979a3febf3f54e2a1ebe7bfef4add1ee"
+    },
+    {
+      "path": "docs/2026-11-03-ops-progress.md",
+      "sha": "1de9ac34561bfc50733163ff51bcb7d1fd3db6b12c54ce635f01102e67813ff5"
+    },
+    {
+      "path": "docs/2026-11-03-release-baseline.md",
+      "sha": "f6883f746b07bc3f8abf2ba56db2c685a9acc1945544c575376dc7553dab03cf"
+    },
+    {
+      "path": "package-lock.json",
+      "sha": "63c7678e4245593df4bf52c5070e40b14bde2e38e82eff8c571b02ee7a00fcf5"
+    },
+    {
+      "path": "package.json",
+      "sha": "77dbfe00abeb2a7869e8ddc4e800cab54acc3e9b12dd42d18d1493e3bdc78219"
+    },
+    {
+      "path": "public/release.json",
+      "sha": "5f84f0bedc694dadbe7125c84563982b979a3febf3f54e2a1ebe7bfef4add1ee"
+    },
+    {
+      "path": "tests/repair-evidence.test.mjs",
+      "sha": "0f8bfb7401ed5333cfde158028f6d3048f6585c747640a4ba8666ab3f471225d"
+    }
+  ]
+}

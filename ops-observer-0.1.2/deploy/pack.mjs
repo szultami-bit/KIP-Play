@@ -1,0 +1,32 @@
+import {readFileSync,writeFileSync,mkdirSync,readdirSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+import {gzipSync} from 'node:zlib';
+import {dirname,resolve} from 'node:path';
+const root=resolve(dirname(new URL(import.meta.url).pathname),'..'),out=resolve(process.argv[2]??`${root}/deploy/generated`);
+const sha=b=>createHash('sha256').update(b).digest('hex');
+const names=['package.json','config.json','deploy/pack.mjs',...['src','tests'].flatMap(d=>readdirSync(`${root}/${d}`).filter(f=>f.endsWith('.mjs')).map(f=>`${d}/${f}`))].sort();
+const files=Object.fromEntries(names.map(p=>[p,readFileSync(`${root}/${p}`,'utf8')]));
+const manifest=Object.fromEntries(names.map(p=>[p,sha(files[p])]));
+const manifestText=JSON.stringify(manifest),sourceHash=sha(manifestText),blob=gzipSync(JSON.stringify({files,manifest})),bundleHash=sha(blob),base64=blob.toString('base64');
+const image='node:24-bookworm-slim@sha256:55fb5f5a527ea2c5c4a95f963e48ef90aa38c7b346054fdc8ee9957a2b55d205';
+const project='kip-ops-hybrid-20261031';
+const volumes={code:{name:project+'_code_v03'},state:{name:project+'_state_v01'}};
+const common={image,read_only:true,cap_drop:['ALL'],security_opt:['no-new-privileges:true'],mem_limit:'128m',cpus:0.25,pids_limit:64,logging:{driver:'json-file',options:{'max-size':'2m','max-file':'3'}}};
+mkdirSync(out,{recursive:true});
+const emit=(name,services,usedVolumes=volumes)=>{const text=JSON.stringify({name:project,services,volumes:usedVolumes});if(text.length>8192)throw Error('Compose transport limit');writeFileSync(`${out}/${name}.json`,text+'\n');};
+let count=0;
+for(let offset=0;offset<base64.length;offset+=4500){
+ const part=base64.slice(offset,offset+4500),id=count++;
+ const script=`const f=require('fs'),c=require('crypto');f.mkdirSync('/code/parts',{recursive:true});f.writeFileSync('/code/parts/${id}',${JSON.stringify(part)});console.log(JSON.stringify({type:'PART_STORED',part:${id},sha256:c.createHash('sha256').update(f.readFileSync('/code/parts/${id}')).digest('hex')}));`;
+ emit(`upload-${id}`,{transfer:{...common,network_mode:'none',restart:'no',volumes:['code:/code'],command:['node','-e',script]}},{code:volumes.code});
+}
+const install=`const f=require('fs'),c=require('crypto'),z=require('zlib');const sha=b=>c.createHash('sha256').update(b).digest('hex');const b=Buffer.from(Array.from({length:${count}},(_,i)=>f.readFileSync('/code/parts/'+i,'utf8')).join(''),'base64');if(sha(b)!=='${bundleHash}')throw Error('Bundle mismatch');const p=JSON.parse(z.gunzipSync(b));if(sha(JSON.stringify(p.manifest))!=='${sourceHash}')throw Error('Manifest mismatch');const allowed=${JSON.stringify(names)};if(Object.keys(p.files).length!==allowed.length)throw Error('File set mismatch');for(const [name,data] of Object.entries(p.files)){if(!allowed.includes(name)||sha(data)!==p.manifest[name])throw Error('File mismatch');}for(const [name,data] of Object.entries(p.files)){f.mkdirSync(require('path').dirname('/code/'+name),{recursive:true,mode:0o755});f.writeFileSync('/code/'+name,data,{mode:0o444});}f.writeFileSync('/code/manifest.json',JSON.stringify(p.manifest),{mode:0o444});f.chmodSync('/state',0o700);f.chownSync('/state',1000,1000);f.rmSync('/code/parts',{recursive:true});console.log(JSON.stringify({type:'INSTALLED',sourceHash:'${sourceHash}',files:Object.keys(p.files).length}));`;
+emit('install',{install:{...common,network_mode:'none',restart:'no',cap_add:['CHOWN'],volumes:['code:/code','state:/state'],command:['node','-e',install]}});
+const verify=`const f=require('fs'),c=require('crypto');const sha=b=>c.createHash('sha256').update(b).digest('hex'),raw=f.readFileSync('/code/manifest.json');if(sha(raw)!=='${sourceHash}')throw Error('Manifest mismatch');for(const [p,h] of Object.entries(JSON.parse(raw)))if(sha(f.readFileSync('/code/'+p))!==h)throw Error('Source mismatch');console.log(JSON.stringify({type:'SOURCE_VERIFIED',sourceHash:'${sourceHash}'}));`;
+const qa=verify+`const tests=f.readdirSync('/code/tests').filter(x=>x.endsWith('.test.mjs')).map(x=>'/code/tests/'+x);const r=require('child_process').spawnSync(process.execPath,['--test','--test-concurrency=1',...tests],{cwd:'/code',stdio:'inherit'});process.exit(r.status??2);`;
+emit('qa',{qa:{...common,user:'1000:1000',network_mode:'none',restart:'no',tmpfs:['/tmp:rw,noexec,nosuid,size=32m,mode=1777'],volumes:['code:/code:ro'],command:['node','-e',qa]}},{code:volumes.code});
+const start=verify+`process.argv=[process.execPath,'/code/src/main.mjs','run'];import('/code/src/main.mjs');`;
+emit('runtime',{observer:{...common,user:'1000:1000',init:true,restart:'unless-stopped',stop_grace_period:'20s',working_dir:'/code',volumes:['code:/code:ro','state:/state'],command:['node','-e',start],healthcheck:{test:['CMD','node','/code/src/main.mjs','healthcheck'],interval:'60s',timeout:'10s',retries:3,start_period:'360s'}}});
+writeFileSync(`${out}/manifest.json`,manifestText+'\n');writeFileSync(`${out}/bundle.json.gz`,blob);
+writeFileSync(`${out}/receipt.json`,JSON.stringify({version:'0.1.2',project,image,sourceHash,bundleHash,parts:count,files:manifest},null,2)+'\n');
+console.log(JSON.stringify({sourceHash,bundleHash,parts:count,files:names.length,compressedBytes:blob.length}));

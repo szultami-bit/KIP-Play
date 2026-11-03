@@ -8,11 +8,11 @@ export function makeGameMonitor({tasks,fetcher=fetch,clock=Date.now,targets=GAME
   await Promise.allSettled(batch.map(async target=>{
    let status=0;try{const r=await fetcher('https://games.kampunginggrispontianak.com'+target.path,{method:'HEAD',redirect:'manual',signal:AbortSignal.timeout(8000)});status=r.status;}catch{}
    const failed=status===0||status===404||status>=500;
-   samples.set(target.game,{game:target.game,status,at:clock(),state:failed?'error':[401,403].includes(status)?'auth-required':'reachable'});
+   samples.set(target.game,{game:target.game,path:target.path,status,at:clock(),state:failed?'error':[401,403].includes(status)?'auth-required':'reachable'});
    failures.set(target.game,failed?(failures.get(target.game)||0)+1:0);
    if(!failed)reported.delete(target.game);
    if(failures.get(target.game)>=2&&!reported.has(target.game)){
-    tasks.incident({eventId:randomUUID(),game:target.game,mode:'screen',release:'021-availability-1',kind:'resource',errorClass:'ResourceError',asset:'index.html',line:0,column:0});reported.add(target.game);
+    tasks.recordAvailability({eventId:randomUUID(),game:target.game,mode:'screen',release:'021-availability-1',kind:'resource',errorClass:'ResourceError',asset:'index.html',line:0,column:0});reported.add(target.game);
    }
   }));
  }finally{busy=false;}}

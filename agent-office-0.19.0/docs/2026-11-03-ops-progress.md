@@ -1,0 +1,11 @@
+# Operations — 3 November 2026
+
+Ordered scope: (1) Speaking Studio HTTP classification/verification; (2) one reproduced gameplay bug through staging candidate; (3) audited release baseline hook; (4) readable repair evidence.
+
+1. Office0.21.1 deployed from317ab1c. Trusted monitor provenance, reserved-marker rejection, revision-checked legacy classification, two distinct fresh exact-path HTTP probes, and independent gameplay proof requirements passed147 tests locally and on VPS. Speaking Studio job5065f261-b9c4-47a5-8bc9-eaaccf3f8188 completed at2026-11-03T00:38:57.143Z after two genuine200 responses. Queue: completed5, recovered4. State backup1793666085766 retained.
+
+2. Real Chibi Rally failed-leave bug reproduced: five of seven scenarios failed before patch. Private candidate d7c56a1afb5a02b684a8aac38c44c1a06e37ef21, PR127, fingerprint5acf9ce846ebda0ffbf2576be936e6de5bbb75d83faf2806dc7fa877b150e816. Genuine audit and build each passed3586 tests across303 files, preserving all299 production paths. Seven handler regressions passed again against HTML fetched from isolated native workerd staging, with external egress denied and fixtures cleaned up. Both GitHub Release safety and VPS runtime workflows passed. No production game promotion or authentic Firebase/rendered-browser acceptance claimed.
+
+3. Observer0.1.2 deployed from4ffd56c136e47fd557943f9e466cbc0c7d58af60, manifestf672a85846bed55d3d0f2847d7a21173b76e364a06309bc481d08594fb8be9a2. All56 local/VPS tests passed. Internal hook accepted production releasefdf74de and fingerprintb7515a5b after two fresh health/release pairs at2026-11-03T01:03:01.743Z, creating revision1. Existing ops.sqlite retained; runtime healthy with zero open incidents. The existing hourly repair automation now invokes this hook after every audited authorized production deployment; cadence unchanged.
+
+4. Office0.21.2 exposes cause, commit, test counts, deploy evidence, verification scope and blocked reason. Incident names use the actual game. Missing evidence stays explicitly unavailable; HTTP completion never claims gameplay acceptance. Local suite153/153, zero skipped; production build passed. Deployment verification is recorded in the PR after rollout.

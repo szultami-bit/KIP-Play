@@ -1,0 +1,53 @@
+{
+  "at": "2026-11-03T01:11:56.452Z",
+  "office": {
+    "version": "0.21.2",
+    "commit": "79289bbef1ec080a8ed61edd31b8226aa70c4657",
+    "codeVolume": "kip-office-0212-evidence-79289bb",
+    "localTests": 153,
+    "vpsTests": 153,
+    "failed": 0,
+    "skipped": 0,
+    "health": "healthy",
+    "publicHealth": 200,
+    "unauthenticatedJobs": 401,
+    "unauthenticatedRepairs": 401,
+    "queue": {
+      "completed": 5,
+      "recovered": 4
+    },
+    "rollbackCodeVolume": "kip-office-0211-http-317ab1c"
+  },
+  "observer": {
+    "version": "0.1.2",
+    "commit": "4ffd56c136e47fd557943f9e466cbc0c7d58af60",
+    "codeVolume": "kip-ops-observer-012-4ffd56c",
+    "tests": 56,
+    "failed": 0,
+    "skipped": 0,
+    "manifest": "f672a85846bed55d3d0f2847d7a21173b76e364a06309bc481d08594fb8be9a2",
+    "baselineRevision": 1,
+    "health": "HEALTHY",
+    "openIncidents": 0
+  },
+  "gameCandidate": {
+    "pr": "https://github.com/szultami-bit/kip-english-universe/pull/127",
+    "commit": "d7c56a1afb5a02b684a8aac38c44c1a06e37ef21",
+    "fingerprint": "5acf9ce846ebda0ffbf2576be936e6de5bbb75d83faf2806dc7fa877b150e816",
+    "auditTests": 3586,
+    "testFiles": 303,
+    "stagingServedHandlerRegressions": 7,
+    "githubChecks": [
+      "Release safety: success",
+      "VPS runtime: success"
+    ],
+    "productionPromotion": false,
+    "limitations": "Isolated native staging and VM handler regressions; genuine Firebase account and rendered browser acceptance not certified."
+  },
+  "automation": {
+    "id": "6ae8997676548191a8c0473dc5cdbf3a",
+    "enabled": true,
+    "cadenceChanged": false,
+    "releaseHookIntegrated": true
+  }
+}

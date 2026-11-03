@@ -1,6 +1,28 @@
 import {refreshBoardCounts} from './workboard.js';
 export const taskColumn=status=>['running','verifying'].includes(status)?'doing':['completed','recovered'].includes(status)?'done':'todo';
-export function repairView(job){const labels={queued:'Menunggu agen perbaikan',running:'Agen sedang memperbaiki',verifying:'Menunggu verifikasi setelah perbaikan',blocked:'Terhalang · '+(job.receipt?.summary||'lihat hasil'),failed:'Perbaikan belum berhasil',completed:'Perbaikan terverifikasi',recovered:'Pulih terverifikasi · tanpa klaim perbaikan'};return {...job,source:'repair',skill:{id:'bug-repair',version:1},result:{summary:labels[job.status]||'Status belum diketahui',scope:'Perbaikan bug oleh agen ChatGPT. Selesai memerlukan bukti dan pemeriksaan produksi.',evidence:job.receipt?.evidence||[job.code||job.errorClass||'Laporan diterima'],nextSteps:['queued','blocked','failed'].includes(job.status)?['Agen terjadwal mengambil antrean setiap jam; alasan penghalang tercatat di sini.']:[],limitations:job.receipt?.rootCause||''}};}
+const dateText=at=>Number.isSafeInteger(at)&&at>0?new Date(at).toLocaleString('id-ID'):'waktu belum tersedia';
+export function incidentView(incident){
+ const name=typeof incident.game==='string'&&incident.game?incident.game.split('-').map(word=>word.charAt(0).toUpperCase()+word.slice(1)).join(' '):'Game belum diketahui';
+ return `${name} · ${incident.mode} · ${incident.errorClass} · ${incident.occurrences} laporan · ${incident.jobId?'sudah ditugaskan':'menunggu skill koordinator dan agent'} · belum terverifikasi`;
+}
+export function repairView(job){
+ const receipt=job.receipt||{},verification=receipt.verification||{},availability=job.kind==='availability';
+ const labels={queued:'Menunggu agen perbaikan',running:'Agen sedang memperbaiki',verifying:'Menunggu verifikasi setelah perbaikan',blocked:'Terhalang · '+(receipt.summary||'alasan belum tersedia'),failed:'Perbaikan belum berhasil · '+(receipt.summary||'lihat bukti'),completed:availability?'Akses HTTP terverifikasi':'Perbaikan terverifikasi',recovered:'Pulih terverifikasi · tanpa klaim perbaikan'};
+ const evidence=[
+  'Penyebab: '+(receipt.rootCause||'belum ditemukan'),
+  'Commit: '+(receipt.patchSha||'belum tersedia'),
+  receipt.tests&&Number.isSafeInteger(receipt.tests.passed)&&Number.isSafeInteger(receipt.tests.failed)?`Pengujian: ${receipt.tests.passed} lulus · ${receipt.tests.failed} gagal`:'Pengujian: belum tersedia',
+  receipt.deployedRelease&&Number.isSafeInteger(receipt.deploymentAt)?`Deploy tercatat: ${dateText(receipt.deploymentAt)} · rilis ${receipt.deployedRelease}`:'Deploy: belum ada bukti',
+ ];
+ if(verification.passed===true){
+  evidence.push(availability?`Verifikasi HTTP: ${verification.path||job.path||'jalur belum tersedia'} · ${dateText(verification.at)}`:verification.gameplayPassed===true?`Skenario gameplay: ${verification.scenario||'belum dicatat'} · ${dateText(verification.at)}`:`Verifikasi identitas rilis: ${dateText(verification.at)}`);
+ }
+ if(['blocked','failed'].includes(job.status))evidence.push('Penghalang: '+(receipt.summary||'alasan belum tersedia'));
+ evidence.push(...(receipt.evidence||[job.code||job.errorClass||'Laporan diterima']));
+ const limitations=availability?'Verifikasi HTTP belum membuktikan gameplay, login, room, atau skor.':job.kind==='monitor'?'Verifikasi identitas rilis belum membuktikan gameplay.':'Cakupan pengujian mengikuti bukti dan skenario yang tercatat.';
+ const nextSteps=['blocked','failed'].includes(job.status)?['Selesaikan penghalang yang tercatat sebelum mencoba perbaikan kembali.']:job.status==='queued'?['Menunggu agen terjadwal mengambil tugas.']:job.status==='verifying'?['Menunggu pengamatan baru yang cocok dengan bukti deploy.']:[];
+ return {...job,source:'repair',skill:{id:'bug-repair',version:1},result:{summary:labels[job.status]||'Status belum diketahui',scope:availability?'Pemeriksaan akses HTTP pada jalur yang dilaporkan.':'Perbaikan bug oleh agen ChatGPT. Selesai memerlukan bukti dan pemeriksaan produksi.',evidence,nextSteps,limitations}};
+}
 
 export function pollDelay({pending=false,failures=0,hidden=false,offline=false,session=false}={}){return hidden||offline||session?null:Math.min(120000,(pending?5000:30000)*2**Math.min(failures,3));}
 export function bindTaskBoard({announce}){
@@ -21,7 +43,7 @@ export function bindTaskBoard({announce}){
  function render(){
   $('#task-run').disabled=busy||session||!state;$('#task-select').disabled=busy||session||!!pending||!state;$('#task-run').textContent=pending?'Coba kirim ulang':'Jalankan';
   $('#task-worker').textContent=state?.repairs?.executor?.configured?'Antrean otomatis · agen perbaikan setiap jam':state?.worker.status==='running'&&Date.now()-state.worker.lastAt<20000?'Pemantau tersambung · agen perbaikan belum tersambung':'Worker belum terverifikasi';
-  $('#incident-list').replaceChildren(...(state?.incidents||[]).map(i=>{const li=document.createElement('li');li.textContent=`Lucky Wheel · ${i.mode} · ${i.errorClass} · ${i.occurrences} laporan · ${i.jobId?'sudah ditugaskan':'menunggu skill koordinator dan agent'} · belum terverifikasi`;return li;}));
+  $('#incident-list').replaceChildren(...(state?.incidents||[]).map(i=>{const li=document.createElement('li');li.textContent=incidentView(i);return li;}));
   for(const job of state?.jobs||[]){let card=cards.get(job.id);if(!card){card=document.createElement('article');card.className='job-card';const owner=document.createElement('p'),title=document.createElement('h3'),result=document.createElement('p'),time=document.createElement('p'),actions=document.createElement('div'),button=document.createElement('button');owner.className='job-owner';title.className='task-title';result.className='job-result';time.className='job-time';actions.className='job-actions';button.textContent='Lihat hasil';button.onclick=()=>{const current=state.jobs.find(j=>j.id===job.id);if(current){detail(current);$('#task-result').showModal();}};actions.append(button);card.append(owner,title,result,time,actions);cards.set(job.id,card);}
    card.querySelector('.job-owner').textContent=job.agentId+' · '+(job.source==='repair'?'Perbaikan otomatis':job.source==='incident'?'Diagnosis laporan game':'Pemeriksaan Anda');card.querySelector('h3').textContent=job.title;card.querySelector('.job-result').textContent=job.result?.summary||labels[job.status];card.querySelector('.job-time').textContent=new Date(job.updatedAt).toLocaleString('id-ID')+' · '+job.skill.id+' v'+job.skill.version;card.dataset.tone=job.status==='completed'?'good':'pending';$('#jobs-'+taskColumn(job.status)).append(card);
   }

@@ -22,8 +22,8 @@ test('all five selected robots wait at their assigned floor-two desks',()=>{
  for(const member of GAME_TEAM){const r=robotRoster.find(r=>r.id===member.id);assert.equal(r.desk[1],4.6);assert.equal(r.name,member.name);assert.equal(createMotion(member.id).step(0,{snap:true}).level,1);}
 });
 test('monitor requires two failures; auth walls are not errors; repeated failures do not flood',async()=>{
- const events=[];let status=503;const m=makeGameMonitor({tasks:{incident:i=>events.push(i)},targets:[{game:'lucky-wheel',path:'/games/lucky-wheel/index.html'}],fetcher:async()=>({status})});
- await m.runOnce();assert.equal(events.length,0);await m.runOnce();await m.runOnce();assert.equal(events.length,1);assert.equal(normalizeIncident(events[0]).game,'lucky-wheel');status=401;await m.runOnce();assert.equal(m.snapshot().samples[0].state,'auth-required');assert.equal(events.length,1);
+ const events=[];let status=503;const m=makeGameMonitor({tasks:{recordAvailability:i=>events.push(i)},targets:[{game:'lucky-wheel',path:'/games/lucky-wheel/index.html'}],fetcher:async()=>({status})});
+ await m.runOnce();assert.equal(events.length,0);await m.runOnce();await m.runOnce();assert.equal(events.length,1);assert.equal(events[0].game,'lucky-wheel');assert.throws(()=>normalizeIncident(events[0]),/BAD_INCIDENT/);status=401;await m.runOnce();assert.equal(m.snapshot().samples[0].state,'auth-required');assert.equal(events.length,1);
 });
 test('cross-game incident creates persistent lead, specialist and QA assignment',()=>fixture(p=>{
  const repairs=makeRepairs({path:join(p,'repairs.sqlite')});try{repairs.observeIncidents([{id:'12345678-1234-4123-8123-123456789abc',game:'edurace',mode:'screen',kind:'resource',lastAt:Date.now(),asset:'index.html',errorClass:'ResourceError',line:0,column:0}]);const job=repairs.list().jobs[0];assert.equal(job.agentId,'support');assert.equal(job.specialistId,'payments');assert.equal(job.testerId,'qa');assert.equal(job.floor,2);}finally{repairs.close();}
