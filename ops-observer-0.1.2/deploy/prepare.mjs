@@ -12,5 +12,5 @@ for(const [p,hash] of Object.entries(manifest)){if(!/^(?:package\.json|config\.j
 writeFileSync(root+'/manifest.json',raw);
 execFileSync(process.execPath,['--test','--test-concurrency=1',...readdirSync(root+'/tests').filter(n=>n.endsWith('.test.mjs')).map(n=>'tests/'+n)],{cwd:root,stdio:'inherit'});
 writeFileSync(root+'/.ready',commit);
-function perms(p){const s=lstatSync(p);if(s.isSymbolicLink())throw Error('SYMLINK_REFUSED');chownSync(p,1000,1000);chmodSync(p,s.isDirectory()?0o750:0o640);if(s.isDirectory())for(const n of readdirSync(p))perms(join(p,n));}perms(root);
+function perms(p){const s=lstatSync(p);if(s.isSymbolicLink())throw Error('SYMLINK_REFUSED');if(s.isDirectory())for(const n of readdirSync(p))perms(join(p,n));chmodSync(p,s.isDirectory()?0o750:0o640);chownSync(p,1000,1000);}perms(root);
 console.log(JSON.stringify({type:'OBSERVER_READY',commit,sourceHash:digest}));
