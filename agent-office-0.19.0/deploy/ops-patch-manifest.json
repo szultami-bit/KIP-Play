@@ -1,0 +1,83 @@
+{
+  "baseFiles": {
+    "dist/release.json": "18c39b532f0188a3e2fd5dd68d00b5286f7aed8fea5217bf4ca01de81f3f81ec",
+    "package-lock.json": "55c36237c03b73f4db951f348760d534e58465a89af91d0bd2e63ea377488b24",
+    "package.json": "bc264438dcaa40c36ec1de42c1656d3508cd398c2ba0aa90d6922dfe471bf53d",
+    "public/release.json": "18c39b532f0188a3e2fd5dd68d00b5286f7aed8fea5217bf4ca01de81f3f81ec",
+    "scripts/repair-cli.mjs": "bf0c056d4981598dfd5539d24f894d414340e6461670ff48a7783fc67de5443a",
+    "server/game-monitor.mjs": "8985ca1dbab4a74b7f338e6134203a24af21f3948659b0d1e044ab098ec46514",
+    "server/incidents.mjs": "3729b2db8dc8078b1a841327867496aea2cc8430c23c1da1bca0872df6c52f36",
+    "server/main.mjs": "1dddd9aa896c3dfcd0b60c23325e8096c9a976f9a8a92d4eb0476fe5204cd9b2",
+    "server/repair-collector.mjs": "65a500d7986a7d0e587a43878d692a9f9ed8b5cb1ac2d8b36f930425a402a5da",
+    "server/repairs.mjs": "eceb8711be04c449bae4c8f704bd9301a974726829c31ca36fd6ebf47ccac9d0",
+    "server/tasks.mjs": "a6bdbddaa3b5eb7f01b9f507b2091bc5cd2ce61703a61c9b75d838a2883ab9d0",
+    "tests/game-team.test.mjs": "d815f33c15784750d18f745ef74ef1a7b3823b2e6c48f74e4900bed9750e140a",
+    "tests/speaking-monitor-target.test.mjs": "a91c07496cae9ec81b890d9047f365ba1519b39786b4357ebd6302c37fb4591b"
+  },
+  "files": [
+    {
+      "path": "dist/release.json",
+      "sha": "0d30e85bcb0ef659ec775f570bd0906631cba1a1739dfddd5c34538041e7a9da"
+    },
+    {
+      "path": "docs/2026-11-03-ops-progress.md",
+      "sha": "5090d5fc983880726513f439cd1115d8db64a1bb3d87e9b302f0f94fd4a5824f"
+    },
+    {
+      "path": "package-lock.json",
+      "sha": "b42d5aea9ee6c2051be63078ec9c34d9bfe03e5b23927524e9a6ef2c53f2faaa"
+    },
+    {
+      "path": "package.json",
+      "sha": "06695ac4380efe9c27b69750e48fd230188124739d91f0b78434b693ca0c3b68"
+    },
+    {
+      "path": "public/release.json",
+      "sha": "0d30e85bcb0ef659ec775f570bd0906631cba1a1739dfddd5c34538041e7a9da"
+    },
+    {
+      "path": "scripts/prepare-ops-patch.mjs",
+      "sha": "48365d52383f331bdbfd840105339c8dbbf1c892b3c849d0a07a40cb3781c673"
+    },
+    {
+      "path": "scripts/repair-cli.mjs",
+      "sha": "78627e0c6b99b44c80a3d926408b90867bf1a64af6c86f755d0c8d9a70541f3e"
+    },
+    {
+      "path": "server/game-monitor.mjs",
+      "sha": "39794a3ef516bdb5e5770078afd735839685147d3d5e488879f428057639fbcd"
+    },
+    {
+      "path": "server/incidents.mjs",
+      "sha": "c7901fd5e7abbfdf70d87f29654bfc7f5e474e0d5f299d57f98bbf0cef7f9896"
+    },
+    {
+      "path": "server/main.mjs",
+      "sha": "dc5bd57b709a69530f6e2200e23ffff9bd782e0d25446dac0b15a93910512753"
+    },
+    {
+      "path": "server/repair-collector.mjs",
+      "sha": "33ff0d9ad8b7c070994bf49e95acbaaaaebc66331b1487ccc5a9e32deef86092"
+    },
+    {
+      "path": "server/repairs.mjs",
+      "sha": "5d2bda34224f5a251fc9f1fffc2ec265886b2993ddb68905f24cdfadb2651857"
+    },
+    {
+      "path": "server/tasks.mjs",
+      "sha": "36921084adc2e1235663e611d17ec5d2bf120ac990b8afa298b63dba82eb829b"
+    },
+    {
+      "path": "tests/availability-repairs.test.mjs",
+      "sha": "fd755b38f681e0a1d95c565079e032f8f091f8963eb714944f0080e5e818c0e4"
+    },
+    {
+      "path": "tests/game-team.test.mjs",
+      "sha": "7f61a3543f593848218fb9f40f40913847d4c01241022cb69d4bcf18ff2e5e9a"
+    },
+    {
+      "path": "tests/speaking-monitor-target.test.mjs",
+      "sha": "054e35e4b332545e7e8a9382d89bbd59facf8b60d71a2ba211a851ce047ba7b6"
+    }
+  ]
+}
