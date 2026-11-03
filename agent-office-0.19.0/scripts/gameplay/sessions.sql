@@ -1,5 +1,5 @@
 with clock as (select now() as observed), mapped as (
- select case when a.game='wheel' then 'lucky-wheel' when a.game='tower' then 'tower-challenge' when a.game='animal' then 'animal-party' when a.game is not null and a.game<>'' then a.game when a.template='wheel' then 'practice-wheel' else a.template end as game,
+ select case when a.game='wheel' then 'lucky-wheel' when a.game='tower' then 'tower' when a.game='animal' then 'animal-party' when a.game is not null and a.game<>'' then a.game when a.template='wheel' then 'practice-wheel' else a.template end as game,
  p.total,p.completed,p.finished_at,p.started_at
  from kip_private.community_playthroughs p join kip_private.community_activities a on a.id=p.material_id,clock
  where p.started_at>=clock.observed-interval '30 days' and p.started_at<=clock.observed

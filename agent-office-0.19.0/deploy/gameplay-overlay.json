@@ -65,7 +65,7 @@
   },
   {
     "path": "scripts/gameplay/prepare.mjs",
-    "sha": "9bc5b6e560b01d8bd15be7c7402ba405e6399a585e8dc73ff1f9829cb71c8c1f"
+    "sha": "9f40c82b8011ea7080b9022ddc2e74dfef21e50c9364bd458ce8c893b34a9239"
   },
   {
     "path": "scripts/gameplay/run.mjs",
@@ -73,7 +73,7 @@
   },
   {
     "path": "scripts/gameplay/sessions.sql",
-    "sha": "b8c89b2cb249981ba59c03aee056d69ff45ea9e6705dcf102c3fd47a67d81050"
+    "sha": "8d539739cbcd35279d02fb21475f5e457e063307da2be5ab7bf78d0856cc064b"
   },
   {
     "path": "scripts/gameplay/wheel-tower.mjs",

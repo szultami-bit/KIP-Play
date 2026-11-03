@@ -18,7 +18,7 @@ writeFileSync(qa+'/entry.mjs',"export * from "+JSON.stringify(source+"/server/vp
 const profile=deploymentProfile({environment:'staging',publicOrigin:origin,supabaseUrl:'https://abcdefghijklmnopqrst.supabase.co',publishableKey:'sb_publishable_isolated_browser_fixture_key'});
 await buildRuntime({out:qa+'/build',storage:qa+'/rooms',entry:qa+'/entry.mjs',port:18798,profile,extraServices:fixtureServices(),outbound:'priority-qa-upstream'});
 let fixture=readFileSync(source+'/tests/fixtures/priority-browser-upstream.mjs','utf8');
-fixture=fixture.replace("const games=new Set(['/games/dragon-hatch','/games/monster-battle']);","const games=new Set(['/games/dragon-hatch','/games/monster-battle','/games/eduracing','/games/lucky-wheel','/games/tower-challenge','/games/wheel','/games/tower','/games/speaking-spin']);");
+fixture=fixture.replace("const games=new Set(['/games/dragon-hatch','/games/monster-battle']);","const games=new Set(['/games/dragon-hatch','/games/monster-battle','/games/eduracing','/games/lucky-wheel','/games/tower-challenge','/games/wheel','/games/tower','/games/tower/one-screen.html','/games/speaking-spin']);");
 fixture=fixture.replace('/^(dragon-hatch|monster-battle):[A-HJ-NP-Z2-9]{4}$/','/^(dragon-hatch|monster-battle|eduracing|eu-speaking-spin|practice-live|tower-live):[A-HJ-NP-Z2-9]{4}$/');
 writeFileSync(qa+'/build/priority-upstream.mjs',fixture);
 const after=snapshot(source);if(after.fingerprint!==sourceProof.fingerprint)throw Error('SOURCE_CHANGED_DURING_QA_BUILD');
