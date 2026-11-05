@@ -1,6 +1,6 @@
 import {AGENTS,timeLabel,ageLabel} from './observer-model.js';
-export function refreshBoardCounts(){for(const col of ['todo','doing','done']){const count=document.querySelector('#jobs-'+col).children.length;document.querySelector('#count-'+col).textContent=count;document.querySelector('#empty-'+col).hidden=count>0;}}
-export function boardColumn(view,review){return view.canRest?'done':'todo';}
+export function refreshBoardCounts(){for(const col of ['todo','doing','monitor','done']){const count=document.querySelector('#jobs-'+col).children.length;document.querySelector('#count-'+col).textContent=count;document.querySelector('#empty-'+col).hidden=count>0;}}
+export function boardColumn(view,review){return view.canRest?'monitor':'todo';}
 export function bindWorkboard({openReport,refreshReport,announce}){
  const $=s=>document.querySelector(s),cards=new Map();let state=null,list=[],busy=false,disposed=false,session=false,controller=null;
  const labels={health:'Status layanan',release:'Status versi rilis'};
@@ -22,7 +22,7 @@ export function bindWorkboard({openReport,refreshReport,announce}){
    for(const b of el.querySelectorAll('[data-action]')){
     const action=b.dataset.action;b.hidden=action==='start'?!!review?.reviewing:['complete','cancel'].includes(action)?!review?.reviewing:false;
     b.disabled=action==='report'?false:!state||busy||session||(action==='complete'&&!v.canRest);
-    if(action==='start')b.textContent=column==='done'?'Tinjau ulang':'Mulai tinjau';
+    if(action==='start')b.textContent=column==='monitor'?'Tinjau ulang':'Mulai tinjau';
     if(action==='complete')b.title=v.canRest?'Tandai tinjauan selesai':'Menunggu hasil terbaru yang sehat';
    }
   }

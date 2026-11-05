@@ -1,3 +1,4 @@
+import {makeCaseStore,caseFingerprint} from './repair-cases.mjs';
 import {DatabaseSync} from 'node:sqlite';
 import {openSync,closeSync,constants} from 'node:fs';
 import {createHash,randomUUID} from 'node:crypto';
@@ -16,11 +17,14 @@ const hash=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex
 const text=(v,max=1200)=>typeof v==='string'&&v.trim().length>0&&v.length<=max;
 const keys=(value,allowed)=>value&&typeof value==='object'&&!Array.isArray(value)&&Object.keys(value).every(k=>allowed.includes(k));
 function validReceipt(p,status){
- if(!keys(p,status==='verifying'?['summary','rootCause','patchSha','deployedRelease','tests','deploymentAt','verification','evidence']:['summary','rootCause','evidence'])||!text(p.summary)||JSON.stringify(p).length>16000)return false;
+ if(!keys(p,status==='verifying'?['summary','rootCause','patchSha','deployedRelease','tests','deploymentAt','verification','evidence','procedure']:['summary','rootCause','evidence'])||!text(p.summary)||JSON.stringify(p).length>16000)return false;
  if(p.rootCause!==undefined&&!text(p.rootCause))return false;
  if(p.evidence!==undefined&&(!Array.isArray(p.evidence)||p.evidence.length>12||!p.evidence.every(e=>text(e,600))))return false;
  if(p.tests!==undefined&&!keys(p.tests,['passed','failed']))return false;
- if(p.verification!==undefined&&!keys(p.verification,['at','passed','expectedRelease','expectedFingerprint','scenario','gameplayPassed','scope','path']))return false;
+ if(p.verification!==undefined&&!keys(p.verification,['at','passed','expectedRelease','expectedFingerprint','scenario','gameplayPassed','httpPassed','steps','scope','path']))return false;
+ if(p.verification?.steps!==undefined&&(!keys(p.verification.steps,['start','play','result'])||!Object.values(p.verification.steps).every(v=>typeof v==='boolean')))return false;
+ if(p.verification?.httpPassed!==undefined&&typeof p.verification.httpPassed!=='boolean')return false;
+ if(p.procedure!==undefined&&(!keys(p.procedure,['steps','conditions','rollback'])||!['steps','conditions','rollback'].every(k=>Array.isArray(p.procedure[k])&&p.procedure[k].length>0&&p.procedure[k].length<=12&&p.procedure[k].every(v=>text(v,600)))))return false;
  return true;
 }
 export class RepairError extends Error {constructor(code,status=409){super(code);this.code=code;this.status=status;}}
@@ -40,19 +44,24 @@ export function makeRepairs({path,clock=Date.now,limit=2000,automationId}={}){
  function tx(fn){try{db.exec('BEGIN IMMEDIATE');const r=fn();db.exec('COMMIT');return r;}catch(e){try{db.exec('ROLLBACK');}catch{}if(e instanceof RepairError)throw e;throw new RepairError('REPAIRS_UNAVAILABLE',503);}}
  const event=(id,name)=>db.prepare('INSERT INTO repair_events(job_id,at,event) VALUES(?,?,?)').run(id,clock(),name);
  const decode=r=>r?{id:r.id,...JSON.parse(r.payload),status:r.status,createdAt:r.created_at,updatedAt:r.updated_at,observedAt:r.observed_at,attempts:r.attempts,worker:r.worker,leaseUntil:r.lease_until,receipt:r.receipt?JSON.parse(r.receipt):null,resolution:r.resolution}:null;
+ const cases=makeCaseStore(db);
+ // Backfill case links before the collector receives new evidence. Original jobs stay intact.
+ tx(()=>{for(const row of db.prepare('SELECT * FROM repairs ORDER BY created_at,rowid').all()){const job=decode(row);cases.link(job);cases.learn(job);}});
  function recover(){for(const r of db.prepare("SELECT id FROM repairs WHERE status='running' AND lease_until<=?").all(clock())){db.prepare("UPDATE repairs SET status='queued',token=NULL,lease_until=NULL,updated_at=? WHERE id=?").run(clock(),r.id);event(r.id,'lease-expired');}for(const r of db.prepare("SELECT id FROM repairs WHERE status='verifying' AND updated_at<=?").all(clock()-LEASE)){db.prepare("UPDATE repairs SET status='blocked',resolution='verification-timeout',updated_at=? WHERE id=?").run(clock(),r.id);event(r.id,'verification-timeout');}}
  function enqueue(key,payload,at){
-  const evidenceHash=hash(payload),old=db.prepare("SELECT * FROM repairs WHERE source_key=? AND status IN ('queued','running','verifying','blocked','failed')").get(key);
+  const fingerprint=caseFingerprint(payload);
+  key=key+':'+fingerprint;
+  const evidenceHash=hash(payload),old=db.prepare("SELECT r.* FROM repairs r JOIN repair_case_jobs j ON j.job_id=r.id JOIN repair_cases c ON c.id=j.case_id WHERE c.fingerprint=? AND r.status IN ('queued','running','verifying','blocked','failed') ORDER BY r.created_at DESC LIMIT 1").get(fingerprint);
   if(old){
    if(at<old.observed_at)return old.id;
    const changed=old.evidence_hash!==evidenceHash;
    db.prepare('UPDATE repairs SET payload=?,evidence_hash=?,observed_at=?,updated_at=?,status=?,token=?,lease_until=?,receipt=?,resolution=? WHERE id=?').run(JSON.stringify(payload),evidenceHash,at,changed?clock():old.updated_at,changed?'queued':old.status,changed?null:old.token,changed?null:old.lease_until,changed?null:old.receipt,changed?null:old.resolution,old.id);
    if(changed)event(old.id,'evidence-changed');return old.id;
   }
-  const previous=db.prepare('SELECT observed_at FROM repairs WHERE source_key=? ORDER BY created_at DESC,rowid DESC LIMIT 1').get(key);
+  const previous=db.prepare('SELECT r.observed_at FROM repairs r JOIN repair_case_jobs j ON j.job_id=r.id JOIN repair_cases c ON c.id=j.case_id WHERE c.fingerprint=? ORDER BY r.created_at DESC,r.rowid DESC LIMIT 1').get(fingerprint);
   if(previous&&at<=previous.observed_at)return null;
   if(db.prepare('SELECT COUNT(*) AS n FROM repairs').get().n>=limit)throw new RepairError('REPAIR_LIMIT',503);
-  const id=randomUUID();db.prepare('INSERT INTO repairs(id,source_key,payload,evidence_hash,status,created_at,updated_at,observed_at) VALUES(?,?,?,?,?,?,?,?)').run(id,key,JSON.stringify(payload),evidenceHash,'queued',clock(),clock(),at);event(id,'queued');return id;
+  const id=randomUUID();db.prepare('INSERT INTO repairs(id,source_key,payload,evidence_hash,status,created_at,updated_at,observed_at) VALUES(?,?,?,?,?,?,?,?)').run(id,key,JSON.stringify(payload),evidenceHash,'queued',clock(),clock(),at);event(id,'queued');cases.record(decode(db.prepare('SELECT * FROM repairs WHERE id=?').get(id)),'failure',at,{observed:payload.observed||{},expected:payload.expected||{},code:payload.code||payload.errorClass});return id;
  }
  function observeMonitor(report){return tx(()=>{
   recover();const now=clock();
@@ -62,16 +71,18 @@ export function makeRepairs({path,clock=Date.now,limit=2000,automationId}={}){
    const key='monitor:'+id;
    if(['INCIDENT','DEGRADED'].includes(c.status)&&typeof c.lastCode==='string'&&/^[A-Z_]{2,40}$/.test(c.lastCode)&&c.lastCode!=='OK'){
     const observed={};if(SHA.test(c.observed?.release))observed.release=c.observed.release;if(HASH.test(c.observed?.fingerprint))observed.fingerprint=c.observed.fingerprint;
-    enqueue(key,{kind:'monitor',checkId:id,title:id==='health'?'Perbaiki gangguan layanan':'Perbaiki ketidaksesuaian rilis',agentId:id,code:c.lastCode,observed},c.lastAt);
+    for(const prior of db.prepare("SELECT * FROM repairs WHERE (source_key=? OR source_key LIKE ?) AND status IN ('running','verifying')").all(key,key+':%')){if(c.lastAt>prior.observed_at && caseFingerprint(JSON.parse(prior.payload))!==caseFingerprint({kind:'monitor',checkId:id,code:c.lastCode,observed,expected:c.expected})){db.prepare("UPDATE repairs SET status='blocked',token=NULL,lease_until=NULL,resolution='evidence-changed',updated_at=? WHERE id=?").run(now,prior.id);event(prior.id,'evidence-changed');}}
+    enqueue(key,{kind:'monitor',checkId:id,service:'games.kampunginggrispontianak.com',title:id==='health'?'KIP Games · gangguan layanan':'KIP Games · ketidaksesuaian rilis',agentId:id,code:c.lastCode,observed,...(c.expected?{expected:c.expected}:{})},c.lastAt);
    }else if(c.status==='HEALTHY'&&c.lastCode==='OK'){
-    const row=db.prepare("SELECT * FROM repairs WHERE source_key=? AND status IN ('queued','running','verifying','blocked','failed')").get(key);if(!row||c.lastAt<=row.observed_at)continue;
+    const rows=db.prepare("SELECT * FROM repairs WHERE (source_key=? OR source_key LIKE ?) AND status IN ('queued','running','verifying','blocked','failed')").all(key,key+':%');for(const row of rows){if(c.lastAt<=row.observed_at)continue;
     let status='recovered',resolution='observed-recovery';
     if(row.status==='verifying'){
      const proof=JSON.parse(row.receipt),h=checks.get('health'),r=checks.get('release');
      if(!h||!r||[h,r].some(x=>x.status!=='HEALTHY'||x.lastCode!=='OK'||x.lastAt<=proof.deploymentAt)||h.observed?.release!==proof.verification.expectedRelease||r.observed?.fingerprint!==proof.verification.expectedFingerprint)continue;
      status='completed';resolution='verified-repair';
     }
-    db.prepare('UPDATE repairs SET status=?,resolution=?,updated_at=?,observed_at=?,token=NULL,lease_until=NULL WHERE id=?').run(status,resolution,now,c.lastAt,row.id);event(row.id,status);
+    db.prepare('UPDATE repairs SET status=?,resolution=?,updated_at=?,observed_at=?,token=NULL,lease_until=NULL WHERE id=?').run(status,resolution,now,c.lastAt,row.id);event(row.id,status);const finished=decode(db.prepare('SELECT * FROM repairs WHERE id=?').get(row.id));cases.record(finished,'verification',c.lastAt,{status,observed:c.observed||{},expected:c.expected||{},code:c.lastCode});cases.learn(finished);
+    }
    }
   }
   db.prepare("INSERT INTO repair_meta(key,at) VALUES('collector',?) ON CONFLICT(key) DO UPDATE SET at=excluded.at").run(now);
@@ -87,15 +98,15 @@ export function makeRepairs({path,clock=Date.now,limit=2000,automationId}={}){
   }
   const key='game:'+i.id;
   // A repaired game observation is not re-opened by re-reading the same incident record.
-  const previous=db.prepare('SELECT observed_at,status,payload FROM repairs WHERE source_key=? ORDER BY created_at DESC,rowid DESC LIMIT 1').get(key);if(previous&&['completed','recovered'].includes(previous.status)&&i.lastAt<=previous.observed_at)continue;
+  const previous=db.prepare('SELECT observed_at,status,payload FROM repairs WHERE (source_key=? OR source_key LIKE ?) ORDER BY created_at DESC,rowid DESC LIMIT 1').get(key,key+':%');if(previous&&['completed','recovered'].includes(previous.status)&&i.lastAt<=previous.observed_at)continue;
   const availability=httpIncident(i)&&(i.source==='http-monitor'||(previous&&JSON.parse(previous.payload).kind==='availability'));
-  enqueue(key,{kind:availability?'availability':'game',...(availability?{path:targetPath(i.game)}:{}),...gameplay,incidentId:i.id,title:'Perbaiki laporan '+i.game,agentId:'support',...repairTeam(i),game:i.game,mode:i.mode,errorClass:i.errorClass,asset:i.asset,line:i.line,column:i.column},i.lastAt);
+  enqueue(key,{kind:availability?'availability':'game',...(availability?{path:targetPath(i.game)}:{}),...gameplay,incidentId:i.id,title:i.game+' · '+i.mode+' · '+i.errorClass,agentId:'support',...repairTeam(i),game:i.game,mode:i.mode,...(!previous&&typeof i.release==='string'?{release:i.release}:previous?{...(JSON.parse(previous.payload).release?{release:JSON.parse(previous.payload).release}:{})}:{}),errorClass:i.errorClass,asset:i.asset,line:i.line,column:i.column},i.lastAt);
  }});}
  function classifyAvailability({id,expectedUpdatedAt,reason,incident}={}){return tx(()=>{
   const row=db.prepare('SELECT * FROM repairs WHERE id=?').get(id),job=decode(row);
   if(!row||!['blocked','failed'].includes(row.status)||row.updated_at!==expectedUpdatedAt||job.kind!=='game'||!text(reason,500)||!httpIncident(incident)||incident.id!==job.incidentId||incident.lastAt!==row.observed_at||['game','mode','errorClass','asset','line','column'].some(k=>incident[k]!==job[k]))throw new RepairError('AVAILABILITY_CLASSIFICATION_CONFLICT');
   const {kind,...rest}=JSON.parse(row.payload),payload={kind:'availability',path:targetPath(job.game),...rest};
-  db.prepare('UPDATE repairs SET payload=?,evidence_hash=?,updated_at=? WHERE id=?').run(JSON.stringify(payload),hash(payload),clock(),id);event(id,'classified-http-availability: '+reason);return decode(db.prepare('SELECT * FROM repairs WHERE id=?').get(id));
+  db.prepare('UPDATE repairs SET payload=?,evidence_hash=?,updated_at=? WHERE id=?').run(JSON.stringify(payload),hash(payload),clock(),id);cases.reclassify(decode(db.prepare('SELECT * FROM repairs WHERE id=?').get(id)));event(id,'classified-http-availability: '+reason);return decode(db.prepare('SELECT * FROM repairs WHERE id=?').get(id));
  });}
  function observeAvailability(snapshot){return tx(()=>{
   for(const row of db.prepare("SELECT * FROM repairs WHERE status='verifying'").all()){
@@ -107,13 +118,13 @@ export function makeRepairs({path,clock=Date.now,limit=2000,automationId}={}){
    const healthy=Number.isInteger(sample.status)&&sample.status>=200&&sample.status<400;
    const count=healthy?(db.prepare('SELECT at FROM repair_meta WHERE key=?').get(countKey)?.at||0)+1:0;
    for(const [key,value] of [[atKey,sample.at],[countKey,count]])db.prepare('INSERT INTO repair_meta(key,at) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET at=excluded.at').run(key,value);
-   if(count>=2){db.prepare("UPDATE repairs SET status='completed',resolution='verified-availability-repair',observed_at=?,updated_at=? WHERE id=?").run(sample.at,clock(),job.id);event(job.id,'completed');}
+   if(count>=2){db.prepare("UPDATE repairs SET status='completed',resolution='verified-availability-repair',observed_at=?,updated_at=? WHERE id=?").run(sample.at,clock(),job.id);event(job.id,'completed');const finished=decode(db.prepare('SELECT * FROM repairs WHERE id=?').get(job.id));cases.record(finished,'verification',sample.at,{status:'completed',scope:'http-availability',path:job.path,httpStatus:sample.status});cases.learn(finished);}
   }
  });}
  function claim({worker}={}){if(!/^[a-z0-9_.-]{1,80}$/i.test(worker||''))throw new RepairError('BAD_REPAIR_WORKER',400);return tx(()=>{
   recover();if(db.prepare("SELECT id FROM repairs WHERE status IN ('running','verifying') LIMIT 1").get())return null;
   const row=db.prepare("SELECT * FROM repairs WHERE status='queued' ORDER BY created_at,rowid LIMIT 1").get();if(!row)return null;
-  const token=randomUUID();db.prepare("UPDATE repairs SET status='running',worker=?,token=?,lease_until=?,attempts=attempts+1,updated_at=? WHERE id=?").run(worker,token,clock()+LEASE,clock(),row.id);event(row.id,'claimed');return {...decode(db.prepare('SELECT * FROM repairs WHERE id=?').get(row.id)),token};
+  const token=randomUUID();db.prepare("UPDATE repairs SET status='running',worker=?,token=?,lease_until=?,attempts=attempts+1,updated_at=? WHERE id=?").run(worker,token,clock()+LEASE,clock(),row.id);event(row.id,'claimed');const job=decode(db.prepare('SELECT * FROM repairs WHERE id=?').get(row.id));return {...job,token,matchedSkill:cases.match(job),priorAttempts:cases.priorAttempts(job),attemptHistory:cases.attemptHistory(job)};
  });}
  function owned(id,token){const row=db.prepare("SELECT * FROM repairs WHERE id=? AND token=? AND status='running' AND lease_until>?").get(id,token,clock());if(!row)throw new RepairError('REPAIR_LEASE_LOST');return row;}
  function heartbeat({id,token}){return tx(()=>{owned(id,token);db.prepare('UPDATE repairs SET lease_until=?,updated_at=? WHERE id=?').run(clock()+LEASE,clock(),id);return {id,leaseUntil:clock()+LEASE};});}
@@ -122,17 +133,17 @@ export function makeRepairs({path,clock=Date.now,limit=2000,automationId}={}){
   return tx(()=>{const row=owned(id,token),job=decode(row);if(JSON.stringify(receipt).includes(row.token))throw new RepairError('BAD_REPAIR_RESULT',400);
    if(status==='verifying'){
     const p=receipt,v=p.verification;
-    if(!text(p.rootCause)||!SHA.test(p.patchSha)||!SHA.test(p.deployedRelease)||!Number.isSafeInteger(p.tests?.passed)||p.tests.passed<1||p.tests.failed!==0||!Number.isSafeInteger(p.deploymentAt)||p.deploymentAt<row.created_at||p.deploymentAt>clock()||!v||v.passed!==true||!fresh(v.at,clock())||v.at<p.deploymentAt||!SHA.test(v.expectedRelease)||!HASH.test(v.expectedFingerprint)||p.deployedRelease!==v.expectedRelease||!Array.isArray(p.evidence)||p.evidence.length<1||p.evidence.length>12||!p.evidence.every(e=>text(e,600)))throw new RepairError('REPAIR_PROOF_REQUIRED',400);
-    if(job.kind==='game'&&(!text(v.scenario,500)||v.gameplayPassed!==true||v.at<=row.observed_at))throw new RepairError('GAMEPLAY_PROOF_REQUIRED',400);
+    if(!text(p.rootCause)||!SHA.test(p.patchSha)||!SHA.test(p.deployedRelease)||!Number.isSafeInteger(p.tests?.passed)||p.tests.passed<1||p.tests.failed!==0||!Number.isSafeInteger(p.deploymentAt)||p.deploymentAt<row.created_at||p.deploymentAt>clock()||!v||v.passed!==true||v.httpPassed===false||!fresh(v.at,clock())||v.at<p.deploymentAt||!SHA.test(v.expectedRelease)||!HASH.test(v.expectedFingerprint)||p.deployedRelease!==v.expectedRelease||!Array.isArray(p.evidence)||p.evidence.length<1||p.evidence.length>12||!p.evidence.every(e=>text(e,600)))throw new RepairError('REPAIR_PROOF_REQUIRED',400);
+    if(job.kind==='game'&&(!text(v.scenario,500)||v.gameplayPassed!==true||!['start','play','result'].every(step=>v.steps?.[step]===true)||v.at<=row.observed_at))throw new RepairError('GAMEPLAY_PROOF_REQUIRED',400);
     if(job.kind==='availability'&&(v.scope!=='http-availability'||v.path!==job.path||v.gameplayPassed!==undefined||v.at<=row.observed_at))throw new RepairError('AVAILABILITY_PROOF_REQUIRED',400);
     if(job.kind==='availability')db.prepare('DELETE FROM repair_meta WHERE key IN (?,?)').run('http-at:'+id,'http-count:'+id);
    }
    const next=job.kind==='game'&&status==='verifying'?'completed':status;
-   db.prepare('UPDATE repairs SET status=?,receipt=?,resolution=?,updated_at=?,token=NULL,lease_until=NULL WHERE id=?').run(next,JSON.stringify(receipt),next==='completed'?'verified-game-repair':null,clock(),id);event(id,next);return decode(db.prepare('SELECT * FROM repairs WHERE id=?').get(id));
+   db.prepare('UPDATE repairs SET status=?,receipt=?,resolution=?,updated_at=?,token=NULL,lease_until=NULL WHERE id=?').run(next,JSON.stringify(receipt),next==='completed'?'verified-game-repair':null,clock(),id);event(id,next);const finished=decode(db.prepare('SELECT * FROM repairs WHERE id=?').get(id));cases.record(finished,'agent-result',clock(),{status:next,receipt});cases.learn(finished);return finished;
   });
  }
  function retry({id,reason}){if(!text(reason,500))throw new RepairError('RETRY_REASON_REQUIRED',400);return tx(()=>{const row=db.prepare("SELECT * FROM repairs WHERE id=? AND status IN ('blocked','failed')").get(id);if(!row)throw new RepairError('REPAIR_NOT_RETRYABLE');db.prepare("UPDATE repairs SET status='queued',updated_at=?,receipt=NULL WHERE id=?").run(clock(),id);event(id,'retry');return {id,status:'queued'};});}
- function list(){tx(recover);const jobs=db.prepare("SELECT * FROM repairs ORDER BY CASE WHEN status IN ('running','verifying') THEN 0 WHEN status IN ('queued','blocked','failed') THEN 1 ELSE 2 END, created_at DESC,rowid DESC LIMIT 100").all().map(row=>{const j=decode(row);if(j.status==='running'&&j.leaseUntil<=clock()){j.status='queued';j.worker=null;}delete j.leaseUntil;j.history=db.prepare('SELECT at,event FROM repair_events WHERE job_id=? ORDER BY id').all(j.id);return j;});return {schemaVersion:1,jobs,collectorAt:db.prepare("SELECT at FROM repair_meta WHERE key='collector'").get()?.at||null,executor:{type:'chatgpt-scheduled',cadenceMinutes:60,configured:typeof automationId==='string'&&automationId.length>0},counts:Object.fromEntries(db.prepare('SELECT status,COUNT(*) AS n FROM repairs GROUP BY status').all().map(r=>[r.status,r.n]))};}
+ function list(){tx(recover);const jobs=db.prepare("SELECT * FROM repairs ORDER BY CASE WHEN status IN ('running','verifying') THEN 0 WHEN status IN ('queued','blocked','failed') THEN 1 ELSE 2 END, created_at DESC,rowid DESC").all().map(row=>{const j=decode(row);if(j.status==='running'&&j.leaseUntil<=clock()){j.status='queued';j.worker=null;}delete j.leaseUntil;j.history=db.prepare('SELECT at,event FROM repair_events WHERE job_id=? ORDER BY id').all(j.id);return j;});const grouped=tx(()=>cases.list(jobs));return {schemaVersion:1,jobs:jobs.slice(0,100),cases:grouped,caseCounts:{active:grouped.filter(c=>c.disposition==='active').length,monitor:grouped.filter(c=>c.disposition==='monitor').length,history:grouped.filter(c=>c.disposition==='history').length},collectorAt:db.prepare("SELECT at FROM repair_meta WHERE key='collector'").get()?.at||null,executor:{type:'chatgpt-scheduled',cadenceMinutes:60,configured:typeof automationId==='string'&&automationId.length>0},counts:Object.fromEntries(db.prepare('SELECT status,COUNT(*) AS n FROM repairs GROUP BY status').all().map(r=>[r.status,r.n]))};}
  function metricsRecords(){return db.prepare('SELECT status,resolution,created_at AS createdAt,updated_at AS updatedAt FROM repairs').all();}
  return {observeMonitor,observeIncidents,classifyAvailability,observeAvailability,claim,heartbeat,result,retry,list,metricsRecords,close:()=>db.close()};
 }

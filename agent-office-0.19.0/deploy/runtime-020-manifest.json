@@ -1,7 +1,7 @@
 [
   {
     "path": "campus/src/agent-motion.js",
-    "sha": "f01b73f5ff354dc04a82a523ff2055cef055ee4b99ea8d3dda306530c5074d08"
+    "sha": "ab495a0a94a9d2bf3a8005c897ade17a3215508820527d3565c2500c2ffa5a9d"
   },
   {
     "path": "campus/src/agent-skills-entry.js",
@@ -13,7 +13,7 @@
   },
   {
     "path": "campus/src/agent-skills.js",
-    "sha": "c935811b3e629c340e3f63191129bf5ab59af2bf835e4859fdc582f3476bcc0b"
+    "sha": "630f4b7dd7f81344ae5fb7f309a162199781f62732485e6b8aa3dfebd1a0d509"
   },
   {
     "path": "campus/src/agents.css",
@@ -25,7 +25,11 @@
   },
   {
     "path": "campus/src/data.js",
-    "sha": "8b493293f9211a2939b74ef7a64135a68d7fd2fb82ca099c6b0ee5edd6112dd0"
+    "sha": "ae0b9efb796a609433d3e707f890fd25ad4681c37a80ca9d7a9b6a057602a480"
+  },
+  {
+    "path": "campus/src/gameplay-panel.js",
+    "sha": "b73ce7b2e9e42902bc664fc8f2d1b13ba5640f7a1be4e391cd85b2cef27699ae"
   },
   {
     "path": "campus/src/landscape.js",
@@ -37,7 +41,7 @@
   },
   {
     "path": "campus/src/main.js",
-    "sha": "074423931b610443ff512ecfa4934b6ade7ab86b6cde05e8839f7ab1df96352b"
+    "sha": "ef585a6d29842a8f564421e714b4ffa4e1dae880d01fed1f0fded2c32821fbd4"
   },
   {
     "path": "campus/src/observer-model.js",
@@ -45,7 +49,7 @@
   },
   {
     "path": "campus/src/robot-roster.js",
-    "sha": "9cc57863a90d487dfe0e0147873f345a71d42a1f0531bccea9e7ad2e8cf30205"
+    "sha": "679c5cadc87dddc94ed1cd8e014c5fd094ee825ed5780c3a829bb824832d1d4f"
   },
   {
     "path": "campus/src/role-evidence.js",
@@ -53,7 +57,7 @@
   },
   {
     "path": "campus/src/scene.js",
-    "sha": "f7001943022a0d0bea4975f26754d8557f40490d8500418b2c83c99c6e39a43c"
+    "sha": "8d66ce1d695690062ca44df447de4160d7942585f0deb51341ef65c3bb3886ea"
   },
   {
     "path": "campus/src/session.js",
@@ -73,7 +77,7 @@
   },
   {
     "path": "campus/src/task-board.js",
-    "sha": "d98bafc7c63ae536c6567d854f5ef3e73d25cfd1f01853faeceb9d57434c595e"
+    "sha": "0aca694f177cd77e48a18af6b462139279f767f1707fad72146407d7413d7d9c"
   },
   {
     "path": "campus/src/tokens.css",
@@ -85,11 +89,11 @@
   },
   {
     "path": "campus/src/workboard.css",
-    "sha": "d70594b5ba046343a2ddf9f13b2ba975f2f3af6c219c043ab5fadaf768ac8e73"
+    "sha": "34a8fb68e498f9203875d92bb27c2f3aca5495c96bcc5114b63be7fcbeb10e9b"
   },
   {
     "path": "campus/src/workboard.js",
-    "sha": "24582d7cff2543f0e3401336d06f68e3451bd1de15311a001881897e62d31bf9"
+    "sha": "5e54d0b977f0fbe0935481973a1f78bb2e2789fcf293ed0aaeef7f0ff6966e6b"
   },
   {
     "path": "dist/AGENT-OFFICE-LICENSE.txt",
@@ -132,20 +136,24 @@
     "sha": "2d5c8d72003a3692be8dc6e72df3ea17f23395ddbd2adb3edbc9f24006a6632f"
   },
   {
-    "path": "dist/campus/assets/agent-skills-entry-MNKMis_e.js",
-    "sha": "315eb779dbc20715088111b7e9c21759b4a01f574e8989e74c8a05b02c9f1109"
+    "path": "dist/campus/assets/agent-skills-entry-BQu8SU4x.js",
+    "sha": "5914ea1f952c4e2a8ad088891e1edae81a5680ed27313715b693004127fd7e30"
   },
   {
-    "path": "dist/campus/assets/index-Dx2GYYNV.css",
-    "sha": "1b0fd8ca12536170411ff9ab8198824eae8a0685645b3f77a19d6be32fcf970b"
+    "path": "dist/campus/assets/game-team-DWGZmcDU.js",
+    "sha": "224a1eb599a2f98065d902235b02b7b5cb8553d8151d94bf772f4dd4b57cfd99"
   },
   {
-    "path": "dist/campus/assets/index-_-Bbyc01.js",
-    "sha": "ea9b365f639c1ff9347714818809984d3b43304458541ec29fb4f13155428c2b"
+    "path": "dist/campus/assets/index-BkofhJ0b.css",
+    "sha": "5572a8aa88d62351fefcea05c996b61d04733d33838c96b6e8d12e0fef22e5bc"
+  },
+  {
+    "path": "dist/campus/assets/index-DKbt5qvG.js",
+    "sha": "289be74ae533cb2ecd0af752eaad423bfa2dd3d1c1b0939be43b3132aab3b4a1"
   },
   {
     "path": "dist/campus/index.html",
-    "sha": "061ce99eb57c655a59065451011706aa538a1332a021c8a9a2b65f9584e59b70"
+    "sha": "e6ad269c92870388e12c769cc275126a50714e50b3b9e23ebc1fbec23a13c0f5"
   },
   {
     "path": "dist/incident-client.js",
@@ -153,7 +161,7 @@
   },
   {
     "path": "dist/index.html",
-    "sha": "061ce99eb57c655a59065451011706aa538a1332a021c8a9a2b65f9584e59b70"
+    "sha": "e6ad269c92870388e12c769cc275126a50714e50b3b9e23ebc1fbec23a13c0f5"
   },
   {
     "path": "dist/login.css",
@@ -173,11 +181,11 @@
   },
   {
     "path": "dist/release.json",
-    "sha": "28d98f8fe1fd0baf4a15d439dd990202e31f3e70f27511883052d26b41bd6557"
+    "sha": "f32c4dfec21cf61064a1c6fcac16c688c56d7c29483643d703b69b73c5186367"
   },
   {
     "path": "package.json",
-    "sha": "fed2162478128504a20de79f97dc0aab3690987d3dac4f2a7eda6d7450026748"
+    "sha": "ba4958d2aff08b59e91a9b09be3a4bec37f890c5fb0b94477edc581a2e70fdf9"
   },
   {
     "path": "public/incident-client.js",
@@ -189,7 +197,7 @@
   },
   {
     "path": "scripts/repair-cli.mjs",
-    "sha": "bf0c056d4981598dfd5539d24f894d414340e6461670ff48a7783fc67de5443a"
+    "sha": "78627e0c6b99b44c80a3d926408b90867bf1a64af6c86f755d0c8d9a70541f3e"
   },
   {
     "path": "server/auth.mjs",
@@ -200,32 +208,52 @@
     "sha": "c857beeabd1e2a6d9c37364be4c1d40b7916c7675dd64a8c5daca1f216700448"
   },
   {
+    "path": "server/game-monitor.mjs",
+    "sha": "39794a3ef516bdb5e5770078afd735839685147d3d5e488879f428057639fbcd"
+  },
+  {
+    "path": "server/game-targets.json",
+    "sha": "cdab64f4f3a8d1f4dd990c5e299bc9374e5d6d4b1d3c9e8a634ad5c4914909ce"
+  },
+  {
+    "path": "server/game-team.mjs",
+    "sha": "2bebf2387fd5a74ae53d007a054d67b66d7f9124ee21445062cd5773bf21ef58"
+  },
+  {
+    "path": "server/gameplay.mjs",
+    "sha": "5e993e4939cf9b8043e7ab0bc4b254c35864c1498d75c068be03704b60a6ca20"
+  },
+  {
     "path": "server/growth.mjs",
     "sha": "036137021be4325bcbc9ed9d1f92f20f36ca42b746ee62ed38abbfd016a841da"
   },
   {
     "path": "server/http.mjs",
-    "sha": "17f5012a9a2bbdc35a11e856de50e0f7eb5099a1a6a4ff90c36a2d86bdcff7da"
+    "sha": "db1190ea7f888ac98d39d158c637d3ea6f47a1c78974d3822ffbfb58638fa390"
   },
   {
     "path": "server/incidents.mjs",
-    "sha": "b2780d0e99781bc1418a4c1a59e51ad39bcf7f0cd1f2e416ded8d681714c422a"
+    "sha": "c7901fd5e7abbfdf70d87f29654bfc7f5e474e0d5f299d57f98bbf0cef7f9896"
   },
   {
     "path": "server/main.mjs",
-    "sha": "ff059da0966b554360ff6d8de9f8703d19367d265a1d5917f9c77a40e20ff82c"
+    "sha": "9b0dcb894e7e73ae714bc204b8ace58fc692284410f456103b618d27f82f3b6e"
   },
   {
     "path": "server/registry-backup.mjs",
     "sha": "50e040d2e241452d3e7b7fa9fbeb9f9ea21e523c187fc9d42dd15ff7b80aea5f"
   },
   {
+    "path": "server/repair-cases.mjs",
+    "sha": "ffaf12e75c582241ac71f9e3a27802390edf702a8f53a5e5e02511aa4114efd1"
+  },
+  {
     "path": "server/repair-collector.mjs",
-    "sha": "65a500d7986a7d0e587a43878d692a9f9ed8b5cb1ac2d8b36f930425a402a5da"
+    "sha": "33ff0d9ad8b7c070994bf49e95acbaaaaebc66331b1487ccc5a9e32deef86092"
   },
   {
     "path": "server/repairs.mjs",
-    "sha": "9d6402e2fd87f6fa61aba05ca3b9954d3c3ac2e5b024add1bf4920c1bddfdc8f"
+    "sha": "57055defbdbfe8e416354b276da65222bb497e1d86fe63c8df2cb77249271623"
   },
   {
     "path": "server/report.mjs",
@@ -249,7 +277,7 @@
   },
   {
     "path": "server/tasks.mjs",
-    "sha": "a6bdbddaa3b5eb7f01b9f507b2091bc5cd2ce61703a61c9b75d838a2883ab9d0"
+    "sha": "36921084adc2e1235663e611d17ec5d2bf120ac990b8afa298b63dba82eb829b"
   },
   {
     "path": "src/Avatar.tsx",
@@ -274,6 +302,10 @@
   {
     "path": "src/drawOffice.ts",
     "sha": "a86522dfca5777fc754157243e87f42254cc17704c9a9134b8d6ee4af9e3984a"
+  },
+  {
+    "path": "src/game-team.js",
+    "sha": "1c123dae0615f197573fd8ced5baa246ecbf97936df38b96f1419a747a6b28dc"
   },
   {
     "path": "src/main.tsx",
@@ -308,8 +340,12 @@
     "sha": "46df46a2c8ad0476cf76bfb7200ad54828f779499b2d927ffa66706bae733935"
   },
   {
+    "path": "tests/availability-repairs.test.mjs",
+    "sha": "fd755b38f681e0a1d95c565079e032f8f091f8963eb714944f0080e5e818c0e4"
+  },
+  {
     "path": "tests/board.test.mjs",
-    "sha": "cacdf2af1c9e73e5ff3d28e8c0e60e4bd577bc93f6e69f5c64117376c6e06d22"
+    "sha": "0f5fe698536d41bd182855c5acb0b9d195fd5fbf9713fc1cebc66e9789da8ead"
   },
   {
     "path": "tests/campus.test.mjs",
@@ -322,6 +358,34 @@
   {
     "path": "tests/fixtures/skills-017.json",
     "sha": "8e1765ce3b8ebfe327cec47c2b3c4797bbc605e481acc202ec0f29dcb0ff791b"
+  },
+  {
+    "path": "tests/game-team.test.mjs",
+    "sha": "7f61a3543f593848218fb9f40f40913847d4c01241022cb69d4bcf18ff2e5e9a"
+  },
+  {
+    "path": "tests/gameplay-dom.test.mjs",
+    "sha": "2342b614e892017201c5f0e97bb73016138114fb7df52b6a3512bc4f1f5f766a"
+  },
+  {
+    "path": "tests/gameplay-http.test.mjs",
+    "sha": "f33741d51ecacb6cef6d5aaad6f113b699366dd72f3a449655cb27c402062fb4"
+  },
+  {
+    "path": "tests/gameplay-identity.test.mjs",
+    "sha": "db90ff79187d23d36c5ff7c744b779144003ce83a56ef4692f3bfa7c3747ef57"
+  },
+  {
+    "path": "tests/gameplay-monitor.test.mjs",
+    "sha": "7d14b55b8b22fd555d6ab429aeef49d93b91f69c73a94601a27205962c034d40"
+  },
+  {
+    "path": "tests/gameplay-operations.test.mjs",
+    "sha": "cde3ee920a73329b7393162f7faa8dc79c217e6c80096615dd19369b2e045ae4"
+  },
+  {
+    "path": "tests/gameplay-view.test.mjs",
+    "sha": "aabe04391a87d215613aa937bb148ea592380c4c2eb6cd78936a1a7979acfbb4"
   },
   {
     "path": "tests/growth-dom.test.mjs",
@@ -368,12 +432,20 @@
     "sha": "1d11603306e5975c8523eecd3a76a0a198076d82c66d00a67a5d0661cabd2d3a"
   },
   {
+    "path": "tests/repair-cases.test.mjs",
+    "sha": "c7165011fba1904879a33462ec8520ec4b3a52d5d40fa5ee31b749bf032d3c78"
+  },
+  {
+    "path": "tests/repair-evidence.test.mjs",
+    "sha": "beceededdb6238eb6ddf53d8072074958a343858577adc02d50f0ef86d2f2ce1"
+  },
+  {
     "path": "tests/repairs-http.test.mjs",
-    "sha": "acd4174aa8ea2bda770b5b40ae665c09859e2bc43eb0c1a78e7f28f037694136"
+    "sha": "3f6ec432fd13980b46e643ffb4ffa619f2ae5b9c9bc48057c507440de8cc44e4"
   },
   {
     "path": "tests/repairs.test.mjs",
-    "sha": "01a049026a512bf2b2852625bc497fc4f088bf58acf584ff67d7c0b2118b3a9d"
+    "sha": "15e75a8efe9667b94fa6a9b3befd94608bd408681962199268c248d42072eccd"
   },
   {
     "path": "tests/report.test.mjs",
@@ -406,6 +478,10 @@
   {
     "path": "tests/skills.test.mjs",
     "sha": "02e7527407e2cbb7b0d41150f36eec4c29c65d050798c8068e49c1b24069daf4"
+  },
+  {
+    "path": "tests/speaking-monitor-target.test.mjs",
+    "sha": "054e35e4b332545e7e8a9382d89bbd59facf8b60d71a2ba211a851ce047ba7b6"
   },
   {
     "path": "tests/task-board.test.mjs",

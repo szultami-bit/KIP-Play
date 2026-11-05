@@ -1,10 +1,10 @@
 {
   "service": "kip-agent-office",
-  "version": "0.21.4",
-  "patch": "gameplay-observer-identity",
+  "version": "0.22.0",
+  "patch": "incident-history-and-repair-memory",
   "messaging": "NOT_CONNECTED",
   "autoReply": false,
-  "build": "ops-0214-gameplay-identity",
+  "build": "ops-0220-incident-history",
   "playingCoverage": "UNKNOWN",
   "completionEvidence": "recorded-sessions-and-scoped-synthetic-scenarios"
 }

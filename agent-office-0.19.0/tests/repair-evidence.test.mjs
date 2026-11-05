@@ -20,7 +20,7 @@ test('blocked reason and root cause remain separate and visible',()=>{
  assert.match(result.summary,/Sesi pengujian belum tersedia/);assert.ok(result.evidence.includes('Penghalang: Sesi pengujian belum tersedia'));assert.ok(result.evidence.includes('Penyebab: Perlu reproduksi dengan akun'));assert.match(result.nextSteps.join('\n'),/penghalang/);
 });
 test('recovered status does not claim a patch and does not mutate its stored receipt',()=>{
- const input={...base,status:'recovered',receipt:{summary:'Pulih',evidence:['Dua sampel sehat']}};const saved=JSON.stringify(input);const view=repairView(input);assert.match(view.result.summary,/tanpa klaim perbaikan/);assert.equal(JSON.stringify(input),saved);
+ const input={...base,status:'recovered',receipt:{summary:'Pulih',evidence:['Dua sampel sehat']}};const saved=JSON.stringify(input);const view=repairView(input);assert.match(view.result.summary,/penyebab belum diketahui/);assert.equal(JSON.stringify(input),saved);
 });
 test('incident names follow their actual game instead of a hardcoded Lucky Wheel label',()=>{
  const item={game:'speaking-studio',mode:'screen',errorClass:'ResourceError',occurrences:2};assert.match(incidentView(item),/^Speaking Studio/);assert.match(incidentView({...item,game:'chibi-rally'}),/^Chibi Rally/);assert.match(incidentView({...item,game:'lucky-wheel'}),/^Lucky Wheel/);assert.doesNotMatch(incidentView({...item,game:undefined}),/Lucky Wheel/);

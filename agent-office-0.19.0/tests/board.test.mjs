@@ -27,7 +27,7 @@ test('corrupt storage is preserved and unavailable storage fails without success
  const {path,board,dir}=setup(t);writeFileSync(path,'broken');assert.throws(()=>board.read(),{code:'BOARD_UNAVAILABLE'});assert.throws(()=>board.update({id:'health',action:'start',revision:0},report),{code:'BOARD_UNAVAILABLE'});assert.equal(readFileSync(path,'utf8'),'broken');const missing=makeBoard({path:join(dir,'missing','board.json')});assert.throws(()=>missing.update({id:'health',action:'start',revision:0},report),{code:'BOARD_UNAVAILABLE'});
 });
 test('done immediately returns to needs review when result ages or loses trust; owner review stays distinct',()=>{
- assert.equal(boardColumn({canRest:true},null),'done');assert.equal(boardColumn({canRest:false},{reviewing:false}),'todo');assert.equal(boardColumn({canRest:false},{reviewing:true}),'todo');assert.equal(boardColumn({canRest:true},{reviewing:true}),'done');
+ assert.equal(boardColumn({canRest:true},null),'monitor');assert.equal(boardColumn({canRest:false},{reviewing:false}),'todo');assert.equal(boardColumn({canRest:false},{reviewing:true}),'todo');assert.equal(boardColumn({canRest:true},{reviewing:true}),'monitor');
 });
 test('HTTP board requires owner session and exact origin; only approved actions are exposed',async t=>{
  const {dir,board}=setup(t);writeFileSync(join(dir,'login.html'),'LOGIN');let reads=0;const auth={host:'127.0.0.1',origin:'https://agent.example.com',clearCookie:'',session:async req=>req.headers.cookie==='test-owner'?{email:'owner@example.com'}:null,sameOrigin:req=>req.headers.origin===auth.origin};

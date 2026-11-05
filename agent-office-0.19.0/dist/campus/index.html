@@ -3,9 +3,9 @@
 <head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><meta name="theme-color" content="#1c2020"/><meta name="description" content="Kantor virtual dan papan pekerjaan KIP."/><title>KIP · Agent Office</title>
 
 
-  <script type="module" crossorigin src="/agent-office/campus/assets/index-Bg5afX-a.js"></script>
+  <script type="module" crossorigin src="/agent-office/campus/assets/index-DKbt5qvG.js"></script>
   <link rel="modulepreload" crossorigin href="/agent-office/campus/assets/game-team-DWGZmcDU.js">
-  <link rel="stylesheet" crossorigin href="/agent-office/campus/assets/index-DvfVCgxx.css">
+  <link rel="stylesheet" crossorigin href="/agent-office/campus/assets/index-BkofhJ0b.css">
 </head>
 <body>
  <a class="skip" href="#office">Langsung ke kantor 3D</a>
@@ -37,8 +37,9 @@
    <div class="workboard">
     <section class="board-column" aria-labelledby="title-todo"><h2 id="title-todo"><span class="column-dot todo"></span>Perlu diperiksa <span id="count-todo">0</span></h2><div id="jobs-todo" class="job-list"></div><p id="empty-todo" class="empty-column">Tidak ada yang menunggu.</p></section>
     <section class="board-column" aria-labelledby="title-doing"><h2 id="title-doing"><span class="column-dot doing"></span>Dikerjakan <span id="count-doing">0</span></h2><div id="jobs-doing" class="job-list"></div><p id="empty-doing" class="empty-column">Belum ada tinjauan berjalan.</p></section>
-    <section class="board-column" aria-labelledby="title-done"><h2 id="title-done"><span class="column-dot done"></span>Selesai <span id="count-done">0</span></h2><div id="jobs-done" class="job-list"></div><p id="empty-done" class="empty-column">Belum ada hasil sehat terbaru.</p></section>
    </div>
+   <details class="board-history"><summary>Pantau · <span id="count-monitor">0</span> kasus dan status layanan</summary><p>Kasus pulih dipantau dan dibuka kembali saat bukti kegagalan yang sama muncul.</p><div id="jobs-monitor" class="job-list"></div><p id="empty-monitor" class="empty-column">Belum ada kasus yang dipantau.</p></details>
+   <details class="board-history"><summary>Riwayat · <span id="count-done">0</span> laporan tersimpan</summary><p>Hasil pemeriksaan dan perbaikan terverifikasi tersimpan di sini.</p><div id="jobs-done" class="job-list"></div><p id="empty-done" class="empty-column">Belum ada laporan tersimpan.</p></details>
   </section>
   <section id="view-skills" aria-labelledby="skills-title" hidden>
    <div class="skills-hero">
@@ -47,6 +48,7 @@
    </div>
    <div class="execution-boundary"><div><span id="skill-execution-state" data-tone="safe">Konfigurasi saja</span><b>Tidak ada tool atau pekerjaan eksternal yang dijalankan dari halaman ini.</b></div><p id="skill-execution-boundary">Skill dan izin disimpan sebagai konfigurasi; aktivasi eksekusi memerlukan integrasi serta otorisasi terpisah.</p></div>
    <p id="skills-notice" role="status"></p>
+   <details class="board-history"><summary>Skill dari perbaikan terverifikasi</summary><ul id="learned-repair-skills"></ul></details>
    <div id="skill-summary" class="skill-summary" aria-label="Ringkasan registry skill">
     <article><span id="skill-summary-agents">0</span><small>Agent</small></article>
     <article><span id="skill-summary-skills">0</span><small>Skill</small></article>
